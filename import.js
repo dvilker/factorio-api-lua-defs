@@ -1,13 +1,14 @@
 const fs = require("fs")
 
+// Path and options
 const api = JSON.parse(fs.readFileSync("/Applications/factorio.app/Contents/doc-html/runtime-api.json").toString())
-
+const nilsForOptionalFields = false // if false - remove `|nil` from fields. Luanalysis is not support it properly.
 
 const out = []
 out.pushLine = function (...items) {
     this.push(...items, '\n')
 }
-
+const FORCED_OPTIONAL = 1
 
 const keywords = {
     'and': 'and_',
@@ -129,7 +130,7 @@ const exTypes = {}
         for (let att of cls.attributes) {
             out.pushLine(`  ---@field ${nameDef(att.name)} ${typeDefEx(att.type, null, att.optional)}${desc2(
                 "; ",
-                (att.read ? "R" : "") + (att.read ? "W" : "")/* + (att.optional ? "?" : "")*/,
+                (att.read ? "R" : "") + (att.read ? "W" : "") + (att.optional ? " nilable" : ""),
                 att.description
             )}`)
         }
@@ -152,7 +153,10 @@ const exTypes = {}
         out.pushLine(`---@class ${snakeToCamel(ev.name)}: EventData${desc(ev.description)}`)
 
         for (let att of ev.data) {
-            out.pushLine(`  ---@field ${nameDef(att.name)} ${typeDefEx(att.type, null, att.optional)}${desc(att.description)}`)
+            out.pushLine(`  ---@field ${nameDef(att.name)} ${typeDefEx(att.type, null, att.optional)}${desc2("; ",
+                (att.optional ? "nilable" : ""),
+                att.description
+            )}`)
         }
     }
     out.pushLine()
@@ -204,7 +208,7 @@ const exTypes = {}
                 for(const att of type.attributes) {
                     out.pushLine(`  ---@field ${nameDef(att.name)} ${typeDefEx(att.type, null, att.optional)}${desc2(
                         "; ",
-                        (att.read ? "R" : "") + (att.read ? "W" : "")/* + (att.optional ? "?" : "")*/,
+                        (att.read ? "R" : "") + (att.read ? "W" : "") + (att.optional ? " nilable" : ""),
                         att.description
                     )}`)
                 }
@@ -215,7 +219,7 @@ const exTypes = {}
                     let filedName = type.complex_type === 'tuple' ? `[${par.order + 1}]` : nameDef(par.name)
                     out.pushLine(`  ---@field ${filedName} ${typeDefEx(par.type, null, par.optional)}${desc2(
                         "; ",
-                        //(par.optional ? "?" : ""),
+                        (par.optional ? "nilable" : ""),
                         par.description
                     )}`)
                 }
@@ -228,8 +232,8 @@ const exTypes = {}
                     for (const par of pg.parameters) {
                         out.pushLine(`  ---@field ${nameDef(par.name)} ${typeDefEx(par.type, null, par.optional)}${desc2(
                             "; ",
+                            (par.optional ? "nilable" : ""),
                             pg.name,
-                            //(par.optional ? "?" : ""),
                             par.description
                         )}`)
                     }
@@ -282,6 +286,9 @@ function bracketType(typeStr) {
 }
 
 function typeDefEx(type, typeNameHint, optional, brackets) {
+    if (!nilsForOptionalFields && optional !== FORCED_OPTIONAL) {
+        optional = false
+    }
     if (optional && brackets) {
         return bracketType(bracketType(typeDef(type, typeNameHint)) + "|nil")
     } else if (optional) {
@@ -426,24 +433,46 @@ function addLuaMethod(m, className) {
     if (m.description) {
         out.pushLine(`--- ${m.description.replace(/[\r\n]+/g, "\n--- ")}`)
     }
-    for(let p of m.parameters) {
-        out.pushLine(`---@param ${name(p.name)} ${typeDefEx(p.type, null, p.optional)}${desc(p.description)}`)
-    }
-    let params = [...m.parameters]
-    while (true) {
-        let p = params.pop()
-        if (!p || !p.optional) {
-            break
+    if (m.takes_table) {
+        out.push(`---@param p {`)
+        let second = 0
+        for (let p of m.parameters) {
+            second++ && out.push(", ")
+            out.push(`${name(p.name)}: ${typeDefEx(p.type, null, p.optional && FORCED_OPTIONAL)}`)
         }
-        out.pushLine(`---@overload fun(${params.map(p => name(p.name) + ": " + typeDefEx(p.type, null, p.optional)).join(", ")})${ m.return_values?.length ? ": " + m.return_values.map(r => typeDefEx(r.type, null, r.optional)).join(", ") : "" }`)
-    }
-    if (m.return_values?.length) {
-        let desc = m.return_values.map(r => r.description).filter(r => !!r).map(r => r.replace(/\s+/g, ' ')).join("; ")
-        desc = desc ? ' @' + desc : '';
-        out.pushLine(`---@return ${m.return_values.map(r => typeDefEx(r.type, null, r.optional)).join(", ")}${desc}`)
-    }
+        out.pushLine(`}`)
+        for (let p of m.parameters) {
+            out.pushLine(`---@param ${name(p.name)} ${typeDefEx(p.type, null, p.optional && FORCED_OPTIONAL)}${desc(p.description)}`)
+        }
+        if (m.return_values?.length) {
+            let desc = m.return_values.map(r => r.description).filter(r => !!r).map(r => r.replace(/\s+/g, ' ')).join("; ")
+            desc = desc ? ' @' + desc : '';
+            out.pushLine(`---@return ${m.return_values.map(r => typeDefEx(r.type, null, r.optional)).join(", ")}${desc}`)
+        }
+        if (m.table_is_optional) {
+            out.pushLine(`---@overload fun()${m.return_values?.length ? ": " + m.return_values.map(r => typeDefEx(r.type, null, r.optional)).join(", ") : ""}`)
+        }
+        out.pushLine(`function ${className ? className + "." : ""}${m.name}(p) end`)
+    } else {
+        for (let p of m.parameters) {
+            out.pushLine(`---@param ${name(p.name)} ${typeDefEx(p.type, null, p.optional && FORCED_OPTIONAL)}${desc(p.description)}`)
+        }
+        let params = [...m.parameters]
+        while (true) {
+            let p = params.pop()
+            if (!p || !p.optional) {
+                break
+            }
+            out.pushLine(`---@overload fun(${params.map(p => name(p.name) + ": " + typeDefEx(p.type, null, p.optional && FORCED_OPTIONAL)).join(", ")})${m.return_values?.length ? ": " + m.return_values.map(r => typeDefEx(r.type, null, r.optional)).join(", ") : ""}`)
+        }
+        if (m.return_values?.length) {
+            let desc = m.return_values.map(r => r.description).filter(r => !!r).map(r => r.replace(/\s+/g, ' ')).join("; ")
+            desc = desc ? ' @' + desc : '';
+            out.pushLine(`---@return ${m.return_values.map(r => typeDefEx(r.type, null, r.optional)).join(", ")}${desc}`)
+        }
 
-    out.pushLine(`function ${className ? className + "." : ""}${m.name}(${m.parameters.map(p=>name(p.name)).join(", ")}) end`)
+        out.pushLine(`function ${className ? className + "." : ""}${m.name}(${m.parameters.map(p => name(p.name)).join(", ")}) end`)
+    }
 }
 
 function snakeToCamel(snake) {

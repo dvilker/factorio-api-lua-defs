@@ -1137,12 +1137,12 @@ function LuaBootstrap.generate_event_name() end
 
 --- Gets the filters for the given event.
 ---@param event uint @ID of the event to get.
----@return EventFilter|nil @The filters or `nil` if none are defined.
+---@return EventFilter @The filters or `nil` if none are defined.
 function LuaBootstrap.get_event_filter(event) end
 
 --- Find the event handler for an event.
 ---@param event uint @The event identifier to get a handler for.
----@return (fun(p0: EventData))|nil @Reference to the function currently registered as the handler, if it was found.
+---@return fun(p0: EventData) @Reference to the function currently registered as the handler, if it was found.
 function LuaBootstrap.get_event_handler(event) end
 
 --- Gets the mod event order as a string.
@@ -1178,12 +1178,14 @@ function LuaBootstrap.on_load(f) end
 ---@param tick uint | uint[] | nil @The nth-tick(s) to invoke the handler on. Passing `nil` as the only parameter will unregister all nth-tick handlers.
 function LuaBootstrap.on_nth_tick(f, tick) end
 
+---@param p {entity: LuaEntity}
 ---@param entity LuaEntity @The entity that was built.
-function LuaBootstrap.raise_biter_base_built(entity) end
+function LuaBootstrap.raise_biter_base_built(p) end
 
+---@param p {message: string, player_index: uint}
 ---@param message string @The chat message to send.
 ---@param player_index uint @The player doing the chatting.
-function LuaBootstrap.raise_console_chat(message, player_index) end
+function LuaBootstrap.raise_console_chat(p) end
 
 --- Raise an event. Only events generated with [LuaBootstrap::generate_event_name](LuaBootstrap::generate_event_name) and the following can be raised:
 --- - [on_console_chat](on_console_chat)
@@ -1199,36 +1201,42 @@ function LuaBootstrap.raise_console_chat(message, player_index) end
 ---@param event uint @ID of the event to raise.
 function LuaBootstrap.raise_event(data, event) end
 
+---@param p {count: uint, market: LuaEntity, offer_index: uint, player_index: uint}
 ---@param count uint @The amount of offers purchased.
 ---@param market LuaEntity @The market entity.
 ---@param offer_index uint @The index of the offer purchased.
 ---@param player_index uint @The player who did the purchasing.
-function LuaBootstrap.raise_market_item_purchased(count, market, offer_index, player_index) end
+function LuaBootstrap.raise_market_item_purchased(p) end
 
+---@param p {item_stack: LuaItemStack, player_index: uint, recipe: LuaRecipe}
 ---@param item_stack LuaItemStack @The item that has been crafted.
 ---@param player_index uint @The player doing the crafting.
 ---@param recipe LuaRecipe @The recipe used to craft this item.
-function LuaBootstrap.raise_player_crafted_item(item_stack, player_index, recipe) end
+function LuaBootstrap.raise_player_crafted_item(p) end
 
+---@param p {entity: LuaEntity, from_player: boolean, player_index: uint}
 ---@param entity LuaEntity @The entity transferred from or to.
 ---@param from_player boolean @Whether the transfer was from player to entity. If `false`, the transfer was from entity to player.
 ---@param player_index uint @The player transferred from or to.
-function LuaBootstrap.raise_player_fast_transferred(entity, from_player, player_index) end
+function LuaBootstrap.raise_player_fast_transferred(p) end
 
+---@param p {entity: LuaEntity}
 ---@param entity LuaEntity @The entity that has been built.
-function LuaBootstrap.raise_script_built(entity) end
+function LuaBootstrap.raise_script_built(p) end
 
+---@param p {entity: LuaEntity}
 ---@param entity LuaEntity @The entity that was destroyed.
-function LuaBootstrap.raise_script_destroy(entity) end
+function LuaBootstrap.raise_script_destroy(p) end
 
+---@param p {entity: LuaEntity, tags: Tags|nil}
 ---@param entity LuaEntity @The entity that was revived.
 ---@param tags Tags|nil @The tags associated with this entity, if any.
----@overload fun(entity: LuaEntity)
-function LuaBootstrap.raise_script_revive(entity, tags) end
+function LuaBootstrap.raise_script_revive(p) end
 
+---@param p {surface_index: uint, tiles: Tile[]}
 ---@param surface_index uint @The surface whose tiles have been changed.
 ---@param tiles Tile[] @The tiles that have been changed.
-function LuaBootstrap.raise_script_set_tiles(surface_index, tiles) end
+function LuaBootstrap.raise_script_set_tiles(p) end
 
 --- Register a metatable to have linkage recorded and restored when saving/loading. The metatable itself will not be saved. Instead, only the linkage to a registered metatable is saved, and the metatable registered under that name will be used when loading the table.
 ---@param metatable table @The metatable to register.
@@ -1248,7 +1256,7 @@ function LuaBootstrap.set_event_filter(event, filters) end
 
 ---@class LuaBurner: any @A reference to the burner energy source owned by a specific [LuaEntity](LuaEntity) or [LuaEquipment](LuaEquipment).
   ---@field burnt_result_inventory LuaInventory @RW; The burnt result inventory.
-  ---@field currently_burning LuaItemPrototype|nil @RW; The currently burning item.
+  ---@field currently_burning LuaItemPrototype @RW nilable; The currently burning item.
   ---@field fuel_categories table<string, boolean> @RW; The fuel categories this burner uses.
   ---@field heat double @RW; The current heat (energy) stored in this burner.
   ---@field heat_capacity double @RW; The maximum heat (maximum energy) that this burner can store.
@@ -1269,11 +1277,11 @@ function LuaBurner.help() end
   ---@field emissions double @RW
   ---@field fuel_categories table<string, boolean> @RW
   ---@field fuel_inventory_size uint @RW
-  ---@field light_flicker _table2|nil @RW; The light flicker definition for this burner prototype.
+  ---@field light_flicker _table2 @RW nilable; The light flicker definition for this burner prototype.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field render_no_network_icon boolean @RW
   ---@field render_no_power_icon boolean @RW
-  ---@field smoke SmokeSource[]|nil @RW; The smoke sources for this burner prototype.
+  ---@field smoke SmokeSource[] @RW nilable; The smoke sources for this burner prototype.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaBurnerPrototype = {}
 
@@ -1297,7 +1305,7 @@ function LuaChunkIterator.help() end
   ---@field entity LuaEntity @RW; The entity this circuit network reference is associated with.
   ---@field network_id uint @RW; The circuit networks ID.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
-  ---@field signals Signal[]|nil @RW; The circuit network signals last tick. `nil` if there were no signals last tick.
+  ---@field signals Signal[] @RW nilable; The circuit network signals last tick. `nil` if there were no signals last tick.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
   ---@field wire_type defines__wire_type|number @RW; The wire type this network is associated with.
 LuaCircuitNetwork = {}
@@ -1316,7 +1324,7 @@ LuaCombinatorControlBehavior = {}
 
 --- Gets the value of a specific signal sent by this combinator behavior last tick or `nil` if the signal didn't exist.
 ---@param signal SignalID @The signal to get
----@return int|nil
+---@return int
 function LuaCombinatorControlBehavior.get_signal_last_tick(signal) end
 
 ---@class LuaCommandProcessor: any @Allows for the registration of custom console commands. Similarly to [event subscriptions](LuaBootstrap::on_event), these don't persist through a save-and-load cycle.
@@ -1339,7 +1347,7 @@ function LuaCommandProcessor.remove_command(name) end
 ---@class LuaConstantCombinatorControlBehavior: LuaControlBehavior @Control behavior for constant combinators.
   ---@field enabled boolean @RW; Turns this constant combinator on and off.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
-  ---@field parameters ConstantCombinatorParameters[]|nil @RW; This constant combinator's parameters. `nil` if the [item_slot_count](LuaEntityPrototype::item_slot_count) of the combinator's prototype is `0`. Writing `nil` clears the combinator's parameters.
+  ---@field parameters ConstantCombinatorParameters[] @RW nilable; This constant combinator's parameters. `nil` if the [item_slot_count](LuaEntityPrototype::item_slot_count) of the combinator's prototype is `0`. Writing `nil` clears the combinator's parameters.
   ---@field signals_count uint @RW; The number of signals this constant combinator supports
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaConstantCombinatorControlBehavior = {}
@@ -1390,8 +1398,8 @@ function LuaContainerControlBehavior.help() end
   ---@field crafting_queue CraftingQueueItem[] @RW; The current crafting queue items.
   ---@field crafting_queue_progress double @RW; The crafting queue progress in the range `[0-1]`. `0` when no recipe is being crafted.
   ---@field crafting_queue_size uint @RW; Size of the crafting queue.
-  ---@field cursor_ghost ItemPrototypeIdentification|nil @RW; The ghost prototype in the player's cursor. When read, it will be a [LuaItemPrototype](LuaItemPrototype).
-  ---@field cursor_stack LuaItemStack|nil @RW; The player's cursor stack. `nil` if the player controller is a spectator.
+  ---@field cursor_ghost ItemPrototypeIdentification @RW nilable; The ghost prototype in the player's cursor. When read, it will be a [LuaItemPrototype](LuaItemPrototype).
+  ---@field cursor_stack LuaItemStack @RW nilable; The player's cursor stack. `nil` if the player controller is a spectator.
   ---@field driving boolean @RW; `true` if the player is in a vehicle. Writing to this attribute puts the player in or out of a vehicle.
   ---@field drop_item_distance uint @RW; The item drop distance of this character or max uint when not a character or player connected to a character.
   ---@field following_robots LuaEntity[] @RW; The current combat robots following the character.
@@ -1400,29 +1408,29 @@ function LuaContainerControlBehavior.help() end
   ---@field item_pickup_distance double @RW; The item pickup distance of this character or max double when not a character or player connected to a character.
   ---@field loot_pickup_distance double @RW; The loot pickup distance of this character or max double when not a character or player connected to a character.
   ---@field mining_state _table3 @RW; Current mining state.
-  ---@field opened (LuaEntity | LuaItemStack | LuaEquipment | LuaEquipmentGrid | LuaPlayer | LuaGuiElement | LuaInventory | (defines__gui_type|number))|nil @RW; The GUI the player currently has open. This is the GUI that will asked to close (by firing the [on_gui_closed](on_gui_closed) event) when the `Esc` or `E` keys are pressed. If this attribute is not `nil`, and a new GUI is written to it, the existing one will be asked to close.
-  ---@field opened_gui_type (defines__gui_type|number)|nil @RW
+  ---@field opened LuaEntity | LuaItemStack | LuaEquipment | LuaEquipmentGrid | LuaPlayer | LuaGuiElement | LuaInventory | (defines__gui_type|number) @RW nilable; The GUI the player currently has open. This is the GUI that will asked to close (by firing the [on_gui_closed](on_gui_closed) event) when the `Esc` or `E` keys are pressed. If this attribute is not `nil`, and a new GUI is written to it, the existing one will be asked to close.
+  ---@field opened_gui_type defines__gui_type|number @RW nilable
   ---@field picking_state boolean @RW; Current item-picking state.
   ---@field position MapPosition @RW; The current position of the entity.
   ---@field reach_distance uint @RW; The reach distance of this character or max uint when not a character or player connected to a character.
   ---@field repair_state _table4 @RW; Current repair state.
   ---@field resource_reach_distance double @RW; The resource reach distance of this character or max double when not a character or player connected to a character.
   ---@field riding_state RidingState @RW; Current riding state of this car or the vehicle this player is riding in.
-  ---@field selected LuaEntity|nil @RW; The currently selected entity. Assigning an entity will select it if is selectable, otherwise the selection is cleared.
+  ---@field selected LuaEntity @RW nilable; The currently selected entity. Assigning an entity will select it if is selectable, otherwise the selection is cleared.
   ---@field shooting_state _table5 @RW; Current shooting state.
   ---@field surface LuaSurface @RW; The surface this entity is currently on.
-  ---@field vehicle LuaEntity|nil @RW; The vehicle the player is currently sitting in.
+  ---@field vehicle LuaEntity @RW nilable; The vehicle the player is currently sitting in.
   ---@field vehicle_logistic_requests_enabled boolean @RW; If personal logistic requests are enabled for this vehicle (spidertron).
   ---@field walking_state _table6 @RW; Current walking state.
 LuaControl = {}
 
 --- Begins crafting the given count of the given recipe.
+---@param p {count: uint, recipe: string | LuaRecipe, silent: boolean|nil}
 ---@param count uint @The count to craft.
 ---@param recipe string | LuaRecipe @The recipe to craft.
 ---@param silent boolean|nil @If false and the recipe can't be crafted the requested number of times printing the failure is skipped.
----@overload fun(count: uint, recipe: string | LuaRecipe): uint
 ---@return uint @The count that was actually started crafting.
-function LuaControl.begin_crafting(count, recipe, silent) end
+function LuaControl.begin_crafting(p) end
 
 --- Can at least some items be inserted?
 ---@param items ItemStackIdentification @Items that would be inserted.
@@ -1435,9 +1443,10 @@ function LuaControl.can_insert(items) end
 function LuaControl.can_reach_entity(entity) end
 
 --- Cancels crafting the given count of the given crafting queue index.
+---@param p {count: uint, index: uint}
 ---@param count uint @The count to cancel crafting.
 ---@param index uint @The crafting queue index.
-function LuaControl.cancel_crafting(count, index) end
+function LuaControl.cancel_crafting(p) end
 
 --- Removes the arrow created by `set_gui_arrow`.
 function LuaControl.clear_gui_arrow() end
@@ -1461,7 +1470,7 @@ function LuaControl.disable_flashlight() end
 function LuaControl.enable_flashlight() end
 
 --- Gets the entities that are part of the currently selected blueprint, regardless of it being in a blueprint book or picked from the blueprint library.
----@return BlueprintEntity[]|nil @Returns `nil` if there is no currently selected blueprint.
+---@return BlueprintEntity[] @Returns `nil` if there is no currently selected blueprint.
 function LuaControl.get_blueprint_entities() end
 
 --- Gets the count of the given recipe that can be crafted.
@@ -1471,7 +1480,7 @@ function LuaControl.get_craftable_count(recipe) end
 
 --- Get an inventory belonging to this entity. This can be either the "main" inventory or some auxiliary one, like the module slots or logistic trash slots.
 ---@param inventory defines__inventory|number
----@return LuaInventory|nil @The inventory or `nil` if none with the given index was found.
+---@return LuaInventory @The inventory or `nil` if none with the given index was found.
 function LuaControl.get_inventory(inventory) end
 
 --- Get the number of all or some items in this entity.
@@ -1481,7 +1490,7 @@ function LuaControl.get_inventory(inventory) end
 function LuaControl.get_item_count(item) end
 
 --- Gets the main inventory for this character or player if this is a character or player.
----@return LuaInventory|nil @The inventory or `nil` if this entity is not a character or player.
+---@return LuaInventory @The inventory or `nil` if this entity is not a character or player.
 function LuaControl.get_main_inventory() end
 
 --- Gets the parameters of a personal logistic request and auto-trash slot. Only used on `spider-vehicle`.
@@ -1543,8 +1552,9 @@ function LuaControl.open_technology_gui(technology) end
 function LuaControl.remove_item(items) end
 
 --- Create an arrow which points at this entity. This is used in the tutorial. For examples, see `control.lua` in the campaign missions.
+---@param p {type: string}
 ---@param type string @Where to point to. This field determines what other fields are mandatory. May be `"nowhere"`, `"goal"`, `"entity_info"`, `"active_window"`, `"entity"`, `"position"`, `"crafting_queue"`, or `"item_stack"`.
-function LuaControl.set_gui_arrow(type) end
+function LuaControl.set_gui_arrow(p) end
 
 --- Sets a personal logistic request and auto-trash slot to the given value.
 ---@param slot_index uint @The slot to set.
@@ -1582,7 +1592,7 @@ function LuaControlBehavior.get_circuit_network(circuit_connector, wire) end
 ---@class LuaCustomChartTag: any @A custom tag that shows on the map view.
   ---@field force LuaForce @RW; The force this tag belongs to.
   ---@field icon SignalID @RW; This tag's icon, if it has one. Writing `nil` removes it.
-  ---@field last_user LuaPlayer|nil @RW; The player who last edited this tag.
+  ---@field last_user LuaPlayer @RW nilable; The player who last edited this tag.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field position MapPosition @RW; The position of this tag.
   ---@field surface LuaSurface @RW; The surface this tag belongs to.
@@ -1600,15 +1610,15 @@ function LuaCustomChartTag.help() end
 
 ---@class LuaCustomInputPrototype: any @Prototype of a custom input.
   ---@field action string @RW; The action that happens when this custom input is triggered.
-  ---@field alternative_key_sequence string|nil @RW; The default alternative key sequence for this custom input, if any
+  ---@field alternative_key_sequence string @RW nilable; The default alternative key sequence for this custom input, if any
   ---@field consuming string @RW; The consuming type: `"none"` or `"game-only"`.
   ---@field enabled boolean @RW; Whether this custom input is enabled. Disabled custom inputs exist but are not used by the game.
   ---@field enabled_while_in_cutscene boolean @RW; Whether this custom input is enabled while using the cutscene controller.
   ---@field enabled_while_spectating boolean @RW; Whether this custom input is enabled while using the spectator controller.
   ---@field include_selected_prototype boolean @RW; Whether this custom input will include the selected prototype (if any) when triggered.
-  ---@field item_to_spawn LuaItemPrototype|nil @RW; The item that gets spawned when this custom input is fired, if any.
+  ---@field item_to_spawn LuaItemPrototype @RW nilable; The item that gets spawned when this custom input is fired, if any.
   ---@field key_sequence string @RW; The default key sequence for this custom input.
-  ---@field linked_game_control string|nil @RW; The linked game control name, if any.
+  ---@field linked_game_control string @RW nilable; The linked game control name, if any.
   ---@field localised_description LocalisedString @RW
   ---@field localised_name LocalisedString @RW
   ---@field name string @RW; Name of this prototype.
@@ -1655,7 +1665,7 @@ LuaDeciderCombinatorControlBehavior = {}
 function LuaDeciderCombinatorControlBehavior.help() end
 
 ---@class LuaDecorativePrototype: any @Prototype of an optimized decorative.
-  ---@field autoplace_specification AutoplaceSpecification|nil @RW; Autoplace specification for this decorative prototype, if any.
+  ---@field autoplace_specification AutoplaceSpecification @RW nilable; Autoplace specification for this decorative prototype, if any.
   ---@field collision_box BoundingBox @RW; The bounding box used for collision checking.
   ---@field collision_mask CollisionMask @RW; The collision masks this decorative uses
   ---@field collision_mask_with_flags CollisionMaskWithFlags @RW
@@ -1695,28 +1705,28 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field allow_dispatching_robots boolean @RW; Whether this character's personal roboports are allowed to dispatch robots.
   ---@field amount uint @RW; Count of resource units contained.
   ---@field armed boolean @RW; Whether this land mine is armed.
-  ---@field associated_player (LuaPlayer | PlayerIdentification)|nil @RW; The player this character is associated with, if any. Set to `nil` to clear. The player will be automatically disassociated when a controller is set on the character. Also, all characters associated to a player will be logged off when the player logs off in multiplayer. Reading this property will return a [LuaPlayer](LuaPlayer), while [PlayerIdentification](PlayerIdentification) can be used when writing.
+  ---@field associated_player LuaPlayer | PlayerIdentification @RW nilable; The player this character is associated with, if any. Set to `nil` to clear. The player will be automatically disassociated when a controller is set on the character. Also, all characters associated to a player will be logged off when the player logs off in multiplayer. Reading this property will return a [LuaPlayer](LuaPlayer), while [PlayerIdentification](PlayerIdentification) can be used when writing.
   ---@field auto_launch boolean @RW; Whether this rocket silo automatically launches the rocket when cargo is inserted.
-  ---@field autopilot_destination MapPosition|nil @RW; Destination of this spidertron's autopilot, if any.
+  ---@field autopilot_destination MapPosition @RW nilable; Destination of this spidertron's autopilot, if any.
   ---@field autopilot_destinations MapPosition[] @RW; The queued destination positions of spidertron's autopilot.
-  ---@field backer_name string|nil @RW; The backer name assigned to this entity. Entities that support backer names are labs, locomotives, radars, roboports, and train stops. `nil` if this entity doesn't support backer names.
+  ---@field backer_name string @RW nilable; The backer name assigned to this entity. Entities that support backer names are labs, locomotives, radars, roboports, and train stops. `nil` if this entity doesn't support backer names.
   ---@field belt_neighbours table<string, LuaEntity[]> @RW; The belt connectable neighbours of this belt connectable entity. Only entities that input to or are outputs of this entity. Does not contain the other end of an underground belt, see [LuaEntity::neighbours](LuaEntity::neighbours) for that. This is a dictionary with `"inputs"`, `"outputs"` entries that are arrays of transport belt connectable entities, or empty tables if no entities.
   ---@field belt_to_ground_type string @RW; `"input"` or `"output"`, depending on whether this underground belt goes down or up.
-  ---@field bonus_mining_progress double|nil @RW; The bonus mining progress for this mining drill. Read yields a number in range [0, mining_target.prototype.mineable_properties.mining_time]. `nil` if this isn't a mining drill.
+  ---@field bonus_mining_progress double @RW nilable; The bonus mining progress for this mining drill. Read yields a number in range [0, mining_target.prototype.mineable_properties.mining_time]. `nil` if this isn't a mining drill.
   ---@field bonus_progress double @RW; The current productivity bonus progress, as a number in range [0, 1].
   ---@field bounding_box BoundingBox @RW; [LuaEntityPrototype::collision_box](LuaEntityPrototype::collision_box) around entity's given position and respecting the current entity orientation.
-  ---@field burner LuaBurner|nil @RW; The burner energy source for this entity, if any.
+  ---@field burner LuaBurner @RW nilable; The burner energy source for this entity, if any.
   ---@field chain_signal_state defines__chain_signal_state|number @RW; The state of this chain signal.
   ---@field character_corpse_death_cause LocalisedString @RW; The reason this character corpse character died. `""` if there is no reason.
   ---@field character_corpse_player_index uint @RW; The player index associated with this character corpse.
   ---@field character_corpse_tick_of_death uint @RW; The tick this character corpse died at.
-  ---@field circuit_connected_entities _table7|nil @RW; Entities that are directly connected to this entity via the circuit network. `nil` if this entity can't be connected to the circuit network.
-  ---@field circuit_connection_definitions CircuitConnectionDefinition[]|nil @RW; The connection definition for entities that are directly connected to this entity via the circuit network. `nil` if this entity can't be connected to the circuit network.
+  ---@field circuit_connected_entities _table7 @RW nilable; Entities that are directly connected to this entity via the circuit network. `nil` if this entity can't be connected to the circuit network.
+  ---@field circuit_connection_definitions CircuitConnectionDefinition[] @RW nilable; The connection definition for entities that are directly connected to this entity via the circuit network. `nil` if this entity can't be connected to the circuit network.
   ---@field cliff_orientation CliffOrientation @RW; The orientation of this cliff.
-  ---@field color Color|nil @RW; The color of this character, rolling stock, train stop, car, spider-vehicle, flying text, corpse or simple-entity-with-owner. `nil` if this entity doesn't use custom colors.
-  ---@field combat_robot_owner LuaEntity|nil @RW; The owner of this combat robot, if any.
-  ---@field command Command|nil @RW; The command given to this unit, if any.
-  ---@field connected_rail LuaEntity|nil @RW; The rail entity this train stop is connected to, if any.
+  ---@field color Color @RW nilable; The color of this character, rolling stock, train stop, car, spider-vehicle, flying text, corpse or simple-entity-with-owner. `nil` if this entity doesn't use custom colors.
+  ---@field combat_robot_owner LuaEntity @RW nilable; The owner of this combat robot, if any.
+  ---@field command Command @RW nilable; The command given to this unit, if any.
+  ---@field connected_rail LuaEntity @RW nilable; The rail entity this train stop is connected to, if any.
   ---@field connected_rail_direction defines__rail_direction|number @RW; Rail direction to which this train stop is binding. This returns a value even when no rails are present.
   ---@field consumption_bonus double @RW; The consumption bonus of this entity.
   ---@field consumption_modifier float @RW; Multiplies the energy consumption.
@@ -1727,45 +1737,45 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field damage_dealt double @RW; The damage dealt by this turret, artillery turret, or artillery wagon.
   ---@field destructible boolean @RW; If set to `false`, this entity can't be damaged and won't be attacked automatically. It can however still be mined.
   ---@field direction defines__direction|number @RW; The current direction this entity is facing.
-  ---@field distraction_command Command|nil @RW; The distraction command given to this unit, if any.
-  ---@field driver_is_gunner boolean|nil @RW; Whether the driver of this car or spidertron is the gunner. If `false`, the passenger is the gunner. `nil` if this is neither a car or a spidertron.
+  ---@field distraction_command Command @RW nilable; The distraction command given to this unit, if any.
+  ---@field driver_is_gunner boolean @RW nilable; Whether the driver of this car or spidertron is the gunner. If `false`, the passenger is the gunner. `nil` if this is neither a car or a spidertron.
   ---@field drop_position MapPosition @RW; Position where the entity puts its stuff.
-  ---@field drop_target LuaEntity|nil @RW; The entity this entity is putting its items to. If there are multiple possible entities at the drop-off point, writing to this attribute allows a mod to choose which one to drop off items to. The entity needs to collide with the tile box under the drop-off position. `nil` if there is no entity to put items to, or if this is not an entity that puts items somewhere.
-  ---@field effective_speed float|nil @RW; The current speed of this unit in tiles per tick, taking into account any walking speed modifier given by the tile the unit is standing on. `nil` if this is not a unit.
+  ---@field drop_target LuaEntity @RW nilable; The entity this entity is putting its items to. If there are multiple possible entities at the drop-off point, writing to this attribute allows a mod to choose which one to drop off items to. The entity needs to collide with the tile box under the drop-off position. `nil` if there is no entity to put items to, or if this is not an entity that puts items somewhere.
+  ---@field effective_speed float @RW nilable; The current speed of this unit in tiles per tick, taking into account any walking speed modifier given by the tile the unit is standing on. `nil` if this is not a unit.
   ---@field effectivity_modifier float @RW; Multiplies the acceleration the vehicle can create for one unit of energy. Defaults to `1`.
-  ---@field effects ModuleEffects|nil @RW; The effects being applied to this entity, if any. For beacons, this is the effect the beacon is broadcasting.
-  ---@field electric_buffer_size double|nil @RW; The buffer size for the electric energy source. `nil` if the entity doesn't have an electric energy source.
-  ---@field electric_drain double|nil @RW; The electric drain for the electric energy source. `nil` if the entity doesn't have an electric energy source.
-  ---@field electric_emissions double|nil @RW; The emissions for the electric energy source. `nil` if the entity doesn't have an electric energy source.
-  ---@field electric_input_flow_limit double|nil @RW; The input flow limit for the electric energy source. `nil` if the entity doesn't have an electric energy source.
-  ---@field electric_network_id uint|nil @RW; Returns the id of the electric network that this entity is connected to, if any.
+  ---@field effects ModuleEffects @RW nilable; The effects being applied to this entity, if any. For beacons, this is the effect the beacon is broadcasting.
+  ---@field electric_buffer_size double @RW nilable; The buffer size for the electric energy source. `nil` if the entity doesn't have an electric energy source.
+  ---@field electric_drain double @RW nilable; The electric drain for the electric energy source. `nil` if the entity doesn't have an electric energy source.
+  ---@field electric_emissions double @RW nilable; The emissions for the electric energy source. `nil` if the entity doesn't have an electric energy source.
+  ---@field electric_input_flow_limit double @RW nilable; The input flow limit for the electric energy source. `nil` if the entity doesn't have an electric energy source.
+  ---@field electric_network_id uint @RW nilable; Returns the id of the electric network that this entity is connected to, if any.
   ---@field electric_network_statistics LuaFlowStatistics @RW; The electric network statistics for this electric pole.
-  ---@field electric_output_flow_limit double|nil @RW; The output flow limit for the electric energy source. `nil` if the entity doesn't have an electric energy source.
+  ---@field electric_output_flow_limit double @RW nilable; The output flow limit for the electric energy source. `nil` if the entity doesn't have an electric energy source.
   ---@field enable_logistics_while_moving boolean @RW; Whether equipment grid logistics are enabled while this vehicle is moving.
   ---@field energy double @RW; Energy stored in the entity (heat in furnace, energy stored in electrical devices etc.). always 0 for entities that don't have the concept of energy stored inside.
   ---@field energy_generated_last_tick double @RW; How much energy this generator generated in the last tick.
-  ---@field entity_label string|nil @RW; The label on this entity, if any. `nil` if this is not a spider-vehicule.
+  ---@field entity_label string @RW nilable; The label on this entity, if any. `nil` if this is not a spider-vehicule.
   ---@field filter_slot_count uint @RW; The number of filter slots this inserter, loader, or logistic storage container has. 0 if not one of those entities.
   ---@field fluidbox LuaFluidBox @RW; Fluidboxes of this entity.
-  ---@field follow_offset Vector|nil @RW; The follow offset of this spidertron, if any entity is being followed. This is randomized each time the follow entity is set.
-  ---@field follow_target LuaEntity|nil @RW; The follow target of this spidertron, if any.
+  ---@field follow_offset Vector @RW nilable; The follow offset of this spidertron, if any entity is being followed. This is randomized each time the follow entity is set.
+  ---@field follow_target LuaEntity @RW nilable; The follow target of this spidertron, if any.
   ---@field friction_modifier float @RW; Multiplies the car friction rate.
   ---@field ghost_localised_description LocalisedString @RW
   ---@field ghost_localised_name LocalisedString @RW; Localised name of the entity or tile contained in this ghost.
   ---@field ghost_name string @RW; Name of the entity or tile contained in this ghost
   ---@field ghost_prototype LuaEntityPrototype | LuaTilePrototype @RW; The prototype of the entity or tile contained in this ghost.
   ---@field ghost_type string @RW; The prototype type of the entity or tile contained in this ghost.
-  ---@field ghost_unit_number uint|nil @RW; The [unit_number](LuaEntity::unit_number) of the entity contained in this ghost. It is the same as the unit number of the [EntityWithOwner](https://wiki.factorio.com/Prototype/EntityWithOwner) that was destroyed to create this ghost. If it was created by other means, or if the inner entity does not support unit numbers, this property is `nil`.
-  ---@field graphics_variation uint8|nil @RW; The graphics variation for this entity. `nil` if this entity doesn't use graphics variations.
-  ---@field grid LuaEquipmentGrid|nil @RW; This entity's equipment grid, if any.
-  ---@field health float|nil @RW; The current health of the entity, if any. Health is automatically clamped to be between `0` and max health (inclusive). Entities with a health of `0` can not be attacked.
+  ---@field ghost_unit_number uint @RW nilable; The [unit_number](LuaEntity::unit_number) of the entity contained in this ghost. It is the same as the unit number of the [EntityWithOwner](https://wiki.factorio.com/Prototype/EntityWithOwner) that was destroyed to create this ghost. If it was created by other means, or if the inner entity does not support unit numbers, this property is `nil`.
+  ---@field graphics_variation uint8 @RW nilable; The graphics variation for this entity. `nil` if this entity doesn't use graphics variations.
+  ---@field grid LuaEquipmentGrid @RW nilable; This entity's equipment grid, if any.
+  ---@field health float @RW nilable; The current health of the entity, if any. Health is automatically clamped to be between `0` and max health (inclusive). Entities with a health of `0` can not be attacked.
   ---@field held_stack LuaItemStack @RW; The item stack currently held in an inserter's hand.
   ---@field held_stack_position MapPosition @RW; Current position of the inserter's "hand".
   ---@field highlight_box_blink_interval uint @RW; The blink interval of this highlight box entity. 0 indicates no blink.
   ---@field highlight_box_type string @RW; The hightlight box type of this highlight box entity.
   ---@field infinity_container_filters InfinityInventoryFilter[] @RW; The filters for this infinity container.
-  ---@field initial_amount uint|nil @RW; Count of initial resource units contained. `nil` if this is not an infinite resource.
-  ---@field inserter_filter_mode string|nil @RW; The filter mode for this filter inserter. Either `"whitelist"` or `"blacklist"`. `nil` if this inserter doesn't use filters.
+  ---@field initial_amount uint @RW nilable; Count of initial resource units contained. `nil` if this is not an infinite resource.
+  ---@field inserter_filter_mode string @RW nilable; The filter mode for this filter inserter. Either `"whitelist"` or `"blacklist"`. `nil` if this inserter doesn't use filters.
   ---@field inserter_stack_size_override uint @RW; Sets the stack size limit on this inserter. If the stack size is > than the force stack size limit the value is ignored.
   ---@field is_entity_with_force boolean @RW; (deprecated by 1.1.51) If this entity is a MilitaryTarget. Returns same value as LuaEntity::is_military_target
   ---@field is_entity_with_health boolean @RW; If this entity is EntityWithHealth
@@ -1773,19 +1783,19 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field is_military_target boolean @RW; Whether this entity is a MilitaryTarget. Can be written to if [LuaEntityPrototype::allow_run_time_change_of_is_military_target](LuaEntityPrototype::allow_run_time_change_of_is_military_target) returns `true`.
   ---@field item_requests table<string, uint> @RW; Items this ghost will request when revived or items this item request proxy is requesting. Result is a dictionary mapping each item prototype name to the required count.
   ---@field kills uint @RW; The number of units killed by this turret, artillery turret, or artillery wagon.
-  ---@field last_user (LuaPlayer | PlayerIdentification)|nil @RW; The last player that changed any setting on this entity. This includes building the entity, changing its color, or configuring its circuit network. `nil` if the last user is not part of the save anymore. Reading this property will return a [LuaPlayer](LuaPlayer), while [PlayerIdentification](PlayerIdentification) can be used when writing.
+  ---@field last_user LuaPlayer | PlayerIdentification @RW nilable; The last player that changed any setting on this entity. This includes building the entity, changing its color, or configuring its circuit network. `nil` if the last user is not part of the save anymore. Reading this property will return a [LuaPlayer](LuaPlayer), while [PlayerIdentification](PlayerIdentification) can be used when writing.
   ---@field link_id uint @RW; The link ID this linked container is using.
-  ---@field linked_belt_neighbour LuaEntity|nil @RW; Neighbour to which this linked belt is connected to, if any.
+  ---@field linked_belt_neighbour LuaEntity @RW nilable; Neighbour to which this linked belt is connected to, if any.
   ---@field linked_belt_type string @RW; Type of linked belt: it is either `"input"` or `"output"`. Changing type will also flip direction so the belt is out of the same side
-  ---@field loader_container LuaEntity|nil @RW; The container entity this loader is pointing at/pulling from depending on the [LuaEntity::loader_type](LuaEntity::loader_type), if any.
+  ---@field loader_container LuaEntity @RW nilable; The container entity this loader is pointing at/pulling from depending on the [LuaEntity::loader_type](LuaEntity::loader_type), if any.
   ---@field loader_type string @RW; `"input"` or `"output"`, depending on whether this loader puts to or gets from a container.
   ---@field localised_description LocalisedString @RW
   ---@field localised_name LocalisedString @RW; Localised name of the entity.
   ---@field logistic_cell LuaLogisticCell @RW; The logistic cell this entity is a part of. Will be `nil` if this entity is not a part of any logistic cell.
   ---@field logistic_network LuaLogisticNetwork @RW; The logistic network this entity is a part of, or `nil` if this entity is not a part of any logistic network.
   ---@field minable boolean @RW
-  ---@field mining_progress double|nil @RW; The mining progress for this mining drill. Is a number in range [0, mining_target.prototype.mineable_properties.mining_time]. `nil` if this isn't a mining drill.
-  ---@field mining_target LuaEntity|nil @RW; The mining target, if any.
+  ---@field mining_progress double @RW nilable; The mining progress for this mining drill. Is a number in range [0, mining_target.prototype.mineable_properties.mining_time]. `nil` if this isn't a mining drill.
+  ---@field mining_target LuaEntity @RW nilable; The mining target, if any.
   ---@field moving boolean @RW; Returns true if this unit is moving.
   ---@field name string @RW; Name of the entity prototype. E.g. "inserter" or "filter-inserter".
   ---@field neighbour_bonus double @RW; The current total neighbour bonus of this reactor.
@@ -1795,49 +1805,49 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field orientation RealOrientation @RW; The smooth orientation of this entity.
   ---@field parameters ProgrammableSpeakerParameters @RW
   ---@field pickup_position MapPosition @RW; Where the inserter will pick up items from.
-  ---@field pickup_target LuaEntity|nil @RW; The entity this inserter will attempt to pick up items from. If there are multiple possible entities at the pick-up point, writing to this attribute allows a mod to choose which one to pick up items from. The entity needs to collide with the tile box under the pick-up position. `nil` if there is no entity to pull items from.
-  ---@field player LuaPlayer|nil @RW; The player connected to this character, if any.
+  ---@field pickup_target LuaEntity @RW nilable; The entity this inserter will attempt to pick up items from. If there are multiple possible entities at the pick-up point, writing to this attribute allows a mod to choose which one to pick up items from. The entity needs to collide with the tile box under the pick-up position. `nil` if there is no entity to pull items from.
+  ---@field player LuaPlayer @RW nilable; The player connected to this character, if any.
   ---@field pollution_bonus double @RW; The pollution bonus of this entity.
   ---@field power_production double @RW; The power production specific to the ElectricEnergyInterface entity type.
   ---@field power_switch_state boolean @RW; The state of this power switch.
   ---@field power_usage double @RW; The power usage specific to the ElectricEnergyInterface entity type.
-  ---@field previous_recipe LuaRecipe|nil @RW; The previous recipe this furnace was using, if any.
+  ---@field previous_recipe LuaRecipe @RW nilable; The previous recipe this furnace was using, if any.
   ---@field productivity_bonus double @RW; The productivity bonus of this entity.
   ---@field products_finished uint @RW; The number of products this machine finished crafting in its lifetime.
   ---@field prototype LuaEntityPrototype @RW; The entity prototype of this entity.
-  ---@field proxy_target LuaEntity|nil @RW; The target entity for this item-request-proxy, if any.
-  ---@field pump_rail_target LuaEntity|nil @RW; The rail target of this pump, if any.
+  ---@field proxy_target LuaEntity @RW nilable; The target entity for this item-request-proxy, if any.
+  ---@field pump_rail_target LuaEntity @RW nilable; The rail target of this pump, if any.
   ---@field radar_scan_progress float @RW; The current radar scan progress, as a number in range [0, 1].
   ---@field recipe_locked boolean @RW; When locked; the recipe in this assembling machine can't be changed by the player.
-  ---@field relative_turret_orientation RealOrientation|nil @RW; The relative orientation of the vehicle turret, artillery turret, artillery wagon. `nil` if this entity isn't a vehicle with a vehicle turret or artillery turret/wagon.
+  ---@field relative_turret_orientation RealOrientation @RW nilable; The relative orientation of the vehicle turret, artillery turret, artillery wagon. `nil` if this entity isn't a vehicle with a vehicle turret or artillery turret/wagon.
   ---@field remove_unfiltered_items boolean @RW; Whether items not included in this infinity container filters should be removed from the container.
-  ---@field render_player (LuaPlayer | PlayerIdentification)|nil @RW; The player that this `simple-entity-with-owner`, `simple-entity-with-force`, `flying-text`, or `highlight-box` is visible to. `nil` when this entity is rendered for all players. Reading this property will return a [LuaPlayer](LuaPlayer), while [PlayerIdentification](PlayerIdentification) can be used when writing.
-  ---@field render_to_forces ForceIdentification[]|nil @RW; The forces that this `simple-entity-with-owner`, `simple-entity-with-force`, or `flying-text` is visible to. `nil` or an empty array when this entity is rendered for all forces.
+  ---@field render_player LuaPlayer | PlayerIdentification @RW nilable; The player that this `simple-entity-with-owner`, `simple-entity-with-force`, `flying-text`, or `highlight-box` is visible to. `nil` when this entity is rendered for all players. Reading this property will return a [LuaPlayer](LuaPlayer), while [PlayerIdentification](PlayerIdentification) can be used when writing.
+  ---@field render_to_forces ForceIdentification[] @RW nilable; The forces that this `simple-entity-with-owner`, `simple-entity-with-force`, or `flying-text` is visible to. `nil` or an empty array when this entity is rendered for all forces.
   ---@field request_from_buffers boolean @RW; Whether this requester chest is set to also request from buffer chests.
   ---@field request_slot_count uint @RW; The index of the configured request with the highest index for this entity. This means 0 if no requests are set and e.g. 20 if the 20th request slot is configured.
   ---@field rocket_parts uint @RW; Number of rocket parts in the silo.
   ---@field rocket_silo_status defines__rocket_silo_status|number @RW; The status of this rocket silo entity.
   ---@field rotatable boolean @RW; When entity is not to be rotatable (inserter, transport belt etc), it can't be rotated by player using the R key.
-  ---@field secondary_bounding_box BoundingBox|nil @RW; The secondary bounding box of this entity or `nil` if it doesn't have one. This only exists for curved rails, and is automatically determined by the game.
-  ---@field secondary_selection_box BoundingBox|nil @RW; The secondary selection box of this entity or `nil` if it doesn't have one. This only exists for curved rails, and is automatically determined by the game.
-  ---@field selected_gun_index uint|nil @RW; Index of the currently selected weapon slot of this character, car, or spidertron. `nil` if this entity doesn't have guns.
+  ---@field secondary_bounding_box BoundingBox @RW nilable; The secondary bounding box of this entity or `nil` if it doesn't have one. This only exists for curved rails, and is automatically determined by the game.
+  ---@field secondary_selection_box BoundingBox @RW nilable; The secondary selection box of this entity or `nil` if it doesn't have one. This only exists for curved rails, and is automatically determined by the game.
+  ---@field selected_gun_index uint @RW nilable; Index of the currently selected weapon slot of this character, car, or spidertron. `nil` if this entity doesn't have guns.
   ---@field selection_box BoundingBox @RW; [LuaEntityPrototype::selection_box](LuaEntityPrototype::selection_box) around entity's given position and respecting the current entity orientation.
-  ---@field shooting_target LuaEntity|nil @RW; The shooting target for this turret, if any.
+  ---@field shooting_target LuaEntity @RW nilable; The shooting target for this turret, if any.
   ---@field signal_state defines__signal_state|number @RW; The state of this rail signal.
-  ---@field spawner LuaEntity|nil @RW; The spawner associated with this unit entity, if any.
-  ---@field speed float|nil @RW; The current speed if this is a car, rolling stock, projectile or spidertron, or the maximum speed if this is a unit. The speed is in tiles per tick. `nil` if this is not a car, rolling stock, unit, projectile or spidertron. Only the speed of units, cars, and projectiles are writable.
+  ---@field spawner LuaEntity @RW nilable; The spawner associated with this unit entity, if any.
+  ---@field speed float @RW nilable; The current speed if this is a car, rolling stock, projectile or spidertron, or the maximum speed if this is a unit. The speed is in tiles per tick. `nil` if this is not a car, rolling stock, unit, projectile or spidertron. Only the speed of units, cars, and projectiles are writable.
   ---@field speed_bonus double @RW; The speed bonus of this entity.
-  ---@field splitter_filter LuaItemPrototype|nil @RW; The filter for this splitter, if any is set.
+  ---@field splitter_filter LuaItemPrototype @RW nilable; The filter for this splitter, if any is set.
   ---@field splitter_input_priority string @RW; The input priority for this splitter. Either `"left"`, `"none"`, or `"right"`.
   ---@field splitter_output_priority string @RW; The output priority for this splitter. Either `"left"`, `"none"`, or `"right"`.
   ---@field stack LuaItemStack @RW
-  ---@field status (defines__entity_status|number)|nil @RW; The status of this entity, if any.
+  ---@field status defines__entity_status|number @RW nilable; The status of this entity, if any.
   ---@field sticked_to LuaEntity @RW; The entity this sticker is sticked to.
-  ---@field stickers LuaEntity[]|nil @RW; The sticker entities attached to this entity, if any.
+  ---@field stickers LuaEntity[] @RW nilable; The sticker entities attached to this entity, if any.
   ---@field storage_filter LuaItemPrototype @RW; The storage filter for this logistic storage container.
   ---@field supports_direction boolean @RW; Whether the entity has direction. When it is false for this entity, it will always return north direction when asked for.
-  ---@field tags Tags|nil @RW; The tags associated with this entity ghost. `nil` if this is not an entity ghost.
-  ---@field temperature double|nil @RW; The temperature of this entity's heat energy source. `nil` if this entity does not use a heat energy source.
+  ---@field tags Tags @RW nilable; The tags associated with this entity ghost. `nil` if this is not an entity ghost.
+  ---@field temperature double @RW nilable; The temperature of this entity's heat energy source. `nil` if this entity does not use a heat energy source.
   ---@field text LocalisedString @RW; The text of this flying-text entity.
   ---@field tick_of_last_attack uint @RW; The last tick this character entity was attacked.
   ---@field tick_of_last_damage uint @RW; The last tick this character entity was damaged.
@@ -1848,7 +1858,7 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field timeout uint @RW; The timeout that's left on this landmine in ticks. It describes the time between the landmine being placed and it being armed.
   ---@field to_be_looted boolean @RW; Will this entity be picked up automatically when the player walks over it?
   ---@field torso_orientation RealOrientation @RW; The torso orientation of this spider vehicle.
-  ---@field train LuaTrain|nil @RW; The train this rolling stock belongs to, if any. `nil` if this is not a rolling stock.
+  ---@field train LuaTrain @RW nilable; The train this rolling stock belongs to, if any. `nil` if this is not a rolling stock.
   ---@field trains_count uint @RW; Amount of trains related to this particular train stop. Includes train stopped at this train stop (until it finds a path to next target) and trains having this train stop as goal or waypoint. Writing nil will disable the limit (will set a maximum possible value).
   ---@field trains_in_block uint @RW; The number of trains in this rail block for this rail entity.
   ---@field trains_limit uint @RW; Amount of trains above which no new trains will be sent to this train stop.
@@ -1859,8 +1869,8 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field tree_stage_index uint8 @RW; Index of the tree stage.
   ---@field tree_stage_index_max uint8 @RW; Maximum index of the tree stages.
   ---@field type string @RW; The entity prototype type of this entity.
-  ---@field unit_group LuaUnitGroup|nil @RW; The unit group this unit is a member of, if any.
-  ---@field unit_number uint|nil @RW; A universally unique number identifying this entity for the lifetime of the save. Only entities inheriting from [EntityWithOwner](https://wiki.factorio.com/Prototype/EntityWithOwner), as well as [ItemRequestProxy](https://wiki.factorio.com/Prototype/ItemRequestProxy) and [EntityGhost](https://wiki.factorio.com/Prototype/EntityGhost) are assigned a unit number. `nil` if this entity doesn't have a unit number.
+  ---@field unit_group LuaUnitGroup @RW nilable; The unit group this unit is a member of, if any.
+  ---@field unit_number uint @RW nilable; A universally unique number identifying this entity for the lifetime of the save. Only entities inheriting from [EntityWithOwner](https://wiki.factorio.com/Prototype/EntityWithOwner), as well as [ItemRequestProxy](https://wiki.factorio.com/Prototype/ItemRequestProxy) and [EntityGhost](https://wiki.factorio.com/Prototype/EntityGhost) are assigned a unit number. `nil` if this entity doesn't have a unit number.
   ---@field units LuaEntity[] @RW; The units associated with this spawner entity.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
   ---@field vehicle_automatic_targeting_parameters VehicleAutomaticTargetingParameters @RW; Read when this spidertron auto-targets enemies
@@ -1913,13 +1923,13 @@ function LuaEntity.clear_market_items() end
 function LuaEntity.clear_request_slot(slot) end
 
 --- Clones this entity.
+---@param p {create_build_effect_smoke: boolean|nil, force: ForceIdentification|nil, position: MapPosition, surface: LuaSurface|nil}
 ---@param create_build_effect_smoke boolean|nil @If false, the building effect smoke will not be shown around the new entity.
 ---@param force ForceIdentification|nil
 ---@param position MapPosition @The destination position
 ---@param surface LuaSurface|nil @The destination surface
----@overload fun(create_build_effect_smoke: boolean|nil, force: ForceIdentification|nil, position: MapPosition): LuaEntity|nil
----@return LuaEntity|nil @The cloned entity or `nil` if this entity can't be cloned/can't be cloned to the given location.
-function LuaEntity.clone(create_build_effect_smoke, force, position, surface) end
+---@return LuaEntity @The cloned entity or `nil` if this entity can't be cloned/can't be cloned to the given location.
+function LuaEntity.clone(p) end
 
 --- Connects current linked belt with another one.
 --- Neighbours have to be of different type. If given linked belt is connected to something else it will be disconnected first. If provided neighbour is connected to something else it will also be disconnected first. Automatically updates neighbour to be connected back to this one.
@@ -1960,12 +1970,12 @@ function LuaEntity.damage(damage, dealer, force, type) end
 function LuaEntity.deplete() end
 
 --- Destroys the entity.
+---@param p {do_cliff_correction: boolean|nil, raise_destroy: boolean|nil}
 ---@param do_cliff_correction boolean|nil @Whether neighbouring cliffs should be corrected. Defaults to `false`.
 ---@param raise_destroy boolean|nil @If `true`, [script_raised_destroy](script_raised_destroy) will be called. Defaults to `false`.
----@overload fun(do_cliff_correction: boolean|nil): boolean
----@overload fun(): boolean
 ---@return boolean @Returns `false` if the entity was valid and destruction failed, `true` in all other cases.
-function LuaEntity.destroy(do_cliff_correction, raise_destroy) end
+---@overload fun(): boolean
+function LuaEntity.destroy(p) end
 
 --- Immediately kills the entity. Does nothing if the entity doesn't have health.
 --- Unlike [LuaEntity::destroy](LuaEntity::destroy), `die` will trigger the [on_entity_died](on_entity_died) event and the entity will produce a corpse and drop loot if it has any.
@@ -1994,15 +2004,15 @@ function LuaEntity.disconnect_neighbour(target) end
 function LuaEntity.disconnect_rolling_stock(direction) end
 
 --- Get the source of this beam.
----@return BeamTarget|nil
+---@return BeamTarget
 function LuaEntity.get_beam_source() end
 
 --- Get the target of this beam.
----@return BeamTarget|nil
+---@return BeamTarget
 function LuaEntity.get_beam_target() end
 
 --- The burnt result inventory for this entity or `nil` if this entity doesn't have a burnt result inventory.
----@return LuaInventory|nil
+---@return LuaInventory
 function LuaEntity.get_burnt_result_inventory() end
 
 --- Returns all child signals. Child signals can be either RailSignal or RailChainSignal. Child signals are signals which are checked by this signal to determine a chain state.
@@ -2011,13 +2021,14 @@ function LuaEntity.get_child_signals() end
 
 ---@param circuit_connector (defines__circuit_connector_id|number)|nil @The connector to get circuit network for. Must be specified for entities with more than one circuit network connector.
 ---@param wire defines__wire_type|number @Wire color of the network connected to this entity.
----@return LuaCircuitNetwork|nil @The circuit network or nil.
+---@return LuaCircuitNetwork @The circuit network or nil.
 function LuaEntity.get_circuit_network(circuit_connector, wire) end
 
+---@param p {rail_connection_direction: defines__rail_connection_direction|number, rail_direction: defines__rail_direction|number}
 ---@param rail_connection_direction defines__rail_connection_direction|number
 ---@param rail_direction defines__rail_direction|number
----@return LuaEntity|nil, (defines__rail_direction|number)|nil, (defines__rail_connection_direction|number)|nil @Rail connected in the specified manner to this one, `nil` if unsuccessful.; Rail direction of the returned rail which points to origin rail; Turn to be taken when going back from returned rail to origin rail
-function LuaEntity.get_connected_rail(rail_connection_direction, rail_direction) end
+---@return LuaEntity, defines__rail_direction|number, defines__rail_connection_direction|number @Rail connected in the specified manner to this one, `nil` if unsuccessful.; Rail direction of the returned rail which points to origin rail; Turn to be taken when going back from returned rail to origin rail
+function LuaEntity.get_connected_rail(p) end
 
 --- Get the rails that this signal is connected to.
 ---@return LuaEntity[]
@@ -2025,24 +2036,24 @@ function LuaEntity.get_connected_rails() end
 
 --- Gets rolling stock connected to the given end of this stock.
 ---@param direction defines__rail_direction|number
----@return LuaEntity|nil, (defines__rail_direction|number)|nil @The rolling stock connected at the given end, `nil` if none is connected there.; The rail direction of the connected rolling stock if any.
+---@return LuaEntity, defines__rail_direction|number @The rolling stock connected at the given end, `nil` if none is connected there.; The rail direction of the connected rolling stock if any.
 function LuaEntity.get_connected_rolling_stock(direction) end
 
 --- Gets the control behavior of the entity (if any).
----@return LuaControlBehavior|nil @The control behavior or `nil`.
+---@return LuaControlBehavior @The control behavior or `nil`.
 function LuaEntity.get_control_behavior() end
 
 --- Returns the amount of damage to be taken by this entity.
----@return float|nil @`nil` if this entity does not have health.
+---@return float @`nil` if this entity does not have health.
 function LuaEntity.get_damage_to_be_taken() end
 
 --- Gets the driver of this vehicle if any.
----@return (LuaEntity | LuaPlayer)|nil @`nil` if the vehicle contains no driver. To check if there's a passenger see [LuaEntity::get_passenger](LuaEntity::get_passenger).
+---@return LuaEntity | LuaPlayer @`nil` if the vehicle contains no driver. To check if there's a passenger see [LuaEntity::get_passenger](LuaEntity::get_passenger).
 function LuaEntity.get_driver() end
 
 --- Get the filter for a slot in an inserter, loader, or logistic storage container.
 ---@param slot_index uint @Index of the slot to get the filter for.
----@return string|nil @Prototype name of the item being filtered. `nil` if the given slot has no filter.
+---@return string @Prototype name of the item being filtered. `nil` if the given slot has no filter.
 function LuaEntity.get_filter(slot_index) end
 
 --- Get amounts of all fluids in this entity.
@@ -2056,11 +2067,11 @@ function LuaEntity.get_fluid_contents() end
 function LuaEntity.get_fluid_count(fluid) end
 
 --- The fuel inventory for this entity or `nil` if this entity doesn't have a fuel inventory.
----@return LuaInventory|nil
+---@return LuaInventory
 function LuaEntity.get_fuel_inventory() end
 
 --- The health ratio of this entity between 1 and 0 (for full health and no health respectively).
----@return float|nil @`nil` if this entity doesn't have health.
+---@return float @`nil` if this entity doesn't have health.
 function LuaEntity.get_health_ratio() end
 
 --- Gets the heat setting for this heat interface.
@@ -2073,17 +2084,17 @@ function LuaEntity.get_inbound_signals() end
 
 --- Gets the filter for this infinity container at the given index or `nil` if the filter index doesn't exist or is empty.
 ---@param index uint @The index to get.
----@return InfinityInventoryFilter|nil
+---@return InfinityInventoryFilter
 function LuaEntity.get_infinity_container_filter(index) end
 
 --- Gets the filter for this infinity pipe or `nil` if the filter is empty.
----@return InfinityPipeFilter|nil
+---@return InfinityPipeFilter
 function LuaEntity.get_infinity_pipe_filter() end
 
 --- Gets all the `LuaLogisticPoint`s that this entity owns. Optionally returns only the point specified by the index parameter.
 ---@param index (defines__logistic_member_index|number)|nil @If provided, only returns the `LuaLogisticPoint` specified by this index.
----@overload fun(): (LuaLogisticPoint | LuaLogisticPoint[])|nil
----@return (LuaLogisticPoint | LuaLogisticPoint[])|nil
+---@overload fun(): LuaLogisticPoint | LuaLogisticPoint[]
+---@return LuaLogisticPoint | LuaLogisticPoint[]
 function LuaEntity.get_logistic_point(index) end
 
 --- Get all offers in a market as an array.
@@ -2102,16 +2113,16 @@ function LuaEntity.get_merged_signal(circuit_connector, signal) end
 
 --- The merged circuit network signals or `nil` if there are no signals.
 ---@param circuit_connector (defines__circuit_connector_id|number)|nil @The connector to get signals for. Must be specified for entities with more than one circuit network connector.
----@overload fun(): Signal[]|nil
----@return Signal[]|nil @The sum of signals on both the red and green networks, or `nil` if it doesn't have a circuit connector.
+---@overload fun(): Signal[]
+---@return Signal[] @The sum of signals on both the red and green networks, or `nil` if it doesn't have a circuit connector.
 function LuaEntity.get_merged_signals(circuit_connector) end
 
 --- Inventory for storing modules of this entity; `nil` if this entity has no module inventory.
----@return LuaInventory|nil
+---@return LuaInventory
 function LuaEntity.get_module_inventory() end
 
 --- Gets (and or creates if needed) the control behavior of the entity.
----@return LuaControlBehavior|nil @The control behavior or `nil`.
+---@return LuaControlBehavior @The control behavior or `nil`.
 function LuaEntity.get_or_create_control_behavior() end
 
 --- Returns all signals guarding exit from a rail block this rail belongs to.
@@ -2119,7 +2130,7 @@ function LuaEntity.get_or_create_control_behavior() end
 function LuaEntity.get_outbound_signals() end
 
 --- Gets the entity's output inventory if it has one.
----@return LuaInventory|nil @A reference to the entity's output inventory.
+---@return LuaInventory @A reference to the entity's output inventory.
 function LuaEntity.get_output_inventory() end
 
 --- Returns all parent signals. Parent signals are always RailChainSignal. Parent signals are those signals that are checking state of this signal to determine their own chain state.
@@ -2127,7 +2138,7 @@ function LuaEntity.get_output_inventory() end
 function LuaEntity.get_parent_signals() end
 
 --- Gets the passenger of this car or spidertron if any.
----@return (LuaEntity | LuaPlayer)|nil @`nil` if the vehicle contains no passenger. To check if there's a driver see [LuaEntity::get_driver](LuaEntity::get_driver).
+---@return LuaEntity | LuaPlayer @`nil` if the vehicle contains no passenger. To check if there's a driver see [LuaEntity::get_driver](LuaEntity::get_driver).
 function LuaEntity.get_passenger() end
 
 --- The radius of this entity.
@@ -2142,7 +2153,7 @@ function LuaEntity.get_rail_segment_end(direction) end
 --- Get the rail signal or train stop at the start/end of the rail segment this rail is in.
 ---@param direction defines__rail_direction|number @The direction of travel relative to this rail.
 ---@param in_else_out boolean @If true, gets the entity at the entrance of the rail segment, otherwise gets the entity at the exit of the rail segment.
----@return LuaEntity|nil @`nil` if the rail segment doesn't start/end with a signal nor a train stop.
+---@return LuaEntity @`nil` if the rail segment doesn't start/end with a signal nor a train stop.
 function LuaEntity.get_rail_segment_entity(direction, in_else_out) end
 
 --- Get the length of the rail segment this rail is in.
@@ -2159,12 +2170,12 @@ function LuaEntity.get_rail_segment_overlaps() end
 function LuaEntity.get_rail_segment_rails(direction) end
 
 --- Current recipe being assembled by this machine or `nil` if no recipe is set.
----@return LuaRecipe|nil
+---@return LuaRecipe
 function LuaEntity.get_recipe() end
 
 --- Get a logistic requester slot.
 ---@param slot uint @The slot index.
----@return SimpleItemStack|nil @Contents of the specified slot; `nil` if the given slot contains no request.
+---@return SimpleItemStack @Contents of the specified slot; `nil` if the given slot contains no request.
 function LuaEntity.get_request_slot(slot) end
 
 --- Gets legs of given SpiderVehicle.
@@ -2172,7 +2183,7 @@ function LuaEntity.get_request_slot(slot) end
 function LuaEntity.get_spider_legs() end
 
 --- The train currently stopped at this train stop, if any.
----@return LuaTrain|nil
+---@return LuaTrain
 function LuaEntity.get_stopped_train() end
 
 --- The trains scheduled to stop at this train stop.
@@ -2185,11 +2196,11 @@ function LuaEntity.get_train_stop_trains() end
 function LuaEntity.get_transport_line(index) end
 
 --- Returns the new entity direction after upgrading.
----@return (defines__direction|number)|nil @`nil` if this entity is not marked for upgrade.
+---@return defines__direction|number @`nil` if this entity is not marked for upgrade.
 function LuaEntity.get_upgrade_direction() end
 
 --- Returns the new entity prototype.
----@return LuaEntityPrototype|nil @`nil` if this entity is not marked for upgrade.
+---@return LuaEntityPrototype @`nil` if this entity is not marked for upgrade.
 function LuaEntity.get_upgrade_target() end
 
 --- Same as [LuaEntity::has_flag](LuaEntity::has_flag), but targets the inner entity on a entity ghost.
@@ -2266,16 +2277,14 @@ function LuaEntity.is_registered_for_upgrade() end
 function LuaEntity.launch_rocket() end
 
 --- Mines this entity.
+---@param p {force: boolean|nil, ignore_minable: boolean|nil, inventory: LuaInventory|nil, raise_destroyed: boolean|nil}
 ---@param force boolean|nil @If true, when the item(s) don't fit into the given inventory the entity is force mined. If false, the mining operation fails when there isn't enough room to transfer all of the items into the inventory. Defaults to false. This is ignored and acts as `true` if no inventory is provided.
 ---@param ignore_minable boolean|nil @If true, the minable state of the entity is ignored. Defaults to `false`. If false, an entity that isn't minable (set as not-minable in the prototype or isn't minable for other reasons) will fail to be mined.
 ---@param inventory LuaInventory|nil @If provided the item(s) will be transferred into this inventory. If provided, this must be an inventory created with [LuaGameScript::create_inventory](LuaGameScript::create_inventory) or be a basic inventory owned by some entity.
 ---@param raise_destroyed boolean|nil @If true, [script_raised_destroy](script_raised_destroy) will be raised. Defaults to `true`.
----@overload fun(force: boolean|nil, ignore_minable: boolean|nil, inventory: LuaInventory|nil): boolean
----@overload fun(force: boolean|nil, ignore_minable: boolean|nil): boolean
----@overload fun(force: boolean|nil): boolean
----@overload fun(): boolean
 ---@return boolean @Whether mining succeeded.
-function LuaEntity.mine(force, ignore_minable, inventory, raise_destroyed) end
+---@overload fun(): boolean
+function LuaEntity.mine(p) end
 
 --- Sets the entity to be deconstructed by construction robots.
 ---@param force ForceIdentification @The force whose robots are supposed to do the deconstruction.
@@ -2285,12 +2294,13 @@ function LuaEntity.mine(force, ignore_minable, inventory, raise_destroyed) end
 function LuaEntity.order_deconstruction(force, player) end
 
 --- Sets the entity to be upgraded by construction robots.
+---@param p {direction: (defines__direction|number)|nil, force: ForceIdentification, player: PlayerIdentification|nil, target: EntityPrototypeIdentification}
 ---@param direction (defines__direction|number)|nil @The new direction if any.
 ---@param force ForceIdentification @The force whose robots are supposed to do the upgrade.
 ---@param player PlayerIdentification|nil
 ---@param target EntityPrototypeIdentification @The prototype of the entity to upgrade to.
 ---@return boolean @Whether the entity was marked for upgrade.
-function LuaEntity.order_upgrade(direction, force, player, target) end
+function LuaEntity.order_upgrade(p) end
 
 --- Plays a note with the given instrument and note.
 ---@param instrument uint
@@ -2302,14 +2312,14 @@ function LuaEntity.play_note(instrument, note) end
 function LuaEntity.release_from_spawner() end
 
 --- Remove fluid from this entity.
+---@param p {amount: double, maximum_temperature: double|nil, minimum_temperature: double|nil, name: string, temperature: double|nil}
 ---@param amount double @Amount to remove
 ---@param maximum_temperature double|nil
 ---@param minimum_temperature double|nil
 ---@param name string @Fluid prototype name.
 ---@param temperature double|nil
----@overload fun(amount: double, maximum_temperature: double|nil, minimum_temperature: double|nil, name: string): double
 ---@return double @Amount of fluid actually removed.
-function LuaEntity.remove_fluid(amount, maximum_temperature, minimum_temperature, name, temperature) end
+function LuaEntity.remove_fluid(p) end
 
 --- Remove an offer from a market.
 ---@param offer uint @Index of offer to remove.
@@ -2324,26 +2334,23 @@ function LuaEntity.request_to_close(force) end
 function LuaEntity.request_to_open(extra_time, force) end
 
 --- Revive a ghost. I.e. turn it from a ghost to a real entity or tile.
+---@param p {raise_revive: boolean|nil, return_item_request_proxy: boolean|nil}
 ---@param raise_revive boolean|nil @If true, and an entity ghost; [script_raised_revive](script_raised_revive) will be called. Else if true, and a tile ghost; [script_raised_set_tiles](script_raised_set_tiles) will be called.
 ---@param return_item_request_proxy boolean|nil @If `true` the function will return item request proxy as the third return value.
----@overload fun(raise_revive: boolean|nil): (table<string, uint>)|nil, LuaEntity|nil, LuaEntity|nil
----@overload fun(): (table<string, uint>)|nil, LuaEntity|nil, LuaEntity|nil
----@return (table<string, uint>)|nil, LuaEntity|nil, LuaEntity|nil @Any items the new real entity collided with or `nil` if the ghost could not be revived.; The revived entity if an entity ghost was successfully revived.; The item request proxy if it was requested with `return_item_request_proxy`.
-function LuaEntity.revive(raise_revive, return_item_request_proxy) end
+---@return table<string, uint>, LuaEntity, LuaEntity @Any items the new real entity collided with or `nil` if the ghost could not be revived.; The revived entity if an entity ghost was successfully revived.; The item request proxy if it was requested with `return_item_request_proxy`.
+---@overload fun(): table<string, uint>, LuaEntity, LuaEntity
+function LuaEntity.revive(p) end
 
 --- Rotates this entity as if the player rotated it.
+---@param p {by_player: PlayerIdentification|nil, enable_looted: boolean|nil, force: (LuaForce | string)|nil, reverse: boolean|nil, spill_items: boolean|nil}
 ---@param by_player PlayerIdentification|nil @If not specified, the [on_player_rotated_entity](on_player_rotated_entity) event will not be fired.
 ---@param enable_looted boolean|nil @When true, each spilled item will be flagged with the [LuaEntity::to_be_looted](LuaEntity::to_be_looted) flag.
 ---@param force (LuaForce | string)|nil @When provided the spilled items will be marked for deconstruction by this force.
 ---@param reverse boolean|nil @If `true`, rotate the entity in the counter-clockwise direction.
 ---@param spill_items boolean|nil @If the player is not given should extra items be spilled or returned as a second return value from this.
----@overload fun(by_player: PlayerIdentification|nil, enable_looted: boolean|nil, force: (LuaForce | string)|nil, reverse: boolean|nil): boolean, (table<string, uint>)|nil
----@overload fun(by_player: PlayerIdentification|nil, enable_looted: boolean|nil, force: (LuaForce | string)|nil): boolean, (table<string, uint>)|nil
----@overload fun(by_player: PlayerIdentification|nil, enable_looted: boolean|nil): boolean, (table<string, uint>)|nil
----@overload fun(by_player: PlayerIdentification|nil): boolean, (table<string, uint>)|nil
----@overload fun(): boolean, (table<string, uint>)|nil
----@return boolean, (table<string, uint>)|nil @Whether the rotation was successful.; Count of spilled items indexed by their prototype names if `spill_items` was `true`.
-function LuaEntity.rotate(by_player, enable_looted, force, reverse, spill_items) end
+---@return boolean, table<string, uint> @Whether the rotation was successful.; Count of spilled items indexed by their prototype names if `spill_items` was `true`.
+---@overload fun(): boolean, table<string, uint>
+function LuaEntity.rotate(p) end
 
 --- Set the source of this beam.
 ---@param source LuaEntity | MapPosition
@@ -2399,12 +2406,12 @@ function LuaEntity.set_recipe(recipe) end
 function LuaEntity.set_request_slot(request, slot) end
 
 --- Revives a ghost silently.
+---@param p {raise_revive: boolean|nil, return_item_request_proxy: boolean|nil}
 ---@param raise_revive boolean|nil @If true, and an entity ghost; [script_raised_revive](script_raised_revive) will be called. Else if true, and a tile ghost; [script_raised_set_tiles](script_raised_set_tiles) will be called.
 ---@param return_item_request_proxy boolean|nil @If `true` the function will return item request proxy as the third parameter.
----@overload fun(raise_revive: boolean|nil): (table<string, uint>)|nil, LuaEntity|nil, LuaEntity|nil
----@overload fun(): (table<string, uint>)|nil, LuaEntity|nil, LuaEntity|nil
----@return (table<string, uint>)|nil, LuaEntity|nil, LuaEntity|nil @Any items the new real entity collided with or `nil` if the ghost could not be revived.; The revived entity if an entity ghost was successfully revived.; The item request proxy if it was requested with `return_item_request_proxy`.
-function LuaEntity.silent_revive(raise_revive, return_item_request_proxy) end
+---@return table<string, uint>, LuaEntity, LuaEntity @Any items the new real entity collided with or `nil` if the ghost could not be revived.; The revived entity if an entity ghost was successfully revived.; The item request proxy if it was requested with `return_item_request_proxy`.
+---@overload fun(): table<string, uint>, LuaEntity, LuaEntity
+function LuaEntity.silent_revive(p) end
 
 --- Triggers spawn_decoration actions defined in the entity prototype or does nothing if entity is not "turret" or "unit-spawner".
 function LuaEntity.spawn_decorations() end
@@ -2431,243 +2438,243 @@ function LuaEntity.toggle_equipment_movement_bonus() end
 function LuaEntity.update_connections() end
 
 ---@class LuaEntityPrototype: any @Prototype of an entity.
-  ---@field active_energy_usage double|nil @RW; The active energy usage of this rocket silo or combinator prototype.
+  ---@field active_energy_usage double @RW nilable; The active energy usage of this rocket silo or combinator prototype.
   ---@field additional_pastable_entities LuaEntityPrototype[] @RW; Entities this entity can be pasted onto in addition to the normal allowed ones.
-  ---@field adjacent_tile_collision_box BoundingBox|nil @RW; The bounding box that specifies which tiles adjacent to the offshore pump should be checked.
-  ---@field adjacent_tile_collision_mask CollisionMask|nil @RW; Tiles adjacent to the offshore pump must not collide with this collision mask.
-  ---@field adjacent_tile_collision_test CollisionMask|nil @RW; If this mask is not empty, tiles adjacent to the offshore pump must not collide with this collision mask.
-  ---@field affected_by_tiles boolean|nil @RW; Whether this unit prototype is affected by tile walking speed modifiers.
-  ---@field air_resistance double|nil @RW; The air resistance of this rolling stock prototype.
+  ---@field adjacent_tile_collision_box BoundingBox @RW nilable; The bounding box that specifies which tiles adjacent to the offshore pump should be checked.
+  ---@field adjacent_tile_collision_mask CollisionMask @RW nilable; Tiles adjacent to the offshore pump must not collide with this collision mask.
+  ---@field adjacent_tile_collision_test CollisionMask @RW nilable; If this mask is not empty, tiles adjacent to the offshore pump must not collide with this collision mask.
+  ---@field affected_by_tiles boolean @RW nilable; Whether this unit prototype is affected by tile walking speed modifiers.
+  ---@field air_resistance double @RW nilable; The air resistance of this rolling stock prototype.
   ---@field alert_icon_shift Vector @RW; The alert icon shift of this entity prototype.
-  ---@field alert_when_attacking boolean|nil @RW; Whether this turret raises an alert when attacking
-  ---@field alert_when_damaged boolean|nil @RW; Whether this entity raises an alert when damaged.
-  ---@field allow_access_to_all_forces boolean|nil @RW; Whether this market allows access to all forces or just friendly ones.
-  ---@field allow_burner_leech boolean|nil @RW; Whether this inserter allows burner leeching.
+  ---@field alert_when_attacking boolean @RW nilable; Whether this turret raises an alert when attacking
+  ---@field alert_when_damaged boolean @RW nilable; Whether this entity raises an alert when damaged.
+  ---@field allow_access_to_all_forces boolean @RW nilable; Whether this market allows access to all forces or just friendly ones.
+  ---@field allow_burner_leech boolean @RW nilable; Whether this inserter allows burner leeching.
   ---@field allow_copy_paste boolean @RW; When false copy-paste is not allowed for this entity.
-  ---@field allow_custom_vectors boolean|nil @RW; Whether this inserter allows custom pickup and drop vectors.
-  ---@field allow_passengers boolean|nil @RW; Whether this vehicle allows passengers.
-  ---@field allow_run_time_change_of_is_military_target boolean|nil @RW; True if this entity-with-owner's is_military_target can be changed run-time (on the entity, not on the prototype itself)
-  ---@field allowed_effects (table<string, boolean>)|nil @RW; The allowed module effects for this entity, if any.
-  ---@field always_on boolean|nil @RW; Whether the lamp is always on (except when out of power or turned off by the circuit network).
-  ---@field animation_speed_coefficient double|nil @RW; The animation speed coefficient of this belt connectable prototype.
-  ---@field attack_parameters AttackParameters|nil @RW; The attack parameters for this entity, if any.
-  ---@field attack_result TriggerItem[]|nil @RW; The attack result of this entity, if any.
-  ---@field automated_ammo_count uint|nil @RW; The amount of ammo that inserters automatically insert into this ammo-turret or artillery-turret.
-  ---@field automatic_weapon_cycling boolean|nil @RW; Whether this spider vehicle prototoype automatically cycles weapons.
-  ---@field autoplace_specification AutoplaceSpecification|nil @RW; Autoplace specification for this entity prototype, if any.
-  ---@field base_productivity double|nil @RW; The base productivity of this crafting machine, lab, or mining drill.
-  ---@field belt_distance double|nil @RW
-  ---@field belt_length double|nil @RW
-  ---@field belt_speed double|nil @RW; The speed of this transport belt.
-  ---@field braking_force double|nil @RW; The braking force of this vehicle prototype.
+  ---@field allow_custom_vectors boolean @RW nilable; Whether this inserter allows custom pickup and drop vectors.
+  ---@field allow_passengers boolean @RW nilable; Whether this vehicle allows passengers.
+  ---@field allow_run_time_change_of_is_military_target boolean @RW nilable; True if this entity-with-owner's is_military_target can be changed run-time (on the entity, not on the prototype itself)
+  ---@field allowed_effects table<string, boolean> @RW nilable; The allowed module effects for this entity, if any.
+  ---@field always_on boolean @RW nilable; Whether the lamp is always on (except when out of power or turned off by the circuit network).
+  ---@field animation_speed_coefficient double @RW nilable; The animation speed coefficient of this belt connectable prototype.
+  ---@field attack_parameters AttackParameters @RW nilable; The attack parameters for this entity, if any.
+  ---@field attack_result TriggerItem[] @RW nilable; The attack result of this entity, if any.
+  ---@field automated_ammo_count uint @RW nilable; The amount of ammo that inserters automatically insert into this ammo-turret or artillery-turret.
+  ---@field automatic_weapon_cycling boolean @RW nilable; Whether this spider vehicle prototoype automatically cycles weapons.
+  ---@field autoplace_specification AutoplaceSpecification @RW nilable; Autoplace specification for this entity prototype, if any.
+  ---@field base_productivity double @RW nilable; The base productivity of this crafting machine, lab, or mining drill.
+  ---@field belt_distance double @RW nilable
+  ---@field belt_length double @RW nilable
+  ---@field belt_speed double @RW nilable; The speed of this transport belt.
+  ---@field braking_force double @RW nilable; The braking force of this vehicle prototype.
   ---@field build_base_evolution_requirement double @RW; The evolution requirement to build this entity as a base when expanding enemy bases.
-  ---@field build_distance uint|nil @RW
+  ---@field build_distance uint @RW nilable
   ---@field building_grid_bit_shift uint @RW; The log2 of grid size of the building
-  ---@field burner_prototype LuaBurnerPrototype|nil @RW; The burner energy source prototype this entity uses, if any.
-  ---@field burns_fluid boolean|nil @RW; Whether this generator prototype burns fluid.
-  ---@field call_for_help_radius double|nil @RW
-  ---@field can_open_gates boolean|nil @RW; Whether this unit prototype can open gates.
-  ---@field center_collision_mask CollisionMask|nil @RW; The collision mask used only for collision test with tile directly at offshore pump position.
-  ---@field chain_shooting_cooldown_modifier double|nil @RW; The chain shooting cooldown modifier of this spider vehicle prototype.
-  ---@field character_corpse LuaEntityPrototype|nil @RW
-  ---@field chunk_exploration_radius double|nil @RW; The chunk exploration radius of this spider vehicle prototype.
-  ---@field cliff_explosive_prototype string|nil @RW; The item prototype name used to destroy this cliff.
+  ---@field burner_prototype LuaBurnerPrototype @RW nilable; The burner energy source prototype this entity uses, if any.
+  ---@field burns_fluid boolean @RW nilable; Whether this generator prototype burns fluid.
+  ---@field call_for_help_radius double @RW nilable
+  ---@field can_open_gates boolean @RW nilable; Whether this unit prototype can open gates.
+  ---@field center_collision_mask CollisionMask @RW nilable; The collision mask used only for collision test with tile directly at offshore pump position.
+  ---@field chain_shooting_cooldown_modifier double @RW nilable; The chain shooting cooldown modifier of this spider vehicle prototype.
+  ---@field character_corpse LuaEntityPrototype @RW nilable
+  ---@field chunk_exploration_radius double @RW nilable; The chunk exploration radius of this spider vehicle prototype.
+  ---@field cliff_explosive_prototype string @RW nilable; The item prototype name used to destroy this cliff.
   ---@field collision_box BoundingBox @RW; The bounding box used for collision checking.
   ---@field collision_mask CollisionMask @RW; The collision masks this entity uses
   ---@field collision_mask_collides_with_self boolean @RW; Does this prototype collision mask collide with itself?
   ---@field collision_mask_collides_with_tiles_only boolean @RW; Does this prototype collision mask collide with tiles only?
   ---@field collision_mask_considers_tile_transitions boolean @RW; Does this prototype collision mask consider tile transitions?
   ---@field collision_mask_with_flags CollisionMaskWithFlags @RW
-  ---@field color Color|nil @RW; The color of the prototype, if any.
-  ---@field construction_radius double|nil @RW; The construction radius for this roboport prototype.
-  ---@field consumption double|nil @RW; The energy consumption of this car prototype.
-  ---@field container_distance double|nil @RW
-  ---@field corpses (table<string, LuaEntityPrototype>)|nil @RW; Corpses used when this entity is destroyed. It is a dictionary indexed by the corpse's prototype name.
-  ---@field count_as_rock_for_filtered_deconstruction boolean|nil @RW; If this simple-entity is counted as a rock for the deconstruction planner "trees and rocks only" filter.
-  ---@field crafting_categories (table<string, boolean>)|nil @RW; The crafting categories this entity prototype supports.
-  ---@field crafting_speed double|nil @RW; The crafting speed..
+  ---@field color Color @RW nilable; The color of the prototype, if any.
+  ---@field construction_radius double @RW nilable; The construction radius for this roboport prototype.
+  ---@field consumption double @RW nilable; The energy consumption of this car prototype.
+  ---@field container_distance double @RW nilable
+  ---@field corpses table<string, LuaEntityPrototype> @RW nilable; Corpses used when this entity is destroyed. It is a dictionary indexed by the corpse's prototype name.
+  ---@field count_as_rock_for_filtered_deconstruction boolean @RW nilable; If this simple-entity is counted as a rock for the deconstruction planner "trees and rocks only" filter.
+  ---@field crafting_categories table<string, boolean> @RW nilable; The crafting categories this entity prototype supports.
+  ---@field crafting_speed double @RW nilable; The crafting speed..
   ---@field create_ghost_on_death boolean @RW; If this prototype will attempt to create a ghost of itself on death.
-  ---@field created_effect TriggerItem[]|nil @RW; The trigger to run when this entity is created, if any.
-  ---@field created_smoke _table8|nil @RW; The smoke trigger run when this entity is built, if any.
-  ---@field damage_hit_tint Color|nil @RW
-  ---@field darkness_for_all_lamps_off float|nil @RW; Value between 0 and 1 darkness where all lamps of this lamp prototype are off.
-  ---@field darkness_for_all_lamps_on float|nil @RW; Value between 0 and 1 darkness where all lamps of this lamp prototype are on.
+  ---@field created_effect TriggerItem[] @RW nilable; The trigger to run when this entity is created, if any.
+  ---@field created_smoke _table8 @RW nilable; The smoke trigger run when this entity is built, if any.
+  ---@field damage_hit_tint Color @RW nilable
+  ---@field darkness_for_all_lamps_off float @RW nilable; Value between 0 and 1 darkness where all lamps of this lamp prototype are off.
+  ---@field darkness_for_all_lamps_on float @RW nilable; Value between 0 and 1 darkness where all lamps of this lamp prototype are on.
   ---@field default_collision_mask_with_flags CollisionMaskWithFlags @RW; The hardcoded default collision mask (with flags) for this entity prototype type.
-  ---@field destroy_non_fuel_fluid boolean|nil @RW; Whether this generator prototype destroys non-fuel fluids.
-  ---@field distraction_cooldown uint|nil @RW; The distraction cooldown of this unit prototype.
-  ---@field distribution_effectivity double|nil @RW; The distribution effectivity for this beacon prototype.
-  ---@field door_opening_speed double|nil @RW; The door opening speed for this rocket silo prototype.
-  ---@field draw_cargo boolean|nil @RW; Whether this logistics or construction robot renders its cargo when flying.
+  ---@field destroy_non_fuel_fluid boolean @RW nilable; Whether this generator prototype destroys non-fuel fluids.
+  ---@field distraction_cooldown uint @RW nilable; The distraction cooldown of this unit prototype.
+  ---@field distribution_effectivity double @RW nilable; The distribution effectivity for this beacon prototype.
+  ---@field door_opening_speed double @RW nilable; The door opening speed for this rocket silo prototype.
+  ---@field draw_cargo boolean @RW nilable; Whether this logistics or construction robot renders its cargo when flying.
   ---@field drawing_box BoundingBox @RW; The bounding box used for drawing the entity icon.
-  ---@field drop_item_distance uint|nil @RW
-  ---@field dying_speed float|nil @RW; The dying time of this corpse prototype.
-  ---@field effectivity double|nil @RW; The effectivity of this car prototype, generator prototype.
-  ---@field electric_energy_source_prototype LuaElectricEnergySourcePrototype|nil @RW; The electric energy source prototype this entity uses, if any.
+  ---@field drop_item_distance uint @RW nilable
+  ---@field dying_speed float @RW nilable; The dying time of this corpse prototype.
+  ---@field effectivity double @RW nilable; The effectivity of this car prototype, generator prototype.
+  ---@field electric_energy_source_prototype LuaElectricEnergySourcePrototype @RW nilable; The electric energy source prototype this entity uses, if any.
   ---@field emissions_per_second double @RW; Amount of pollution emissions per second this entity will create.
   ---@field enemy_map_color Color @RW; The enemy map color used when charting this entity.
-  ---@field energy_per_hit_point double|nil @RW; The energy used per hitpoint taken for this vehicle during collisions.
-  ---@field energy_per_move double|nil @RW; The energy consumed per tile moved for this flying robot.
-  ---@field energy_per_tick double|nil @RW; The energy consumed per tick for this flying robot.
-  ---@field energy_usage double|nil @RW; The direct energy usage of this entity, if any.
-  ---@field engine_starting_speed double|nil @RW; The engine starting speed for this rocket silo rocket prototype.
-  ---@field enter_vehicle_distance double|nil @RW
-  ---@field explosion_beam double|nil @RW; Whether this explosion has a beam.
-  ---@field explosion_rotate double|nil @RW; Whether this explosion rotates.
-  ---@field fast_replaceable_group string|nil @RW; The group of mutually fast-replaceable entities, if any.
-  ---@field filter_count uint|nil @RW; The filter count of this inserter, loader, or logistic chest. For logistic containers, `nil` means no limit.
-  ---@field final_attack_result TriggerItem[]|nil @RW; The final attack result for this projectile.
-  ---@field fixed_recipe string|nil @RW; The fixed recipe name for this assembling machine prototype, if any.
+  ---@field energy_per_hit_point double @RW nilable; The energy used per hitpoint taken for this vehicle during collisions.
+  ---@field energy_per_move double @RW nilable; The energy consumed per tile moved for this flying robot.
+  ---@field energy_per_tick double @RW nilable; The energy consumed per tick for this flying robot.
+  ---@field energy_usage double @RW nilable; The direct energy usage of this entity, if any.
+  ---@field engine_starting_speed double @RW nilable; The engine starting speed for this rocket silo rocket prototype.
+  ---@field enter_vehicle_distance double @RW nilable
+  ---@field explosion_beam double @RW nilable; Whether this explosion has a beam.
+  ---@field explosion_rotate double @RW nilable; Whether this explosion rotates.
+  ---@field fast_replaceable_group string @RW nilable; The group of mutually fast-replaceable entities, if any.
+  ---@field filter_count uint @RW nilable; The filter count of this inserter, loader, or logistic chest. For logistic containers, `nil` means no limit.
+  ---@field final_attack_result TriggerItem[] @RW nilable; The final attack result for this projectile.
+  ---@field fixed_recipe string @RW nilable; The fixed recipe name for this assembling machine prototype, if any.
   ---@field flags EntityPrototypeFlags @RW; The flags for this entity prototype.
-  ---@field fluid LuaFluidPrototype|nil @RW; The fluid this offshore pump produces.
+  ---@field fluid LuaFluidPrototype @RW nilable; The fluid this offshore pump produces.
   ---@field fluid_capacity double @RW; The fluid capacity of this entity or 0 if this entity doesn't support fluids.
-  ---@field fluid_energy_source_prototype LuaFluidEnergySourcePrototype|nil @RW; The fluid energy source prototype this entity uses, if any.
-  ---@field fluid_usage_per_tick double|nil @RW; The fluid usage of this generator prototype.
+  ---@field fluid_energy_source_prototype LuaFluidEnergySourcePrototype @RW nilable; The fluid energy source prototype this entity uses, if any.
+  ---@field fluid_usage_per_tick double @RW nilable; The fluid usage of this generator prototype.
   ---@field fluidbox_prototypes LuaFluidBoxPrototype[] @RW; The fluidbox prototypes for this entity.
-  ---@field flying_acceleration double|nil @RW; The flying acceleration for this rocket silo rocket prototype.
-  ---@field flying_speed double|nil @RW; The flying speed for this rocket silo rocket prototype.
-  ---@field friction_force double|nil @RW; The friction of this vehicle prototype.
+  ---@field flying_acceleration double @RW nilable; The flying acceleration for this rocket silo rocket prototype.
+  ---@field flying_speed double @RW nilable; The flying speed for this rocket silo rocket prototype.
+  ---@field friction_force double @RW nilable; The friction of this vehicle prototype.
   ---@field friendly_map_color Color @RW; The friendly map color used when charting this entity.
-  ---@field grid_prototype LuaEquipmentGridPrototype|nil @RW; The equipment grid prototype for this entity, if any.
+  ---@field grid_prototype LuaEquipmentGridPrototype @RW nilable; The equipment grid prototype for this entity, if any.
   ---@field group LuaGroup @RW; Group of this entity.
-  ---@field guns (table<string, LuaItemPrototype>)|nil @RW; A mapping of the gun name to the gun prototype this prototype uses. `nil` if this entity prototype doesn't use guns.
-  ---@field has_belt_immunity boolean|nil @RW; Whether this unit, car, or character prototype has belt immunity.
-  ---@field healing_per_tick float|nil @RW; Amount this entity can heal per tick, if any.
-  ---@field heat_buffer_prototype LuaHeatBufferPrototype|nil @RW; The heat buffer prototype this entity uses, if any.
-  ---@field heat_energy_source_prototype LuaHeatEnergySourcePrototype|nil @RW; The heat energy source prototype this entity uses, if any.
-  ---@field height double|nil @RW; The height of this spider vehicle prototype.
-  ---@field idle_energy_usage double|nil @RW; The idle energy usage of this rocket silo prototype.
-  ---@field indexed_guns LuaItemPrototype[]|nil @RW; A vector of the gun prototypes of this car, spider vehicule, or artillery wagon or turret.
-  ---@field infinite_depletion_resource_amount uint|nil @RW; Every time this infinite resource 'ticks' down, it is reduced by this amount. Meaningless if this isn't an infinite resource.
-  ---@field infinite_resource boolean|nil @RW; Whether this resource is infinite.
-  ---@field ingredient_count uint|nil @RW; The max number of ingredients this crafting machine prototype supports.
-  ---@field inserter_chases_belt_items boolean|nil @RW; True if this inserter chases items on belts for pickup.
-  ---@field inserter_drop_position Vector|nil @RW; The drop position for this inserter.
-  ---@field inserter_extension_speed double|nil @RW; The extension speed of this inserter.
-  ---@field inserter_pickup_position Vector|nil @RW; The pickup position for this inserter.
-  ---@field inserter_rotation_speed double|nil @RW; The rotation speed of this inserter.
-  ---@field inserter_stack_size_bonus double|nil @RW; The built-in stack size bonus of this inserter prototype.
-  ---@field instruments ProgrammableSpeakerInstrument[]|nil @RW; The instruments for this programmable speaker.
+  ---@field guns table<string, LuaItemPrototype> @RW nilable; A mapping of the gun name to the gun prototype this prototype uses. `nil` if this entity prototype doesn't use guns.
+  ---@field has_belt_immunity boolean @RW nilable; Whether this unit, car, or character prototype has belt immunity.
+  ---@field healing_per_tick float @RW nilable; Amount this entity can heal per tick, if any.
+  ---@field heat_buffer_prototype LuaHeatBufferPrototype @RW nilable; The heat buffer prototype this entity uses, if any.
+  ---@field heat_energy_source_prototype LuaHeatEnergySourcePrototype @RW nilable; The heat energy source prototype this entity uses, if any.
+  ---@field height double @RW nilable; The height of this spider vehicle prototype.
+  ---@field idle_energy_usage double @RW nilable; The idle energy usage of this rocket silo prototype.
+  ---@field indexed_guns LuaItemPrototype[] @RW nilable; A vector of the gun prototypes of this car, spider vehicule, or artillery wagon or turret.
+  ---@field infinite_depletion_resource_amount uint @RW nilable; Every time this infinite resource 'ticks' down, it is reduced by this amount. Meaningless if this isn't an infinite resource.
+  ---@field infinite_resource boolean @RW nilable; Whether this resource is infinite.
+  ---@field ingredient_count uint @RW nilable; The max number of ingredients this crafting machine prototype supports.
+  ---@field inserter_chases_belt_items boolean @RW nilable; True if this inserter chases items on belts for pickup.
+  ---@field inserter_drop_position Vector @RW nilable; The drop position for this inserter.
+  ---@field inserter_extension_speed double @RW nilable; The extension speed of this inserter.
+  ---@field inserter_pickup_position Vector @RW nilable; The pickup position for this inserter.
+  ---@field inserter_rotation_speed double @RW nilable; The rotation speed of this inserter.
+  ---@field inserter_stack_size_bonus double @RW nilable; The built-in stack size bonus of this inserter prototype.
+  ---@field instruments ProgrammableSpeakerInstrument[] @RW nilable; The instruments for this programmable speaker.
   ---@field is_building boolean @RW
   ---@field is_entity_with_owner boolean @RW; True if this is entity-with-owner
-  ---@field is_military_target boolean|nil @RW; True if this entity-with-owner is military target
-  ---@field item_pickup_distance double|nil @RW
-  ---@field item_slot_count uint|nil @RW; The item slot count of this constant combinator prototype.
-  ---@field items_to_place_this SimpleItemStack[]|nil @RW; Items that when placed will produce this entity, if any. Construction bots will always choose the first item in this list to build this entity.
-  ---@field lab_inputs string[]|nil @RW; The item prototype names that are the inputs of this lab prototype.
-  ---@field lamp_energy_usage double|nil @RW; The lamp energy usage of this rocket silo prototype.
-  ---@field launch_wait_time uint8|nil @RW; The rocket launch delay for this rocket silo prototype.
-  ---@field light_blinking_speed double|nil @RW; The light blinking speed for this rocket silo prototype.
+  ---@field is_military_target boolean @RW nilable; True if this entity-with-owner is military target
+  ---@field item_pickup_distance double @RW nilable
+  ---@field item_slot_count uint @RW nilable; The item slot count of this constant combinator prototype.
+  ---@field items_to_place_this SimpleItemStack[] @RW nilable; Items that when placed will produce this entity, if any. Construction bots will always choose the first item in this list to build this entity.
+  ---@field lab_inputs string[] @RW nilable; The item prototype names that are the inputs of this lab prototype.
+  ---@field lamp_energy_usage double @RW nilable; The lamp energy usage of this rocket silo prototype.
+  ---@field launch_wait_time uint8 @RW nilable; The rocket launch delay for this rocket silo prototype.
+  ---@field light_blinking_speed double @RW nilable; The light blinking speed for this rocket silo prototype.
   ---@field localised_description LocalisedString @RW
   ---@field localised_name LocalisedString @RW
-  ---@field logistic_mode string|nil @RW; The logistic mode of this logistic container. One of `"requester"`, `"active-provider"`, `"passive-provider"`, `"buffer"`, `"storage"`, `"none"`.
-  ---@field logistic_parameters _table9|nil @RW; The logistic parameters for this roboport.
-  ---@field logistic_radius double|nil @RW; The logistic radius for this roboport prototype.
-  ---@field loot Loot[]|nil @RW; Loot that will be dropped when this entity is killed, if any.
-  ---@field loot_pickup_distance double|nil @RW
-  ---@field manual_range_modifier double|nil @RW; The manual range modifier for this artillery turret or wagon prototype. subclass(ArtilleryWagon, ArtilleryTurret)
-  ---@field map_color Color|nil @RW; The map color used when charting this entity if a friendly or enemy color isn't defined, if any.
+  ---@field logistic_mode string @RW nilable; The logistic mode of this logistic container. One of `"requester"`, `"active-provider"`, `"passive-provider"`, `"buffer"`, `"storage"`, `"none"`.
+  ---@field logistic_parameters _table9 @RW nilable; The logistic parameters for this roboport.
+  ---@field logistic_radius double @RW nilable; The logistic radius for this roboport prototype.
+  ---@field loot Loot[] @RW nilable; Loot that will be dropped when this entity is killed, if any.
+  ---@field loot_pickup_distance double @RW nilable
+  ---@field manual_range_modifier double @RW nilable; The manual range modifier for this artillery turret or wagon prototype. subclass(ArtilleryWagon, ArtilleryTurret)
+  ---@field map_color Color @RW nilable; The map color used when charting this entity if a friendly or enemy color isn't defined, if any.
   ---@field map_generator_bounding_box BoundingBox @RW; The bounding box used for map generator collision checking.
   ---@field max_circuit_wire_distance double @RW; The maximum circuit wire distance for this entity. 0 if the entity doesn't support circuit wires.
-  ---@field max_count_of_owned_units double|nil @RW; Count of enemies this spawner can sustain.
-  ---@field max_darkness_to_spawn float|nil @RW; The maximum darkness at which this unit spawner can spawn entities.
-  ---@field max_distance_of_nearby_sector_revealed uint|nil @RW; The radius of the area constantly revealed by this radar, in chunks.
-  ---@field max_distance_of_sector_revealed uint|nil @RW; The radius of the area this radar can chart, in chunks.
-  ---@field max_energy double|nil @RW; The max energy for this flying robot.
+  ---@field max_count_of_owned_units double @RW nilable; Count of enemies this spawner can sustain.
+  ---@field max_darkness_to_spawn float @RW nilable; The maximum darkness at which this unit spawner can spawn entities.
+  ---@field max_distance_of_nearby_sector_revealed uint @RW nilable; The radius of the area constantly revealed by this radar, in chunks.
+  ---@field max_distance_of_sector_revealed uint @RW nilable; The radius of the area this radar can chart, in chunks.
+  ---@field max_energy double @RW nilable; The max energy for this flying robot.
   ---@field max_energy_production double @RW; The theoretical maximum energy production for this this entity.
   ---@field max_energy_usage double @RW; The theoretical maximum energy usage for this entity.
-  ---@field max_friends_around_to_spawn double|nil @RW; How many friendly units are required within the spawning_radius of this spawner for it to stop producing more units.
+  ---@field max_friends_around_to_spawn double @RW nilable; How many friendly units are required within the spawning_radius of this spawner for it to stop producing more units.
   ---@field max_health float @RW; Max health of this entity. Will be `0` if this is not an entity with health.
-  ---@field max_payload_size uint|nil @RW; The max payload size of this logistics or construction robot.
-  ---@field max_polyphony uint|nil @RW; The maximum polyphony for this programmable speaker.
-  ---@field max_power_output double|nil @RW; The default maximum power output of this generator prototype.
-  ---@field max_pursue_distance double|nil @RW; The maximum pursue distance of this unit prototype.
-  ---@field max_speed double|nil @RW; The max speed of this projectile or flying robot prototype.
-  ---@field max_to_charge float|nil @RW; The maximum energy for this flying robot above which it won't try to recharge when stationing.
-  ---@field max_underground_distance uint8|nil @RW; The max underground distance for underground belts and underground pipes.
+  ---@field max_payload_size uint @RW nilable; The max payload size of this logistics or construction robot.
+  ---@field max_polyphony uint @RW nilable; The maximum polyphony for this programmable speaker.
+  ---@field max_power_output double @RW nilable; The default maximum power output of this generator prototype.
+  ---@field max_pursue_distance double @RW nilable; The maximum pursue distance of this unit prototype.
+  ---@field max_speed double @RW nilable; The max speed of this projectile or flying robot prototype.
+  ---@field max_to_charge float @RW nilable; The maximum energy for this flying robot above which it won't try to recharge when stationing.
+  ---@field max_underground_distance uint8 @RW nilable; The max underground distance for underground belts and underground pipes.
   ---@field max_wire_distance double @RW; The maximum wire distance for this entity. 0 if the entity doesn't support wires.
-  ---@field maximum_corner_sliding_distance double|nil @RW
-  ---@field maximum_temperature double|nil @RW; The maximum fluid temperature of this generator prototype.
-  ---@field min_darkness_to_spawn float|nil @RW; The minimum darkness at which this unit spawner can spawn entities.
-  ---@field min_pursue_time uint|nil @RW; The minimum pursue time of this unit prototype.
-  ---@field min_to_charge float|nil @RW; The minimum energy for this flying robot before it tries to recharge.
+  ---@field maximum_corner_sliding_distance double @RW nilable
+  ---@field maximum_temperature double @RW nilable; The maximum fluid temperature of this generator prototype.
+  ---@field min_darkness_to_spawn float @RW nilable; The minimum darkness at which this unit spawner can spawn entities.
+  ---@field min_pursue_time uint @RW nilable; The minimum pursue time of this unit prototype.
+  ---@field min_to_charge float @RW nilable; The minimum energy for this flying robot before it tries to recharge.
   ---@field mineable_properties _table10 @RW; Whether this entity is minable and what can be obtained by mining it.
-  ---@field minimum_resource_amount uint|nil @RW; Minimum amount of this resource.
-  ---@field mining_drill_radius double|nil @RW; The mining radius of this mining drill prototype.
-  ---@field mining_speed double|nil @RW; The mining speed of this mining drill/character prototype.
-  ---@field module_inventory_size uint|nil @RW; The module inventory size. `nil` if this entity doesn't support modules.
-  ---@field move_while_shooting boolean|nil @RW; Whether this unit prototype can move while shooting.
+  ---@field minimum_resource_amount uint @RW nilable; Minimum amount of this resource.
+  ---@field mining_drill_radius double @RW nilable; The mining radius of this mining drill prototype.
+  ---@field mining_speed double @RW nilable; The mining speed of this mining drill/character prototype.
+  ---@field module_inventory_size uint @RW nilable; The module inventory size. `nil` if this entity doesn't support modules.
+  ---@field move_while_shooting boolean @RW nilable; Whether this unit prototype can move while shooting.
   ---@field name string @RW; Name of this prototype.
-  ---@field neighbour_bonus double|nil @RW
-  ---@field next_upgrade LuaEntityPrototype|nil @RW; The next upgrade for this entity, if any.
-  ---@field normal_resource_amount uint|nil @RW; The normal amount for this resource.
+  ---@field neighbour_bonus double @RW nilable
+  ---@field next_upgrade LuaEntityPrototype @RW nilable; The next upgrade for this entity, if any.
+  ---@field normal_resource_amount uint @RW nilable; The normal amount for this resource.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field order string @RW; The string used to alphabetically sort these prototypes. It is a simple string that has no additional semantic meaning.
-  ---@field pollution_to_join_attack float|nil @RW; The amount of pollution that has to be absorbed by the unit's spawner before the unit will leave the spawner and attack the source of the pollution.
+  ---@field pollution_to_join_attack float @RW nilable; The amount of pollution that has to be absorbed by the unit's spawner before the unit will leave the spawner and attack the source of the pollution.
   ---@field protected_from_tile_building boolean @RW; True if this entity prototype should be included during tile collision checks with [LuaTilePrototype::check_collision_with_entities](LuaTilePrototype::check_collision_with_entities) enabled.
-  ---@field pumping_speed double|nil @RW; The pumping speed of this offshore or normal pump.
-  ---@field radar_range uint|nil @RW; The radar range of this unit prototype.
+  ---@field pumping_speed double @RW nilable; The pumping speed of this offshore or normal pump.
+  ---@field radar_range uint @RW nilable; The radar range of this unit prototype.
   ---@field radius double @RW; The radius of this entity prototype.
-  ---@field reach_distance uint|nil @RW
-  ---@field reach_resource_distance double|nil @RW
-  ---@field related_underground_belt LuaEntityPrototype|nil @RW
+  ---@field reach_distance uint @RW nilable
+  ---@field reach_resource_distance double @RW nilable
+  ---@field related_underground_belt LuaEntityPrototype @RW nilable
   ---@field remains_when_mined LuaEntityPrototype[] @RW; The remains left behind when this entity is mined.
   ---@field remove_decoratives string @RW
-  ---@field repair_speed_modifier uint|nil @RW; Repair-speed modifier for this entity, if any. Actual repair speed will be `tool_repair_speed * entity_repair_speed_modifier`.
-  ---@field researching_speed double|nil @RW; The base researching speed of this lab prototype.
-  ---@field resistances (table<string, Resistance>)|nil @RW; List of resistances towards each damage type. It is a dictionary indexed by damage type names (see `data/base/prototypes/damage-type.lua`).
-  ---@field resource_categories (table<string, boolean>)|nil @RW; The resource categories this character or mining drill supports.
-  ---@field resource_category string|nil @RW; Name of the category of this resource.
-  ---@field respawn_time uint|nil @RW
-  ---@field result_units UnitSpawnDefinition[]|nil @RW; The result units and spawn points with weight and evolution factor for a biter spawner entity.
-  ---@field rising_speed double|nil @RW; The rising speed for this rocket silo rocket prototype.
-  ---@field rocket_entity_prototype LuaEntityPrototype|nil @RW; The rocket entity prototype associated with this rocket silo prototype.
-  ---@field rocket_parts_required uint|nil @RW; The rocket parts required for this rocket silo prototype.
-  ---@field rocket_rising_delay uint8|nil @RW; The rocket rising delay for this rocket silo prototype.
-  ---@field rotation_speed double|nil @RW; The rotation speed of this car prototype.
-  ---@field running_speed double|nil @RW; The current movement speed of this character, including effects from exoskeletons, tiles, stickers and shooting.
-  ---@field scale_fluid_usage boolean|nil @RW; Whether this generator prototype scales fluid usage.
-  ---@field secondary_collision_box BoundingBox|nil @RW; The secondary bounding box used for collision checking, if any. This is only used in rails and rail remnants.
+  ---@field repair_speed_modifier uint @RW nilable; Repair-speed modifier for this entity, if any. Actual repair speed will be `tool_repair_speed * entity_repair_speed_modifier`.
+  ---@field researching_speed double @RW nilable; The base researching speed of this lab prototype.
+  ---@field resistances table<string, Resistance> @RW nilable; List of resistances towards each damage type. It is a dictionary indexed by damage type names (see `data/base/prototypes/damage-type.lua`).
+  ---@field resource_categories table<string, boolean> @RW nilable; The resource categories this character or mining drill supports.
+  ---@field resource_category string @RW nilable; Name of the category of this resource.
+  ---@field respawn_time uint @RW nilable
+  ---@field result_units UnitSpawnDefinition[] @RW nilable; The result units and spawn points with weight and evolution factor for a biter spawner entity.
+  ---@field rising_speed double @RW nilable; The rising speed for this rocket silo rocket prototype.
+  ---@field rocket_entity_prototype LuaEntityPrototype @RW nilable; The rocket entity prototype associated with this rocket silo prototype.
+  ---@field rocket_parts_required uint @RW nilable; The rocket parts required for this rocket silo prototype.
+  ---@field rocket_rising_delay uint8 @RW nilable; The rocket rising delay for this rocket silo prototype.
+  ---@field rotation_speed double @RW nilable; The rotation speed of this car prototype.
+  ---@field running_speed double @RW nilable; The current movement speed of this character, including effects from exoskeletons, tiles, stickers and shooting.
+  ---@field scale_fluid_usage boolean @RW nilable; Whether this generator prototype scales fluid usage.
+  ---@field secondary_collision_box BoundingBox @RW nilable; The secondary bounding box used for collision checking, if any. This is only used in rails and rail remnants.
   ---@field selectable_in_game boolean @RW; Is this entity selectable?
   ---@field selection_box BoundingBox @RW; The bounding box used for drawing selection.
   ---@field selection_priority uint @RW; The selection priority of this entity - a value between 0 and 255
   ---@field shooting_cursor_size double @RW; The cursor size used when shooting at this entity.
-  ---@field spawn_cooldown _table11|nil @RW; The spawning cooldown for this enemy spawner prototype.
-  ---@field spawning_radius double|nil @RW; How far from the spawner can the units be spawned.
-  ---@field spawning_spacing double|nil @RW; What spaces should be between the spawned units.
-  ---@field spawning_time_modifier double|nil @RW; The spawning time modifier of this unit prototype.
-  ---@field speed double|nil @RW; The default speed of this flying robot, rolling stock or unit. For rolling stocks, this is their `max_speed`.
-  ---@field speed_multiplier_when_out_of_energy float|nil @RW; The speed multiplier when this flying robot is out of energy.
-  ---@field stack boolean|nil @RW; Whether this inserter is a stack-type.
+  ---@field spawn_cooldown _table11 @RW nilable; The spawning cooldown for this enemy spawner prototype.
+  ---@field spawning_radius double @RW nilable; How far from the spawner can the units be spawned.
+  ---@field spawning_spacing double @RW nilable; What spaces should be between the spawned units.
+  ---@field spawning_time_modifier double @RW nilable; The spawning time modifier of this unit prototype.
+  ---@field speed double @RW nilable; The default speed of this flying robot, rolling stock or unit. For rolling stocks, this is their `max_speed`.
+  ---@field speed_multiplier_when_out_of_energy float @RW nilable; The speed multiplier when this flying robot is out of energy.
+  ---@field stack boolean @RW nilable; Whether this inserter is a stack-type.
   ---@field sticker_box BoundingBox @RW; The bounding box used to attach sticker type entities.
   ---@field subgroup LuaGroup @RW; Subgroup of this entity.
-  ---@field supply_area_distance double|nil @RW; The supply area of this electric pole or beacon prototype.
+  ---@field supply_area_distance double @RW nilable; The supply area of this electric pole or beacon prototype.
   ---@field supports_direction boolean @RW; Whether this entity prototype could possibly ever be rotated.
-  ---@field tank_driving boolean|nil @RW; If this car prototype uses tank controls to drive.
-  ---@field target_temperature double|nil @RW; The target temperature of this boiler prototype.
-  ---@field terrain_friction_modifier float|nil @RW; The terrain friction modifier for this vehicle.
-  ---@field ticks_to_keep_aiming_direction uint|nil @RW
-  ---@field ticks_to_keep_gun uint|nil @RW
-  ---@field ticks_to_stay_in_combat uint|nil @RW
+  ---@field tank_driving boolean @RW nilable; If this car prototype uses tank controls to drive.
+  ---@field target_temperature double @RW nilable; The target temperature of this boiler prototype.
+  ---@field terrain_friction_modifier float @RW nilable; The terrain friction modifier for this vehicle.
+  ---@field ticks_to_keep_aiming_direction uint @RW nilable
+  ---@field ticks_to_keep_gun uint @RW nilable
+  ---@field ticks_to_stay_in_combat uint @RW nilable
   ---@field tile_height uint @RW; Specifies the tiling size of the entity, is used to decide, if the center should be in the center of the tile (odd tile size dimension) or on the tile border (even tile size dimension)
   ---@field tile_width uint @RW; Specifies the tiling size of the entity, is used to decide, if the center should be in the center of the tile (odd tile size dimension) or on the tile border (even tile size dimension)
   ---@field time_to_live uint @RW; The time to live for this prototype or `0` if prototype doesn't have time_to_live or time_before_removed.
-  ---@field timeout uint|nil @RW; The time it takes this land mine to arm.
-  ---@field torso_rotation_speed double|nil @RW; The torso rotation speed of this spider vehicle prototype.
-  ---@field tree_color_count uint8|nil @RW; If it is a tree, return the number of colors it supports.
-  ---@field trigger_collision_mask CollisionMaskWithFlags|nil @RW; The collision mask entities must collide with to make this landmine blow up.
-  ---@field turret_range uint|nil @RW; The range of this turret.
-  ---@field turret_rotation_speed double|nil @RW; The turret rotation speed of this car prototype.
+  ---@field timeout uint @RW nilable; The time it takes this land mine to arm.
+  ---@field torso_rotation_speed double @RW nilable; The torso rotation speed of this spider vehicle prototype.
+  ---@field tree_color_count uint8 @RW nilable; If it is a tree, return the number of colors it supports.
+  ---@field trigger_collision_mask CollisionMaskWithFlags @RW nilable; The collision mask entities must collide with to make this landmine blow up.
+  ---@field turret_range uint @RW nilable; The range of this turret.
+  ---@field turret_rotation_speed double @RW nilable; The turret rotation speed of this car prototype.
   ---@field type string @RW; Type of this prototype.
-  ---@field use_exact_mode boolean|nil @RW; Whether this logistic container prototype uses exact mode
+  ---@field use_exact_mode boolean @RW nilable; Whether this logistic container prototype uses exact mode
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
-  ---@field vision_distance double|nil @RW; The vision distance of this unit prototype.
-  ---@field void_energy_source_prototype LuaVoidEnergySourcePrototype|nil @RW; The void energy source prototype this entity uses, if any.
-  ---@field weight double|nil @RW; The weight of this vehicle prototype.
+  ---@field vision_distance double @RW nilable; The vision distance of this unit prototype.
+  ---@field void_energy_source_prototype LuaVoidEnergySourcePrototype @RW nilable; The void energy source prototype this entity uses, if any.
+  ---@field weight double @RW nilable; The weight of this vehicle prototype.
 LuaEntityPrototype = {}
 
 --- Gets the base size of the given inventory on this entity or `nil` if the given inventory doesn't exist.
 ---@param index defines__inventory|number
----@return uint|nil
+---@return uint
 function LuaEntityPrototype.get_inventory_size(index) end
 
 --- Test whether this entity prototype has a certain flag set.
@@ -2680,7 +2687,7 @@ function LuaEntityPrototype.has_flag(flag) end
 function LuaEntityPrototype.help() end
 
 ---@class LuaEquipment: any @An item in a [LuaEquipmentGrid](LuaEquipmentGrid), for example a fusion reactor placed in one's power armor. An equipment reference becomes invalid once the equipment is removed or the equipment grid it resides in is destroyed.
-  ---@field burner LuaBurner|nil @RW; The burner energy source for this equipment, if any.
+  ---@field burner LuaBurner @RW nilable; The burner energy source for this equipment, if any.
   ---@field energy double @RW; Current available energy.
   ---@field generator_power double @RW; Energy generated per tick.
   ---@field max_energy double @RW; Maximum amount of energy that can be stored in this equipment.
@@ -2732,10 +2739,11 @@ function LuaEquipmentCategoryPrototype.help() end
 LuaEquipmentGrid = {}
 
 --- Check whether moving an equipment would succeed.
+---@param p {equipment: LuaEquipment, position: EquipmentPosition}
 ---@param equipment LuaEquipment @The equipment to move
 ---@param position EquipmentPosition @Where to put it
 ---@return boolean
-function LuaEquipmentGrid.can_move(equipment, position) end
+function LuaEquipmentGrid.can_move(p) end
 
 --- Clear all equipment from the grid, removing it without actually returning it.
 ---@param by_player PlayerIdentification|nil @If provided, the action is done 'as' this player and [on_player_removed_equipment](on_player_removed_equipment) is triggered.
@@ -2750,12 +2758,12 @@ function LuaEquipmentGrid.count(equipment) end
 
 --- Find equipment by name.
 ---@param equipment string @Prototype name of the equipment to find.
----@return LuaEquipment|nil @The first found equipment, or `nil` if equipment could not be found.
+---@return LuaEquipment @The first found equipment, or `nil` if equipment could not be found.
 function LuaEquipmentGrid.find(equipment) end
 
 --- Find equipment in the Equipment Grid based off a position.
 ---@param position EquipmentPosition @The position
----@return LuaEquipment|nil @The found equipment, or `nil` if equipment could not be found at the given position.
+---@return LuaEquipment @The found equipment, or `nil` if equipment could not be found at the given position.
 function LuaEquipmentGrid.get(position) end
 
 --- Get counts of all equipment in this grid.
@@ -2767,28 +2775,27 @@ function LuaEquipmentGrid.get_contents() end
 function LuaEquipmentGrid.help() end
 
 --- Move an equipment within this grid.
+---@param p {equipment: LuaEquipment, position: EquipmentPosition}
 ---@param equipment LuaEquipment @The equipment to move
 ---@param position EquipmentPosition @Where to put it
 ---@return boolean @`true` if the equipment was successfully moved.
-function LuaEquipmentGrid.move(equipment, position) end
+function LuaEquipmentGrid.move(p) end
 
 --- Insert an equipment into the grid.
+---@param p {by_player: PlayerIdentification|nil, name: string, position: EquipmentPosition|nil}
 ---@param by_player PlayerIdentification|nil @If provided the action is done 'as' this player and [on_player_placed_equipment](on_player_placed_equipment) is triggered.
 ---@param name string @Equipment prototype name
 ---@param position EquipmentPosition|nil @Grid position to put the equipment in.
----@overload fun(by_player: PlayerIdentification|nil, name: string): LuaEquipment|nil
----@return LuaEquipment|nil @The newly-added equipment, or `nil` if the equipment could not be added.
-function LuaEquipmentGrid.put(by_player, name, position) end
+---@return LuaEquipment @The newly-added equipment, or `nil` if the equipment could not be added.
+function LuaEquipmentGrid.put(p) end
 
 --- Remove an equipment from the grid.
+---@param p {by_player: PlayerIdentification|nil, equipment: LuaEquipment|nil, position: EquipmentPosition|nil}
 ---@param by_player PlayerIdentification|nil @If provided the action is done 'as' this player and [on_player_removed_equipment](on_player_removed_equipment) is triggered.
 ---@param equipment LuaEquipment|nil @Take this exact equipment.
 ---@param position EquipmentPosition|nil @Take the equipment that contains this position in the grid.
----@overload fun(by_player: PlayerIdentification|nil, equipment: LuaEquipment|nil): SimpleItemStack|nil
----@overload fun(by_player: PlayerIdentification|nil): SimpleItemStack|nil
----@overload fun(): SimpleItemStack|nil
----@return SimpleItemStack|nil @The removed equipment, or `nil` if no equipment was removed.
-function LuaEquipmentGrid.take(by_player, equipment, position) end
+---@return SimpleItemStack @The removed equipment, or `nil` if no equipment was removed.
+function LuaEquipmentGrid.take(p) end
 
 --- Remove all equipment from the grid.
 ---@param by_player PlayerIdentification|nil @If provided, the action is done 'as' this player and [on_player_removed_equipment](on_player_removed_equipment) is triggered.
@@ -2814,11 +2821,11 @@ LuaEquipmentGridPrototype = {}
 function LuaEquipmentGridPrototype.help() end
 
 ---@class LuaEquipmentPrototype: any @Prototype of a modular equipment.
-  ---@field attack_parameters AttackParameters|nil @RW; The equipment attack parameters.
+  ---@field attack_parameters AttackParameters @RW nilable; The equipment attack parameters.
   ---@field automatic boolean @RW; Whether this active defense equipment is automatic. Returns false if not active defense equipment.
   ---@field background_color Color @RW; The background color of this equipment prototype.
-  ---@field burner_prototype LuaBurnerPrototype|nil @RW; The burner energy source prototype this equipment uses, if any.
-  ---@field electric_energy_source_prototype LuaElectricEnergySourcePrototype|nil @RW; The electric energy source prototype this equipment uses, if any.
+  ---@field burner_prototype LuaBurnerPrototype @RW nilable; The burner energy source prototype this equipment uses, if any.
+  ---@field electric_energy_source_prototype LuaElectricEnergySourcePrototype @RW nilable; The electric energy source prototype this equipment uses, if any.
   ---@field energy_consumption double @RW
   ---@field energy_per_shield double @RW; The energy per shield point restored. 0 for non-shield equipment.
   ---@field energy_production double @RW; The max power generated by this equipment.
@@ -2833,7 +2840,7 @@ function LuaEquipmentGridPrototype.help() end
   ---@field order string @RW; The string used to alphabetically sort these prototypes. It is a simple string that has no additional semantic meaning.
   ---@field shape _table14 @RW; Shape of this equipment prototype.
   ---@field shield float @RW; The shield value of this equipment. 0 for non-shield equipment.
-  ---@field take_result LuaItemPrototype|nil @RW; The result item when taking this equipment out of an equipment grid, if any.
+  ---@field take_result LuaItemPrototype @RW nilable; The result item when taking this equipment out of an equipment grid, if any.
   ---@field type string @RW; Type of this equipment prototype.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaEquipmentPrototype = {}
@@ -2843,7 +2850,7 @@ LuaEquipmentPrototype = {}
 function LuaEquipmentPrototype.help() end
 
 ---@class LuaFlowStatistics: any @Encapsulates statistic data for different parts of the game. In the context of flow statistics, `input` and `output` describe on which side of the associated GUI the values are shown. Input values are shown on the left side, output values on the right side. Examples: - The item production GUI shows "consumption" on the right, thus `output` describes the item consumption numbers. The same goes for fluid consumption. - The kills GUI shows "losses" on the right, so `output` describes how many of the force's entities were killed by enemies. - The electric network GUI shows "power consumption" on the left side, so in this case `input` describes the power consumption numbers.
-  ---@field force LuaForce|nil @RW; The force these statistics belong to. `nil` for pollution statistics.
+  ---@field force LuaForce @RW nilable; The force these statistics belong to. `nil` for pollution statistics.
   ---@field input_counts table<string, uint64 | double> @RW; List of input counts indexed by prototype name. Represents the data that is shown on the left side of the GUI for the given statistics.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field output_counts table<string, uint64 | double> @RW; List of output counts indexed by prototype name. Represents the data that is shown on the right side of the GUI for the given statistics.
@@ -2856,14 +2863,14 @@ function LuaFlowStatistics.clear() end
 --- Gets the flow count value for the given time frame. If `sample_index` is not provided, then the value returned is the average across the provided precision time period. These are the values shown in the bottom section of the statistics GUIs.
 --- Use `sample_index` to access the data used to generate the statistics graphs. Each precision level contains 300 samples of data so at a precision of 1 minute, each sample contains data averaged across 60s / 300 = 0.2s = 12 ticks.
 --- All return values are normalized to be per-tick for electric networks and per-minute for all other types.
+---@param p {count: boolean|nil, input: boolean, name: string, precision_index: defines__flow_precision_index|number, sample_index: uint16|nil}
 ---@param count boolean|nil @If true, the count of items/fluids/entities is returned instead of the per-time-frame value.
 ---@param input boolean @Read the input values or the output values
 ---@param name string @The prototype name.
 ---@param precision_index defines__flow_precision_index|number @The precision range to read.
 ---@param sample_index uint16|nil @The sample index to read from within the precision range. If not provided, the entire precision range is read. Must be between 1 and 300 where 1 is the most recent sample and 300 is the oldest.
----@overload fun(count: boolean|nil, input: boolean, name: string, precision_index: defines__flow_precision_index|number): double
 ---@return double
-function LuaFlowStatistics.get_flow_count(count, input, name, precision_index, sample_index) end
+function LuaFlowStatistics.get_flow_count(p) end
 
 --- Gets the total input count for a given prototype.
 ---@param name string @The prototype name.
@@ -2918,7 +2925,7 @@ function LuaFluidBox.get_connections(index) end
 
 --- Get a fluid box filter
 ---@param index uint @The index of the filter to get.
----@return FluidBoxFilter|nil @The filter at the requested index, or `nil` if there isn't one.
+---@return FluidBoxFilter @The filter at the requested index, or `nil` if there isn't one.
 function LuaFluidBox.get_filter(index) end
 
 --- Flow through the fluidbox in the last tick. It is the larger of in-flow and out-flow.
@@ -2933,7 +2940,7 @@ function LuaFluidBox.get_fluid_system_id(index) end
 
 --- Returns the fluid the fluidbox is locked onto
 ---@param index uint
----@return string|nil @`nil` if the fluidbox is not locked to any fluid.
+---@return string @`nil` if the fluidbox is not locked to any fluid.
 function LuaFluidBox.get_locked_fluid(index) end
 
 --- The prototype of this fluidbox index.
@@ -2955,11 +2962,11 @@ function LuaFluidBox.set_filter(filter, index) end
   ---@field base_area double @RW
   ---@field base_level double @RW
   ---@field entity LuaEntityPrototype @RW; The entity that this belongs to.
-  ---@field filter LuaFluidPrototype|nil @RW; The filter, if any is set.
+  ---@field filter LuaFluidPrototype @RW nilable; The filter, if any is set.
   ---@field height double @RW
   ---@field index uint @RW; The index of this fluidbox prototype in the owning entity.
-  ---@field maximum_temperature double|nil @RW; The maximum temperature, if any is set.
-  ---@field minimum_temperature double|nil @RW; The minimum temperature, if any is set.
+  ---@field maximum_temperature double @RW nilable; The maximum temperature, if any is set.
+  ---@field minimum_temperature double @RW nilable; The minimum temperature, if any is set.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field pipe_connections FluidBoxConnection[] @RW; The pipe connection points.
   ---@field production_type string @RW; The production type. "input", "output", "input-output", or "none".
@@ -3019,7 +3026,7 @@ function LuaFluidPrototype.help() end
 
 ---@class LuaFontPrototype: any @Prototype of a font.
   ---@field border boolean @RW
-  ---@field border_color Color|nil @RW; The border color, if any.
+  ---@field border_color Color @RW nilable; The border color, if any.
   ---@field filtered boolean @RW
   ---@field from string @RW
   ---@field name string @RW; Name of this prototype.
@@ -3049,8 +3056,8 @@ function LuaFontPrototype.help() end
   ---@field character_trash_slot_count double @RW; Number of character trash slots.
   ---@field color Color @RW; Effective color of this force.
   ---@field connected_players LuaPlayer[] @RW; The connected players belonging to this force. This is primarily useful when you want to do some action against all online players of this force.
-  ---@field current_research LuaTechnology|nil @RW; The currently ongoing technology research, if any.
-  ---@field custom_color Color|nil @RW; Custom color for this force. If specified, will take priority over other sources of the force color. Writing nil clears custom color. Will return nil if it was not specified or if was set to {0,0,0,0}
+  ---@field current_research LuaTechnology @RW nilable; The currently ongoing technology research, if any.
+  ---@field custom_color Color @RW nilable; Custom color for this force. If specified, will take priority over other sources of the force color. Writing nil clears custom color. Will return nil if it was not specified or if was set to {0,0,0,0}
   ---@field deconstruction_time_to_live uint @RW; The time, in ticks, before a deconstruction order is removed.
   ---@field entity_build_count_statistics LuaFlowStatistics @RW; The entity build statistics for this force (built and mined)
   ---@field evolution_factor double @RW; Evolution factor of this force.
@@ -3078,7 +3085,7 @@ function LuaFontPrototype.help() end
   ---@field name string @RW; Name of the force.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field players LuaPlayer[] @RW; Players belonging to this force.
-  ---@field previous_research LuaTechnology|nil @RW; The previous research, if any.
+  ---@field previous_research LuaTechnology @RW nilable; The previous research, if any.
   ---@field recipes table<string, LuaRecipe> @RW; Recipes available to this force, indexed by `name`.
   ---@field research_enabled boolean @RW; Whether research is enabled for this force, see [LuaForce::enable_research](LuaForce::enable_research) and [LuaForce::disable_research](LuaForce::disable_research)
   ---@field research_progress double @RW; Progress of current research, as a number in range [0, 1].
@@ -3103,7 +3110,7 @@ LuaForce = {}
 --- Adds a custom chart tag to the given surface and returns the new tag or `nil` if the given position isn't valid for a chart tag.
 ---@param surface SurfaceIdentification @Which surface to add the tag to.
 ---@param tag ChartTagSpec @The tag to add.
----@return LuaCustomChartTag|nil
+---@return LuaCustomChartTag
 function LuaForce.add_chart_tag(surface, tag) end
 
 --- Add this technology to the back of the research queue if the queue is enabled. Otherwise, set this technology to be researched now.
@@ -3160,7 +3167,7 @@ function LuaForce.find_chart_tags(area, surface) end
 
 ---@param position MapPosition @Position to find a network for
 ---@param surface SurfaceIdentification @Surface to search on
----@return LuaLogisticNetwork|nil @The found network or `nil`.
+---@return LuaLogisticNetwork @The found network or `nil`.
 function LuaForce.find_logistic_network_by_position(position, surface) end
 
 ---@param ammo string @Ammo category
@@ -3199,12 +3206,12 @@ function LuaForce.get_item_launched(item) end
 --- Gets the linked inventory for the given prototype and link ID if it exists or `nil`.
 ---@param link_id uint
 ---@param prototype EntityPrototypeIdentification
----@return LuaInventory|nil
+---@return LuaInventory
 function LuaForce.get_linked_inventory(link_id, prototype) end
 
 --- Gets the saved progress for the given technology or `nil` if there is no saved progress.
 ---@param technology TechnologyIdentification @The technology
----@return double|nil @The progress as a percent.
+---@return double @The progress as a percent.
 function LuaForce.get_saved_technology_progress(technology) end
 
 ---@param surface SurfaceIdentification
@@ -3212,12 +3219,12 @@ function LuaForce.get_saved_technology_progress(technology) end
 function LuaForce.get_spawn_position(surface) end
 
 --- Gets train stops matching the given filters.
+---@param p {name: (string | string[])|nil, surface: SurfaceIdentification|nil}
 ---@param name (string | string[])|nil
 ---@param surface SurfaceIdentification|nil
----@overload fun(name: (string | string[])|nil): LuaEntity[]
----@overload fun(): LuaEntity[]
 ---@return LuaEntity[]
-function LuaForce.get_train_stops(name, surface) end
+---@overload fun(): LuaEntity[]
+function LuaForce.get_train_stops(p) end
 
 ---@param surface SurfaceIdentification|nil @If given only trains on the surface are returned.
 ---@overload fun(): LuaTrain[]
@@ -3262,13 +3269,12 @@ function LuaForce.is_pathfinder_busy() end
 function LuaForce.kill_all_units() end
 
 --- Play a sound for every player in this force.
+---@param p {override_sound_type: SoundType|nil, path: SoundPath, position: MapPosition|nil, volume_modifier: double|nil}
 ---@param override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
 ---@param path SoundPath @The sound to play.
 ---@param position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
 ---@param volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
----@overload fun(override_sound_type: SoundType|nil, path: SoundPath, position: MapPosition|nil)
----@overload fun(override_sound_type: SoundType|nil, path: SoundPath)
-function LuaForce.play_sound(override_sound_type, path, position, volume_modifier) end
+function LuaForce.play_sound(p) end
 
 --- Print text to the chat console of all players on this force.
 ---@param color Color|nil
@@ -3403,7 +3409,7 @@ function LuaFuelCategoryPrototype.help() end
   ---@field object_name string @RW; This object's name.
   ---@field particle_prototypes table<string, LuaParticlePrototype> @RW; A dictionary containing every LuaParticlePrototype indexed by `name`.
   ---@field permissions LuaPermissionGroups @RW
-  ---@field player LuaPlayer|nil @RW; This property is only populated inside [custom command](LuaCommandProcessor) handlers and when writing [Lua console commands](https://wiki.factorio.com/Console#Scripting_and_cheat_commands). Returns the player that is typing the command, `nil` in all other instances. See [LuaGameScript::players](LuaGameScript::players) for accessing all players.
+  ---@field player LuaPlayer @RW nilable; This property is only populated inside [custom command](LuaCommandProcessor) handlers and when writing [Lua console commands](https://wiki.factorio.com/Console#Scripting_and_cheat_commands). Returns the player that is typing the command, `nil` in all other instances. See [LuaGameScript::players](LuaGameScript::players) for accessing all players.
   ---@field players table<uint | string, LuaPlayer> @RW; Get a table of all the players that currently exist. This sparse table allows you to find players by indexing it with either their `name` or `index`. Iterating this table with `pairs()` will only iterate the array part of the table. Iterating with `ipairs()` will not work at all. If only a single player is required, [LuaGameScript::get_player](LuaGameScript::get_player) should be used instead, as it avoids the unnecessary overhead of passing the whole table to Lua.
   ---@field pollution_statistics LuaFlowStatistics @RW; The pollution statistics for this map.
   ---@field recipe_category_prototypes table<string, LuaRecipeCategoryPrototype> @RW; A dictionary containing every LuaRecipeCategoryPrototype indexed by `name`.
@@ -3474,7 +3480,7 @@ function LuaGameScript.create_surface(name, settings) end
 
 --- Base64 decodes and inflates the given string.
 ---@param string string @The string to decode.
----@return string|nil @The decoded string or `nil` if the decode failed.
+---@return string @The decoded string or `nil` if the decode failed.
 function LuaGameScript.decode_string(string) end
 
 --- Deletes the given surface and all entities on it.
@@ -3493,7 +3499,7 @@ function LuaGameScript.disable_tutorial_triggers() end
 
 --- Deflates and base64 encodes the given string.
 ---@param string string @The string to encode.
----@return string|nil @The encoded string or `nil` if the encode failed.
+---@return string @The encoded string or `nil` if the encode failed.
 function LuaGameScript.encode_string(string) end
 
 --- Evaluate an expression, substituting variables as provided. For details on the formula, see the relevant page on the [Factorio wiki](https://wiki.factorio.com/Prototype/Technology#unit).
@@ -3513,7 +3519,7 @@ function LuaGameScript.force_crc() end
 function LuaGameScript.get_active_entities_count(surface) end
 
 ---@param tag string
----@return LuaEntity|nil
+---@return LuaEntity
 function LuaGameScript.get_entity_by_tag(tag) end
 
 --- Returns a dictionary of all LuaAchievementPrototypes that fit the given filters. The prototypes are indexed by `name`.
@@ -3572,7 +3578,7 @@ function LuaGameScript.get_map_exchange_string() end
 
 --- Gets the given player or returns `nil` if no player is found.
 ---@param player uint | string @The player index or name.
----@return LuaPlayer|nil
+---@return LuaPlayer
 function LuaGameScript.get_player(player) end
 
 --- Gets the inventories created through [LuaGameScript::create_inventory](LuaGameScript::create_inventory)
@@ -3583,18 +3589,17 @@ function LuaGameScript.get_script_inventories(mod) end
 
 --- Gets the given surface or returns `nil` if no surface is found.
 ---@param surface uint | string @The surface index or name.
----@return LuaSurface|nil
+---@return LuaSurface
 function LuaGameScript.get_surface(surface) end
 
 --- Gets train stops matching the given filters.
+---@param p {force: ForceIdentification|nil, name: (string | string[])|nil, surface: SurfaceIdentification|nil}
 ---@param force ForceIdentification|nil
 ---@param name (string | string[])|nil
 ---@param surface SurfaceIdentification|nil
----@overload fun(force: ForceIdentification|nil, name: (string | string[])|nil): LuaEntity[]
----@overload fun(force: ForceIdentification|nil): LuaEntity[]
----@overload fun(): LuaEntity[]
 ---@return LuaEntity[]
-function LuaGameScript.get_train_stops(force, name, surface) end
+---@overload fun(): LuaEntity[]
+function LuaGameScript.get_train_stops(p) end
 
 --- Is this the demo version of Factorio?
 ---@return boolean
@@ -3616,7 +3621,7 @@ function LuaGameScript.is_valid_sprite_path(sprite_path) end
 
 --- Convert a JSON string to a table.
 ---@param json string @The string to convert.
----@return AnyBasic|nil @The returned object, or `nil` if the JSON string was invalid.
+---@return AnyBasic @The returned object, or `nil` if the JSON string was invalid.
 function LuaGameScript.json_to_table(json) end
 
 --- Kicks the given player from this multiplayer game. Does nothing if this is a single player game or if the player running this isn't an admin.
@@ -3640,13 +3645,12 @@ function LuaGameScript.mute_player(player) end
 function LuaGameScript.parse_map_exchange_string(map_exchange_string) end
 
 --- Play a sound for every player in the game.
+---@param p {override_sound_type: SoundType|nil, path: SoundPath, position: MapPosition|nil, volume_modifier: double|nil}
 ---@param override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
 ---@param path SoundPath @The sound to play.
 ---@param position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
 ---@param volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
----@overload fun(override_sound_type: SoundType|nil, path: SoundPath, position: MapPosition|nil)
----@overload fun(override_sound_type: SoundType|nil, path: SoundPath)
-function LuaGameScript.play_sound(override_sound_type, path, position, volume_modifier) end
+function LuaGameScript.play_sound(p) end
 
 --- Print text to the chat console all players.
 ---@param color Color|nil
@@ -3691,24 +3695,25 @@ function LuaGameScript.save_atlas() end
 function LuaGameScript.server_save(name) end
 
 --- Set scenario state.
+---@param p {can_continue: boolean, game_finished: boolean, next_level: string, player_won: boolean, victorious_force: ForceIdentification}
 ---@param can_continue boolean
 ---@param game_finished boolean
 ---@param next_level string
 ---@param player_won boolean
 ---@param victorious_force ForceIdentification
-function LuaGameScript.set_game_state(can_continue, game_finished, next_level, player_won, victorious_force) end
+function LuaGameScript.set_game_state(p) end
 
 --- Forces the screenshot saving system to wait until all queued screenshots have been written to disk.
 function LuaGameScript.set_wait_for_screenshots_to_finish() end
 
 --- Show an in-game message dialog.
+---@param p {image: string|nil, point_to: GuiArrowSpecification|nil, style: string|nil, text: LocalisedString, wrapper_frame_style: string|nil}
 ---@param image string|nil @Path to an image to show on the dialog
 ---@param point_to GuiArrowSpecification|nil @If specified, dialog will show an arrow pointing to this place. When not specified, the arrow will point to the player's position. (Use `point_to={type="nowhere"}` to remove the arrow entirely.) The dialog itself will be placed near the arrow's target.
 ---@param style string|nil @The gui style to use for this speech bubble. Must be of type speech_bubble.
 ---@param text LocalisedString @What the dialog should say
 ---@param wrapper_frame_style string|nil @Must be of type flow_style.
----@overload fun(image: string|nil, point_to: GuiArrowSpecification|nil, style: string|nil, text: LocalisedString)
-function LuaGameScript.show_message_dialog(image, point_to, style, text, wrapper_frame_style) end
+function LuaGameScript.show_message_dialog(p) end
 
 --- Convert a table to a JSON string
 ---@param data table
@@ -3716,6 +3721,7 @@ function LuaGameScript.show_message_dialog(image, point_to, style, text, wrapper
 function LuaGameScript.table_to_json(data) end
 
 --- Take a screenshot of the game and save it to the `script-output` folder, located in the game's [user data directory](https://wiki.factorio.com/User_data_directory). The name of the image file can be specified via the `path` parameter.
+---@param p {allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil, quality: int|nil, resolution: TilePosition|nil, show_cursor_building_preview: boolean|nil, show_entity_info: boolean|nil, show_gui: boolean|nil, surface: SurfaceIdentification|nil, water_tick: uint|nil, zoom: double|nil}
 ---@param allow_in_replay boolean|nil @Whether to save the screenshot even during replay playback. Defaults to `false`.
 ---@param anti_alias boolean|nil @Whether to render in double resolution and downscale the result (including GUI). Defaults to `false`.
 ---@param by_player PlayerIdentification|nil @If defined, the screenshot will only be taken for this player.
@@ -3732,38 +3738,17 @@ function LuaGameScript.table_to_json(data) end
 ---@param surface SurfaceIdentification|nil @If defined, the screenshot will be taken on this surface.
 ---@param water_tick uint|nil @Overrides the tick of water animation, if animated water is enabled.
 ---@param zoom double|nil @The map zoom to take the screenshot at. Defaults to `1`.
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil, quality: int|nil, resolution: TilePosition|nil, show_cursor_building_preview: boolean|nil, show_entity_info: boolean|nil, show_gui: boolean|nil, surface: SurfaceIdentification|nil, water_tick: uint|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil, quality: int|nil, resolution: TilePosition|nil, show_cursor_building_preview: boolean|nil, show_entity_info: boolean|nil, show_gui: boolean|nil, surface: SurfaceIdentification|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil, quality: int|nil, resolution: TilePosition|nil, show_cursor_building_preview: boolean|nil, show_entity_info: boolean|nil, show_gui: boolean|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil, quality: int|nil, resolution: TilePosition|nil, show_cursor_building_preview: boolean|nil, show_entity_info: boolean|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil, quality: int|nil, resolution: TilePosition|nil, show_cursor_building_preview: boolean|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil, quality: int|nil, resolution: TilePosition|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil, quality: int|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil, position: MapPosition|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil, player: PlayerIdentification|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil, path: string|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil, force_render: boolean|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil, daytime: double|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil, by_player: PlayerIdentification|nil)
----@overload fun(allow_in_replay: boolean|nil, anti_alias: boolean|nil)
----@overload fun(allow_in_replay: boolean|nil)
----@overload fun()
-function LuaGameScript.take_screenshot(allow_in_replay, anti_alias, by_player, daytime, force_render, path, player, position, quality, resolution, show_cursor_building_preview, show_entity_info, show_gui, surface, water_tick, zoom) end
+function LuaGameScript.take_screenshot(p) end
 
 --- Take a screenshot of the technology screen and save it to the `script-output` folder, located in the game's [user data directory](https://wiki.factorio.com/User_data_directory). The name of the image file can be specified via the `path` parameter.
+---@param p {by_player: PlayerIdentification|nil, force: ForceIdentification|nil, path: string|nil, quality: int|nil, selected_technology: TechnologyIdentification|nil, skip_disabled: boolean|nil}
 ---@param by_player PlayerIdentification|nil @If given, the screenshot will only be taken for this player.
 ---@param force ForceIdentification|nil @The force whose technology to screenshot. If not given, the `"player`" force is used.
 ---@param path string|nil @The name of the image file. It should include a file extension indicating the desired format. Supports `.png`, `.jpg` /`.jpeg`, `.tga` and `.bmp`. Providing a directory path (ex. `"save/here/screenshot.png"`) will create the necessary folder structure in `script-output`. Defaults to `"technology-screenshot.png"`.
 ---@param quality int|nil @The `.jpg` render quality as a percentage (from 0% to 100% inclusive), if used. A lower value means a more compressed image. Defaults to `80`.
 ---@param selected_technology TechnologyIdentification|nil @The technology to highlight.
 ---@param skip_disabled boolean|nil @If `true`, disabled technologies will be skipped. Their successors will be attached to the disabled technology's parents. Defaults to `false`.
----@overload fun(by_player: PlayerIdentification|nil, force: ForceIdentification|nil, path: string|nil, quality: int|nil, selected_technology: TechnologyIdentification|nil)
----@overload fun(by_player: PlayerIdentification|nil, force: ForceIdentification|nil, path: string|nil, quality: int|nil)
----@overload fun(by_player: PlayerIdentification|nil, force: ForceIdentification|nil, path: string|nil)
----@overload fun(by_player: PlayerIdentification|nil, force: ForceIdentification|nil)
----@overload fun(by_player: PlayerIdentification|nil)
----@overload fun()
-function LuaGameScript.take_technology_screenshot(by_player, force, path, quality, selected_technology, skip_disabled) end
+function LuaGameScript.take_technology_screenshot(p) end
 
 --- Unbans the given player from this multiplayer game. Does nothing if this is a single player game of if the player running this isn't an admin.
 ---@param player PlayerIdentification @The player to unban.
@@ -3795,14 +3780,14 @@ LuaGenericOnOffControlBehavior = {}
 function LuaGenericOnOffControlBehavior.help() end
 
 ---@class LuaGroup: any @Item group or subgroup.
-  ---@field group LuaGroup|nil @RW; The parent group, if any.
-  ---@field localised_name LocalisedString|nil @RW; Localised name of the group.
-  ---@field name string|nil @RW
+  ---@field group LuaGroup @RW nilable; The parent group, if any.
+  ---@field localised_name LocalisedString @RW nilable; Localised name of the group.
+  ---@field name string @RW nilable
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field order string @RW; The string used to alphabetically sort these prototypes. It is a simple string that has no additional semantic meaning.
   ---@field order_in_recipe string @RW; The additional order value used in recipe ordering.
   ---@field subgroups LuaGroup[] @RW; Subgroups of this group.
-  ---@field type string|nil @RW
+  ---@field type string @RW nilable
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaGroup = {}
 
@@ -3837,7 +3822,7 @@ function LuaGui.is_valid_sprite_path(sprite_path) end
   ---@field allow_decimal boolean @RW; Whether this textfield (when in numeric mode) allows decimal numbers.
   ---@field allow_negative boolean @RW; Whether this textfield (when in numeric mode) allows negative numbers.
   ---@field allow_none_state boolean @RW; Whether the `"none"` state is allowed for this switch.
-  ---@field anchor GuiAnchor|nil @RW; The anchor for this relative widget, if any. Setting `nil` clears the anchor.
+  ---@field anchor GuiAnchor @RW nilable; The anchor for this relative widget, if any. Setting `nil` clears the anchor.
   ---@field auto_center boolean @RW; Whether this frame auto-centers on window resize when stored in [LuaGui::screen](LuaGui::screen).
   ---@field badge_text LocalisedString @RW; The text to display after the normal tab text (designed to work with numbers)
   ---@field caption LocalisedString @RW; The text displayed on this element. For frames, this is the "heading". For other elements, like buttons or labels, this is the content.
@@ -3847,16 +3832,16 @@ function LuaGui.is_valid_sprite_path(sprite_path) end
   ---@field clicked_sprite SpritePath @RW; The image to display on this sprite-button when it is clicked.
   ---@field column_count uint @RW; The number of columns in this table.
   ---@field direction string @RW; Direction of this element's layout. May be either `"horizontal"` or `"vertical"`.
-  ---@field drag_target LuaGuiElement|nil @RW; The `frame` that is being moved when dragging this GUI element, if any. This element needs to be a child of the `drag_target` at some level.
+  ---@field drag_target LuaGuiElement @RW nilable; The `frame` that is being moved when dragging this GUI element, if any. This element needs to be a child of the `drag_target` at some level.
   ---@field draw_horizontal_line_after_headers boolean @RW; Whether this table should draw a horizontal grid line below the first table row.
   ---@field draw_horizontal_lines boolean @RW; Whether this table should draw horizontal grid lines.
   ---@field draw_vertical_lines boolean @RW; Whether this table should draw vertical grid lines.
-  ---@field elem_filters PrototypeFilter|nil @RW; The elem filters of this choose-elem-button, if any. The compatible type of filter is determined by `elem_type`.
+  ---@field elem_filters PrototypeFilter @RW nilable; The elem filters of this choose-elem-button, if any. The compatible type of filter is determined by `elem_type`.
   ---@field elem_type string @RW; The elem type of this choose-elem-button.
-  ---@field elem_value (string | SignalID)|nil @RW; The elem value of this choose-elem-button, if any.
+  ---@field elem_value string | SignalID @RW nilable; The elem value of this choose-elem-button, if any.
   ---@field enabled boolean @RW; Whether this GUI element is enabled. Disabled GUI elements don't trigger events when clicked.
-  ---@field entity LuaEntity|nil @RW; The entity associated with this entity-preview, camera, minimap, if any.
-  ---@field force string|nil @RW; The force this minimap is using, if any.
+  ---@field entity LuaEntity @RW nilable; The entity associated with this entity-preview, camera, minimap, if any.
+  ---@field force string @RW nilable; The force this minimap is using, if any.
   ---@field gui LuaGui @RW; The GUI this element is a child of.
   ---@field horizontal_scroll_policy string @RW; Policy of the horizontal scroll bar. Possible values are `"auto"`, `"never"`, `"always"`, `"auto-and-reserve-space"`, `"dont-show-but-allow-scrolling"`.
   ---@field hovered_sprite SpritePath @RW; The image to display on this sprite-button when it is hovered.
@@ -3866,7 +3851,7 @@ function LuaGui.is_valid_sprite_path(sprite_path) end
   ---@field items LocalisedString[] @RW; The items in this dropdown or listbox.
   ---@field left_label_caption LocalisedString @RW; The text shown for the left switch label.
   ---@field left_label_tooltip LocalisedString @RW; The tooltip shown on the left switch label.
-  ---@field location GuiLocation|nil @RW; The location of this widget when stored in [LuaGui::screen](LuaGui::screen). `nil` if not set or not in [LuaGui::screen](LuaGui::screen).
+  ---@field location GuiLocation @RW nilable; The location of this widget when stored in [LuaGui::screen](LuaGui::screen). `nil` if not set or not in [LuaGui::screen](LuaGui::screen).
   ---@field locked boolean @RW; Whether this choose-elem-button can be changed by the player.
   ---@field lose_focus_on_confirm boolean @RW; Whether this textfield loses focus after [defines.events.on_gui_confirmed](defines.events.on_gui_confirmed) is fired.
   ---@field minimap_player_index uint @RW; The player index this minimap is using.
@@ -3875,7 +3860,7 @@ function LuaGui.is_valid_sprite_path(sprite_path) end
   ---@field number double @RW; The number to be shown in the bottom right corner of this sprite-button. Set this to `nil` to show nothing.
   ---@field numeric boolean @RW; Whether this textfield is limited to only numberic characters.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
-  ---@field parent LuaGuiElement|nil @RW; The direct parent of this element. `nil` if this is a top-level element.
+  ---@field parent LuaGuiElement @RW nilable; The direct parent of this element. `nil` if this is a top-level element.
   ---@field player_index uint @RW; Index into [LuaGameScript::players](LuaGameScript::players) specifying the player who owns this element.
   ---@field position MapPosition @RW; The position this camera or minimap is focused on, if any.
   ---@field read_only boolean @RW; Whether this text-box is read-only. Defaults to `false`.
@@ -3884,7 +3869,7 @@ function LuaGui.is_valid_sprite_path(sprite_path) end
   ---@field right_label_tooltip LocalisedString @RW; The tooltip shown on the right switch label.
   ---@field selectable boolean @RW; Whether the contents of this text-box are selectable. Defaults to `true`.
   ---@field selected_index uint @RW; The selected index for this dropdown or listbox. Returns `0` if none is selected.
-  ---@field selected_tab_index uint|nil @RW; The selected tab index for this tabbed pane, if any.
+  ---@field selected_tab_index uint @RW nilable; The selected tab index for this tabbed pane, if any.
   ---@field show_percent_for_small_numbers boolean @RW; Related to the number to be shown in the bottom right corner of this sprite-button. When set to `true`, numbers that are non-zero and smaller than one are shown as a percentage rather than the value. For example, `0.5` will be shown as `50%` instead.
   ---@field slider_value double @RW; The value of this slider element.
   ---@field sprite SpritePath @RW; The image to display on this sprite-button or sprite in the default state.
@@ -3907,6 +3892,7 @@ function LuaGui.is_valid_sprite_path(sprite_path) end
 LuaGuiElement = {}
 
 --- Add a new child element to this GuiElement.
+---@param p {anchor: GuiAnchor|nil, caption: LocalisedString|nil, enabled: boolean|nil, ignored_by_interaction: boolean|nil, index: uint|nil, name: string|nil, style: string|nil, tags: Tags|nil, tooltip: LocalisedString|nil, type: string, visible: boolean|nil}
 ---@param anchor GuiAnchor|nil @Where to position the child element when in the `relative` element.
 ---@param caption LocalisedString|nil @Text displayed on the child element. For frames, this is their title. For other elements, like buttons or labels, this is the content. Whilst this attribute may be used on all elements, it doesn't make sense for tables and flows as they won't display it.
 ---@param enabled boolean|nil @Whether the child element is enabled. Defaults to `true`.
@@ -3918,9 +3904,8 @@ LuaGuiElement = {}
 ---@param tooltip LocalisedString|nil @Tooltip of the child element.
 ---@param type string @The kind of element to add. Has to be one of the GUI element types listed at the top of this page.
 ---@param visible boolean|nil @Whether the child element is visible. Defaults to `true`.
----@overload fun(anchor: GuiAnchor|nil, caption: LocalisedString|nil, enabled: boolean|nil, ignored_by_interaction: boolean|nil, index: uint|nil, name: string|nil, style: string|nil, tags: Tags|nil, tooltip: LocalisedString|nil, type: string): LuaGuiElement
 ---@return LuaGuiElement @The GUI element that was added.
-function LuaGuiElement.add(anchor, caption, enabled, ignored_by_interaction, index, name, style, tags, tooltip, type, visible) end
+function LuaGuiElement.add(p) end
 
 --- Inserts a string at the end or at the given index of this dropdown or listbox.
 ---@param index uint|nil @The index at which to insert the item.
@@ -3960,7 +3945,7 @@ function LuaGuiElement.get_index_in_parent() end
 function LuaGuiElement.get_item(index) end
 
 --- The mod that owns this Gui element or `nil` if it's owned by the scenario script.
----@return string|nil
+---@return string
 function LuaGuiElement.get_mod() end
 
 --- Returns whether this slider only allows being moved to discrete positions.
@@ -4107,12 +4092,12 @@ LuaInserterControlBehavior = {}
 function LuaInserterControlBehavior.help() end
 
 ---@class LuaInventory: any @A storage of item stacks.
-  ---@field entity_owner LuaEntity|nil @RW; The entity that owns this inventory, if any.
-  ---@field equipment_owner LuaEquipment|nil @RW; The equipment that owns this inventory, if any.
-  ---@field index (defines__inventory|number)|nil @RW; The inventory index this inventory uses, if any.
-  ---@field mod_owner string|nil @RW; The mod that owns this inventory, if any.
+  ---@field entity_owner LuaEntity @RW nilable; The entity that owns this inventory, if any.
+  ---@field equipment_owner LuaEquipment @RW nilable; The equipment that owns this inventory, if any.
+  ---@field index defines__inventory|number @RW nilable; The inventory index this inventory uses, if any.
+  ---@field mod_owner string @RW nilable; The mod that owns this inventory, if any.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
-  ---@field player_owner LuaPlayer|nil @RW; The player that owns this inventory, if any.
+  ---@field player_owner LuaPlayer @RW nilable; The player that owns this inventory, if any.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaInventory = {}
 
@@ -4141,13 +4126,13 @@ function LuaInventory.destroy() end
 
 --- Finds the first empty stack. Filtered slots are excluded unless a filter item is given.
 ---@param item string|nil @If given, empty stacks that are filtered for this item will be included.
----@overload fun(): LuaItemStack|nil, uint|nil
----@return LuaItemStack|nil, uint|nil @The first empty stack, or `nil` if there aren't any empty stacks.; The stack index of the matching stack, if any is found.
+---@overload fun(): LuaItemStack, uint
+---@return LuaItemStack, uint @The first empty stack, or `nil` if there aren't any empty stacks.; The stack index of the matching stack, if any is found.
 function LuaInventory.find_empty_stack(item) end
 
 --- Finds the first LuaItemStack in the inventory that matches the given item name.
 ---@param item string @The item name to find
----@return LuaItemStack|nil, uint|nil @The first matching stack, or `nil` if none match.; The stack index of the matching stack, if any is found.
+---@return LuaItemStack, uint @The first matching stack, or `nil` if none match.; The stack index of the matching stack, if any is found.
 function LuaInventory.find_item_stack(item) end
 
 --- Get the current bar. This is the index at which the red area starts.
@@ -4160,7 +4145,7 @@ function LuaInventory.get_contents() end
 
 --- Gets the filter for the given item stack index.
 ---@param index uint @The item stack index
----@return string|nil @The current filter or `nil` if none.
+---@return string @The current filter or `nil` if none.
 function LuaInventory.get_filter(index) end
 
 --- Gets the number of the given item that can be inserted into this inventory.
@@ -4222,85 +4207,85 @@ function LuaInventory.supports_bar() end
 function LuaInventory.supports_filters() end
 
 ---@class LuaItemPrototype: any @Prototype of an item.
-  ---@field alt_entity_filter_mode string|nil @RW; The alt entity filter mode used by this selection tool.
-  ---@field alt_entity_filters (table<string, LuaEntityPrototype>)|nil @RW; The alt entity filters used by this selection tool indexed by entity name.
-  ---@field alt_entity_type_filters (table<string, boolean>)|nil @RW; The alt entity type filters used by this selection tool indexed by entity type.
-  ---@field alt_selection_border_color Color|nil @RW; The color used when doing alt selection with this selection tool prototype.
-  ---@field alt_selection_cursor_box_type string|nil @RW
-  ---@field alt_selection_mode_flags SelectionModeFlags|nil @RW; Flags that affect which entities will be selected during alternate selection.
-  ---@field alt_tile_filter_mode string|nil @RW; The alt tile filter mode used by this selection tool.
-  ---@field alt_tile_filters (table<string, LuaTilePrototype>)|nil @RW; The alt tile filters used by this selection tool indexed by tile name.
-  ---@field always_include_tiles boolean|nil @RW; If tiles area always included when doing selection with this selection tool prototype.
-  ---@field attack_parameters AttackParameters|nil @RW; The gun attack parameters.
-  ---@field burnt_result LuaItemPrototype|nil @RW; The result of burning this item as fuel, if any.
+  ---@field alt_entity_filter_mode string @RW nilable; The alt entity filter mode used by this selection tool.
+  ---@field alt_entity_filters table<string, LuaEntityPrototype> @RW nilable; The alt entity filters used by this selection tool indexed by entity name.
+  ---@field alt_entity_type_filters table<string, boolean> @RW nilable; The alt entity type filters used by this selection tool indexed by entity type.
+  ---@field alt_selection_border_color Color @RW nilable; The color used when doing alt selection with this selection tool prototype.
+  ---@field alt_selection_cursor_box_type string @RW nilable
+  ---@field alt_selection_mode_flags SelectionModeFlags @RW nilable; Flags that affect which entities will be selected during alternate selection.
+  ---@field alt_tile_filter_mode string @RW nilable; The alt tile filter mode used by this selection tool.
+  ---@field alt_tile_filters table<string, LuaTilePrototype> @RW nilable; The alt tile filters used by this selection tool indexed by tile name.
+  ---@field always_include_tiles boolean @RW nilable; If tiles area always included when doing selection with this selection tool prototype.
+  ---@field attack_parameters AttackParameters @RW nilable; The gun attack parameters.
+  ---@field burnt_result LuaItemPrototype @RW nilable; The result of burning this item as fuel, if any.
   ---@field can_be_mod_opened boolean @RW; If this item can be mod-opened.
-  ---@field capsule_action CapsuleAction|nil @RW; The capsule action for this capsule item prototype.
-  ---@field category string|nil @RW; The name of a [LuaModuleCategoryPrototype](LuaModuleCategoryPrototype). Used when upgrading modules: Ctrl + click modules into an entity and it will replace lower tier modules of the same category with higher tier modules.
-  ---@field curved_rail LuaEntityPrototype|nil @RW; The curved rail prototype used for this rail planner prototype.
-  ---@field default_label_color Color|nil @RW; The default label color used for this item with label, if any.
+  ---@field capsule_action CapsuleAction @RW nilable; The capsule action for this capsule item prototype.
+  ---@field category string @RW nilable; The name of a [LuaModuleCategoryPrototype](LuaModuleCategoryPrototype). Used when upgrading modules: Ctrl + click modules into an entity and it will replace lower tier modules of the same category with higher tier modules.
+  ---@field curved_rail LuaEntityPrototype @RW nilable; The curved rail prototype used for this rail planner prototype.
+  ---@field default_label_color Color @RW nilable; The default label color used for this item with label, if any.
   ---@field default_request_amount uint @RW; The default request value.
-  ---@field draw_label_for_cursor_render boolean|nil @RW; If true, and this item with label has a label it is drawn in place of the normal number when held in the cursor.
-  ---@field durability double|nil @RW; The durability of this tool item.
-  ---@field durability_description_key string|nil @RW; The durability message key used when displaying the durability of this tool.
-  ---@field entity_filter_mode string|nil @RW; The entity filter mode used by this selection tool.
-  ---@field entity_filter_slots uint|nil @RW; The number of entity filters this deconstruction item has.
-  ---@field entity_filters (table<string, LuaEntityPrototype>)|nil @RW; The entity filters used by this selection tool indexed by entity name.
-  ---@field entity_type_filters (table<string, boolean>)|nil @RW; The entity type filters used by this selection tool indexed by entity type.
-  ---@field equipment_grid LuaEquipmentGridPrototype|nil @RW; The prototype of this armor equipment grid, if any.
-  ---@field extend_inventory_by_default boolean|nil @RW; If this item with inventory extends the inventory it resides in by default.
-  ---@field filter_mode string|nil @RW; The filter mode used by this item with inventory.
+  ---@field draw_label_for_cursor_render boolean @RW nilable; If true, and this item with label has a label it is drawn in place of the normal number when held in the cursor.
+  ---@field durability double @RW nilable; The durability of this tool item.
+  ---@field durability_description_key string @RW nilable; The durability message key used when displaying the durability of this tool.
+  ---@field entity_filter_mode string @RW nilable; The entity filter mode used by this selection tool.
+  ---@field entity_filter_slots uint @RW nilable; The number of entity filters this deconstruction item has.
+  ---@field entity_filters table<string, LuaEntityPrototype> @RW nilable; The entity filters used by this selection tool indexed by entity name.
+  ---@field entity_type_filters table<string, boolean> @RW nilable; The entity type filters used by this selection tool indexed by entity type.
+  ---@field equipment_grid LuaEquipmentGridPrototype @RW nilable; The prototype of this armor equipment grid, if any.
+  ---@field extend_inventory_by_default boolean @RW nilable; If this item with inventory extends the inventory it resides in by default.
+  ---@field filter_mode string @RW nilable; The filter mode used by this item with inventory.
   ---@field flags ItemPrototypeFlags @RW; The flags for this item prototype.
   ---@field fuel_acceleration_multiplier double @RW; The acceleration multiplier when this item is used as fuel in a vehicle.
-  ---@field fuel_category string|nil @RW; The fuel category of this item prototype, if any.
+  ---@field fuel_category string @RW nilable; The fuel category of this item prototype, if any.
   ---@field fuel_emissions_multiplier double @RW; The emissions multiplier if this is used as fuel.
   ---@field fuel_top_speed_multiplier double @RW; The fuel top speed multiplier when this item is used as fuel in a vehicle.
   ---@field fuel_value float @RW; Fuel value when burned.
   ---@field group LuaGroup @RW; The group this prototype belongs to.
-  ---@field infinite boolean|nil @RW; If this tool item has infinite durability.
-  ---@field insertion_priority_mode string|nil @RW; The insertion priority mode used by this item with inventory.
-  ---@field inventory_size uint|nil @RW; The main inventory size for item-with-inventory-prototype.
-  ---@field inventory_size_bonus uint|nil @RW; The inventory size bonus for this armor prototype.
-  ---@field item_filters (table<string, LuaItemPrototype>)|nil @RW
-  ---@field item_group_filters (table<string, LuaGroup>)|nil @RW
-  ---@field item_subgroup_filters (table<string, LuaGroup>)|nil @RW
-  ---@field limitation_message_key string|nil @RW; The limitation message key used when the player attempts to use this modules in some place it's not allowed.
-  ---@field limitations string[]|nil @RW; An array of recipe names this module is allowed to work with. Empty when all recipes are allowed.
+  ---@field infinite boolean @RW nilable; If this tool item has infinite durability.
+  ---@field insertion_priority_mode string @RW nilable; The insertion priority mode used by this item with inventory.
+  ---@field inventory_size uint @RW nilable; The main inventory size for item-with-inventory-prototype.
+  ---@field inventory_size_bonus uint @RW nilable; The inventory size bonus for this armor prototype.
+  ---@field item_filters table<string, LuaItemPrototype> @RW nilable
+  ---@field item_group_filters table<string, LuaGroup> @RW nilable
+  ---@field item_subgroup_filters table<string, LuaGroup> @RW nilable
+  ---@field limitation_message_key string @RW nilable; The limitation message key used when the player attempts to use this modules in some place it's not allowed.
+  ---@field limitations string[] @RW nilable; An array of recipe names this module is allowed to work with. Empty when all recipes are allowed.
   ---@field localised_description LocalisedString @RW
-  ---@field localised_filter_message LocalisedString|nil @RW; The localised string used when the player attempts to put items into this item with inventory that aren't allowed.
+  ---@field localised_filter_message LocalisedString @RW nilable; The localised string used when the player attempts to put items into this item with inventory that aren't allowed.
   ---@field localised_name LocalisedString @RW
-  ---@field magazine_size float|nil @RW; Size of full magazine.
-  ---@field mapper_count uint|nil @RW; How many filters an upgrade item has.
-  ---@field module_effects ModuleEffects|nil @RW; Effects of this module.
+  ---@field magazine_size float @RW nilable; Size of full magazine.
+  ---@field mapper_count uint @RW nilable; How many filters an upgrade item has.
+  ---@field module_effects ModuleEffects @RW nilable; Effects of this module.
   ---@field name string @RW; Name of this prototype.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field order string @RW; The string used to alphabetically sort these prototypes. It is a simple string that has no additional semantic meaning.
-  ---@field place_as_equipment_result LuaEquipmentPrototype|nil @RW; Prototype of the equipment that will be created by placing this item in an equipment grid, if any.
-  ---@field place_as_tile_result PlaceAsTileResult|nil @RW; The place-as-tile result if one is defined, if any.
-  ---@field place_result LuaEntityPrototype|nil @RW; Prototype of the entity that will be created by placing this item, if any.
-  ---@field reload_time float|nil @RW; Amount of extra time (in ticks) it takes to reload the weapon after depleting the magazine.
-  ---@field repair_result TriggerItem[]|nil @RW; The repair result of this repair tool prototype.
-  ---@field resistances (table<string, Resistance>)|nil @RW; Resistances of this armor item, if any, indexed by damage type name.
-  ---@field reverse_alt_entity_filter_mode string|nil @RW; The reverse entity filter mode used by this selection tool.
-  ---@field reverse_entity_filters (table<string, LuaEntityPrototype>)|nil @RW; The reverse entity filters used by this selection tool indexed by entity name.
-  ---@field reverse_entity_type_filters (table<string, boolean>)|nil @RW; The reverse entity type filters used by this selection tool indexed by entity type.
-  ---@field reverse_selection_border_color Color|nil @RW; The color used when doing reverse selection with this selection tool prototype.
-  ---@field reverse_selection_cursor_box_type string|nil @RW
-  ---@field reverse_selection_mode_flags SelectionModeFlags|nil @RW; Flags that affect which entities will be selected during reverse selection.
-  ---@field reverse_tile_filter_mode string|nil @RW; The reverse tile filter mode used by this selection tool.
-  ---@field reverse_tile_filters (table<string, LuaTilePrototype>)|nil @RW; The reverse tile filters used by this selection tool indexed by tile name.
+  ---@field place_as_equipment_result LuaEquipmentPrototype @RW nilable; Prototype of the equipment that will be created by placing this item in an equipment grid, if any.
+  ---@field place_as_tile_result PlaceAsTileResult @RW nilable; The place-as-tile result if one is defined, if any.
+  ---@field place_result LuaEntityPrototype @RW nilable; Prototype of the entity that will be created by placing this item, if any.
+  ---@field reload_time float @RW nilable; Amount of extra time (in ticks) it takes to reload the weapon after depleting the magazine.
+  ---@field repair_result TriggerItem[] @RW nilable; The repair result of this repair tool prototype.
+  ---@field resistances table<string, Resistance> @RW nilable; Resistances of this armor item, if any, indexed by damage type name.
+  ---@field reverse_alt_entity_filter_mode string @RW nilable; The reverse entity filter mode used by this selection tool.
+  ---@field reverse_entity_filters table<string, LuaEntityPrototype> @RW nilable; The reverse entity filters used by this selection tool indexed by entity name.
+  ---@field reverse_entity_type_filters table<string, boolean> @RW nilable; The reverse entity type filters used by this selection tool indexed by entity type.
+  ---@field reverse_selection_border_color Color @RW nilable; The color used when doing reverse selection with this selection tool prototype.
+  ---@field reverse_selection_cursor_box_type string @RW nilable
+  ---@field reverse_selection_mode_flags SelectionModeFlags @RW nilable; Flags that affect which entities will be selected during reverse selection.
+  ---@field reverse_tile_filter_mode string @RW nilable; The reverse tile filter mode used by this selection tool.
+  ---@field reverse_tile_filters table<string, LuaTilePrototype> @RW nilable; The reverse tile filters used by this selection tool indexed by tile name.
   ---@field rocket_launch_products Product[] @RW; The results of launching this item in a rocket.
-  ---@field selection_border_color Color|nil @RW; The color used when doing normal selection with this selection tool prototype.
-  ---@field selection_cursor_box_type string|nil @RW
-  ---@field selection_mode_flags SelectionModeFlags|nil @RW; Flags that affect which entities will be selected.
-  ---@field speed float|nil @RW; The repairing speed if this is a repairing tool.
+  ---@field selection_border_color Color @RW nilable; The color used when doing normal selection with this selection tool prototype.
+  ---@field selection_cursor_box_type string @RW nilable
+  ---@field selection_mode_flags SelectionModeFlags @RW nilable; Flags that affect which entities will be selected.
+  ---@field speed float @RW nilable; The repairing speed if this is a repairing tool.
   ---@field stack_size uint @RW; Maximum stack size of the item specified by this prototype.
   ---@field stackable boolean @RW; Is this item allowed to stack at all?
-  ---@field straight_rail LuaEntityPrototype|nil @RW; The straight rail prototype used for this rail planner prototype.
+  ---@field straight_rail LuaEntityPrototype @RW nilable; The straight rail prototype used for this rail planner prototype.
   ---@field subgroup LuaGroup @RW; The subgroup this prototype belongs to.
-  ---@field tier uint|nil @RW; Tier of the module inside its category. Used when upgrading modules: Ctrl + click modules into an entity and it will replace lower tier modules with higher tier modules if they have the same category.
-  ---@field tile_filter_mode string|nil @RW; The tile filter mode used by this selection tool.
-  ---@field tile_filter_slots uint|nil @RW; The number of tile filters this deconstruction item has.
-  ---@field tile_filters (table<string, LuaTilePrototype>)|nil @RW; The tile filters used by this selection tool indexed by tile name.
+  ---@field tier uint @RW nilable; Tier of the module inside its category. Used when upgrading modules: Ctrl + click modules into an entity and it will replace lower tier modules with higher tier modules if they have the same category.
+  ---@field tile_filter_mode string @RW nilable; The tile filter mode used by this selection tool.
+  ---@field tile_filter_slots uint @RW nilable; The number of tile filters this deconstruction item has.
+  ---@field tile_filters table<string, LuaTilePrototype> @RW nilable; The tile filters used by this selection tool indexed by tile name.
   ---@field type string @RW; Type of this prototype. E.g. `"gun"` or `"mining-tool"`.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
   ---@field wire_count uint @RW; The number of items needed to connect two entities with this as wire.
@@ -4308,8 +4293,8 @@ LuaItemPrototype = {}
 
 --- The type of this ammo prototype.
 ---@param ammo_source_type string|nil @"default", "player", "turret", or "vehicle"
----@overload fun(): AmmoType|nil
----@return AmmoType|nil
+---@overload fun(): AmmoType
+---@return AmmoType
 function LuaItemPrototype.get_ammo_type(ammo_source_type) end
 
 --- Does this prototype have a flag enabled?
@@ -4322,24 +4307,24 @@ function LuaItemPrototype.has_flag(flag) end
 function LuaItemPrototype.help() end
 
 ---@class LuaItemStack: any @A reference to an item and count owned by some external entity.
-  ---@field active_index uint|nil @RW; The active blueprint index for this blueprint book. `nil` if this blueprint book is empty.
+  ---@field active_index uint @RW nilable; The active blueprint index for this blueprint book. `nil` if this blueprint book is empty.
   ---@field allow_manual_label_change boolean @RW; Whether the label for this item can be manually changed. When false the label can only be changed through the API.
   ---@field ammo uint @RW; Number of bullets left in the magazine.
   ---@field blueprint_absolute_snapping boolean @RW; If absolute snapping is enabled on this blueprint item.
-  ---@field blueprint_icons BlueprintSignalIcon[]|nil @RW; Icons of this blueprint item, blueprint book, deconstruction item or upgrade planner. An item that doesn't have icons returns `nil` on read and throws error on write.
-  ---@field blueprint_position_relative_to_grid TilePosition|nil @RW; The offset from the absolute grid. `nil` if absolute snapping is not enabled.
-  ---@field blueprint_snap_to_grid TilePosition|nil @RW; The snapping grid size in this blueprint item. `nil` if snapping is not enabled.
-  ---@field connected_entity LuaEntity|nil @RW; If this item is a spidertron remote that has a spidertron bound to it, it returns the connected spider-vehicle entity.
+  ---@field blueprint_icons BlueprintSignalIcon[] @RW nilable; Icons of this blueprint item, blueprint book, deconstruction item or upgrade planner. An item that doesn't have icons returns `nil` on read and throws error on write.
+  ---@field blueprint_position_relative_to_grid TilePosition @RW nilable; The offset from the absolute grid. `nil` if absolute snapping is not enabled.
+  ---@field blueprint_snap_to_grid TilePosition @RW nilable; The snapping grid size in this blueprint item. `nil` if snapping is not enabled.
+  ---@field connected_entity LuaEntity @RW nilable; If this item is a spidertron remote that has a spidertron bound to it, it returns the connected spider-vehicle entity.
   ---@field cost_to_build table<string, uint> @RW; Raw materials required to build this blueprint. Result is a dictionary mapping each item prototype name to the required count.
   ---@field count uint @RW; Number of items in this stack.
   ---@field custom_description LocalisedString @RW; The custom description this item-with-tags. This is shown over the normal item description if this is set to a non-empty value.
   ---@field default_icons BlueprintItemIcon[] @RW; The default icons for a blueprint item.
-  ---@field durability double|nil @RW; Durability of the contained item. Automatically capped at the item's maximum durability.
+  ---@field durability double @RW nilable; Durability of the contained item. Automatically capped at the item's maximum durability.
   ---@field entity_filter_count uint @RW; The number of entity filters this deconstruction item supports.
   ---@field entity_filter_mode defines__deconstruction_item__entity_filter_mode|number @RW; The blacklist/whitelist entity filter mode for this deconstruction item.
   ---@field entity_filters string[] @RW; The entity filters for this deconstruction item. The attribute is a sparse array with the keys representing the index of the filter. All strings in this array must be entity prototype names that don't have the `"not-deconstructable"` flag set and are either a `cliff` or marked as `minable`.
   ---@field extends_inventory boolean @RW; If this item extends the inventory it resides in (provides its contents for counts, crafting, insertion). Only callable on items with inventories.
-  ---@field grid LuaEquipmentGrid|nil @RW; The equipment grid of this item, if any.
+  ---@field grid LuaEquipmentGrid @RW nilable; The equipment grid of this item, if any.
   ---@field health float @RW; How much health the item has, as a number in range [0, 1].
   ---@field is_armor boolean @RW; If this is an armor item.
   ---@field is_blueprint boolean @RW; If this is a blueprint item.
@@ -4355,9 +4340,9 @@ function LuaItemPrototype.help() end
   ---@field is_selection_tool boolean @RW; If this is a selection tool item.
   ---@field is_tool boolean @RW; If this is a tool item.
   ---@field is_upgrade_item boolean @RW; If this is a upgrade item.
-  ---@field item_number uint|nil @RW; The unique identifier for this item , if any. Note that this ID stays the same no matter where the item is moved to. Only these types of items have unique IDs: - `"armor"` - `"spidertron-remote"` - `"selection-tool"` - `"copy-paste-tool"` - `"upgrade-item"` - `"deconstruction-item"` - `"blueprint"` - `"blueprint-book"` - `"item-with-entity-data"` - `"item-with-inventory"` - `"item-with-tags"`
-  ---@field label string|nil @RW; The current label for this item, if any.
-  ---@field label_color Color|nil @RW; The current label color for this item, if any.
+  ---@field item_number uint @RW nilable; The unique identifier for this item , if any. Note that this ID stays the same no matter where the item is moved to. Only these types of items have unique IDs: - `"armor"` - `"spidertron-remote"` - `"selection-tool"` - `"copy-paste-tool"` - `"upgrade-item"` - `"deconstruction-item"` - `"blueprint"` - `"blueprint-book"` - `"item-with-entity-data"` - `"item-with-inventory"` - `"item-with-tags"`
+  ---@field label string @RW nilable; The current label for this item, if any.
+  ---@field label_color Color @RW nilable; The current label color for this item, if any.
   ---@field name string @RW; Prototype name of the item held in this stack.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field prioritize_insertion_mode string @RW; The insertion mode priority this ItemWithInventory uses when items are inserted into an inventory it resides in. Only callable on items with inventories.
@@ -4381,6 +4366,7 @@ function LuaItemStack.add_ammo(amount) end
 ---@param amount double @Amount of durability to add.
 function LuaItemStack.add_durability(amount) end
 
+---@param p {by_player: PlayerIdentification|nil, direction: (defines__direction|number)|nil, force: ForceIdentification, force_build: boolean|nil, position: MapPosition, raise_built: boolean|nil, skip_fog_of_war: boolean|nil, surface: SurfaceIdentification}
 ---@param by_player PlayerIdentification|nil @The player to use if any. If provided [defines.events.on_built_entity](defines.events.on_built_entity) will also be fired on successful entity creation.
 ---@param direction (defines__direction|number)|nil @The direction to use when building
 ---@param force ForceIdentification @Force to use for the building
@@ -4390,7 +4376,7 @@ function LuaItemStack.add_durability(amount) end
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
 ---@param surface SurfaceIdentification @Surface to build on
 ---@return LuaEntity[] @Array of created ghosts
-function LuaItemStack.build_blueprint(by_player, direction, force, force_build, position, raise_built, skip_fog_of_war, surface) end
+function LuaItemStack.build_blueprint(p) end
 
 --- Would a call to [LuaItemStack::set_stack](LuaItemStack::set_stack) succeed?
 ---@param stack ItemStackIdentification|nil @Stack that would be set, possibly `nil`.
@@ -4399,12 +4385,13 @@ function LuaItemStack.build_blueprint(by_player, direction, force, force_build, 
 function LuaItemStack.can_set_stack(stack) end
 
 --- Cancel deconstruct the given area with this deconstruction item.
+---@param p {area: BoundingBox, by_player: PlayerIdentification|nil, force: ForceIdentification, skip_fog_of_war: boolean|nil, surface: SurfaceIdentification}
 ---@param area BoundingBox @The area to deconstruct
 ---@param by_player PlayerIdentification|nil @The player to use if any.
 ---@param force ForceIdentification @Force to use for canceling deconstruction
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
 ---@param surface SurfaceIdentification @Surface to cancel deconstruct on
-function LuaItemStack.cancel_deconstruct_area(area, by_player, force, skip_fog_of_war, surface) end
+function LuaItemStack.cancel_deconstruct_area(p) end
 
 --- Clear this item stack.
 function LuaItemStack.clear() end
@@ -4419,6 +4406,7 @@ function LuaItemStack.clear_deconstruction_item() end
 function LuaItemStack.clear_upgrade_item() end
 
 --- Sets up this blueprint using the found blueprintable entities/tiles on the surface.
+---@param p {always_include_tiles: boolean|nil, area: BoundingBox, force: ForceIdentification, include_entities: boolean|nil, include_fuel: boolean|nil, include_modules: boolean|nil, include_station_names: boolean|nil, include_trains: boolean|nil, surface: SurfaceIdentification}
 ---@param always_include_tiles boolean|nil @When true, blueprintable tiles are always included in the blueprint. When false they're only included if no entities exist in the setup area.
 ---@param area BoundingBox @The bounding box
 ---@param force ForceIdentification @Force to use for the creation
@@ -4429,19 +4417,20 @@ function LuaItemStack.clear_upgrade_item() end
 ---@param include_trains boolean|nil @When true, trains are included in the blueprint. Defaults to false.
 ---@param surface SurfaceIdentification @Surface to create from
 ---@return table<uint, LuaEntity> @The blueprint entity index to source entity mapping.
-function LuaItemStack.create_blueprint(always_include_tiles, area, force, include_entities, include_fuel, include_modules, include_station_names, include_trains, surface) end
+function LuaItemStack.create_blueprint(p) end
 
 --- Creates the equipment grid for this item if it doesn't exist and this is an item-with-entity-data that supports equipment grids.
 ---@return LuaEquipmentGrid
 function LuaItemStack.create_grid() end
 
 --- Deconstruct the given area with this deconstruction item.
+---@param p {area: BoundingBox, by_player: PlayerIdentification|nil, force: ForceIdentification, skip_fog_of_war: boolean|nil, surface: SurfaceIdentification}
 ---@param area BoundingBox @The area to deconstruct
 ---@param by_player PlayerIdentification|nil @The player to use if any.
 ---@param force ForceIdentification @Force to use for the deconstruction
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
 ---@param surface SurfaceIdentification @Surface to deconstruct on
-function LuaItemStack.deconstruct_area(area, by_player, force, skip_fog_of_war, surface) end
+function LuaItemStack.deconstruct_area(p) end
 
 --- Remove ammo from this ammo item.
 ---@param amount float @Amount of ammo to remove.
@@ -4456,7 +4445,7 @@ function LuaItemStack.drain_durability(amount) end
 function LuaItemStack.export_stack() end
 
 --- The entities in this blueprint.
----@return BlueprintEntity[]|nil
+---@return BlueprintEntity[]
 function LuaItemStack.get_blueprint_entities() end
 
 --- Gets the number of entities in this blueprint item.
@@ -4466,7 +4455,7 @@ function LuaItemStack.get_blueprint_entity_count() end
 --- Gets the given tag on the given blueprint entity index in this blueprint item.
 ---@param index uint @The entity index.
 ---@param tag string @The tag to get.
----@return AnyBasic|nil
+---@return AnyBasic
 function LuaItemStack.get_blueprint_entity_tag(index, tag) end
 
 --- Gets the tags for the given blueprint entity index in this blueprint item.
@@ -4475,17 +4464,17 @@ function LuaItemStack.get_blueprint_entity_tag(index, tag) end
 function LuaItemStack.get_blueprint_entity_tags(index) end
 
 --- A list of the tiles in this blueprint.
----@return Tile[]|nil
+---@return Tile[]
 function LuaItemStack.get_blueprint_tiles() end
 
 --- Gets the entity filter at the given index for this deconstruction item.
 ---@param index uint
----@return string|nil
+---@return string
 function LuaItemStack.get_entity_filter(index) end
 
 --- Access the inner inventory of an item.
 ---@param inventory defines__inventory|number @Index of the inventory to access, which can only be [defines.inventory.item_main](defines.inventory.item_main).
----@return LuaInventory|nil @`nil` if there is no inventory with the given index.
+---@return LuaInventory @`nil` if there is no inventory with the given index.
 function LuaItemStack.get_inventory(inventory) end
 
 --- Gets the filter at the given index for this upgrade item.
@@ -4496,12 +4485,12 @@ function LuaItemStack.get_mapper(index, type) end
 
 --- Gets the tag with the given name or returns `nil` if it doesn't exist.
 ---@param tag_name string
----@return AnyBasic|nil
+---@return AnyBasic
 function LuaItemStack.get_tag(tag_name) end
 
 --- Gets the tile filter at the given index for this deconstruction item.
 ---@param index uint
----@return string|nil
+---@return string
 function LuaItemStack.get_tile_filter(index) end
 
 --- All methods and properties that this object supports.
@@ -4581,7 +4570,7 @@ function LuaItemStack.swap_stack(stack) end
 function LuaItemStack.transfer_stack(stack) end
 
 ---@class LuaLampControlBehavior: LuaGenericOnOffControlBehavior @Control behavior for lamps.
-  ---@field color Color|nil @RW; The color the lamp is showing, if any.
+  ---@field color Color @RW nilable; The color the lamp is showing, if any.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field use_colors boolean @RW; `true` if the lamp should set the color from the circuit network signals.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
@@ -4609,7 +4598,7 @@ function LuaLazyLoadedValue.help() end
   ---@field charging_robot_count uint @RW; Number of robots currently charging.
   ---@field charging_robots LuaEntity[] @RW; Robots currently being charged.
   ---@field construction_radius float @RW; Construction radius of this cell.
-  ---@field logistic_network LuaLogisticNetwork|nil @RW; The network that owns this cell, if any.
+  ---@field logistic_network LuaLogisticNetwork @RW nilable; The network that owns this cell, if any.
   ---@field logistic_radius float @RW; Logistic radius of this cell.
   ---@field logistics_connection_distance float @RW; Logistic connection distance of this cell.
   ---@field mobile boolean @RW; `true` if this is a mobile cell. In vanilla, only the logistic cell created by a character's personal roboport is mobile.
@@ -4688,7 +4677,7 @@ function LuaLogisticNetwork.can_satisfy_request(count, include_buffers, item) en
 
 --- Find logistic cell closest to a given position.
 ---@param position MapPosition
----@return LuaLogisticCell|nil @`nil` if no cell was found.
+---@return LuaLogisticCell @`nil` if no cell was found.
 function LuaLogisticNetwork.find_cell_closest_to(position) end
 
 --- Get item counts for the entire network, similar to how [LuaInventory::get_contents](LuaInventory::get_contents) does.
@@ -4732,23 +4721,24 @@ function LuaLogisticNetwork.insert(item, members) end
 function LuaLogisticNetwork.remove_item(item, members) end
 
 --- Find a logistic point to drop the specific item stack.
+---@param p {members: string|nil, stack: ItemStackIdentification}
 ---@param members string|nil @When given, it will find from only the specific type of member. Must be `"storage"`, `"storage-empty"`, `"storage-empty-slot"` or `"requester"`. If not specified, selects with normal priorities.
 ---@param stack ItemStackIdentification @Name of the item to select.
----@return LuaLogisticPoint|nil @`nil` if no point was found.
-function LuaLogisticNetwork.select_drop_point(members, stack) end
+---@return LuaLogisticPoint @`nil` if no point was found.
+function LuaLogisticNetwork.select_drop_point(p) end
 
 --- Find the 'best' logistic point with this item ID and from the given position or from given chest type.
+---@param p {include_buffers: boolean|nil, members: string|nil, name: string, position: MapPosition|nil}
 ---@param include_buffers boolean|nil @Whether to consider buffer chests or not. Defaults to false. Only considered if selecting with position.
 ---@param members string|nil @When given, it will find from only the specific type of member. Must be `"storage"`, `"passive-provider"`, `"buffer"` or `"active-provider"`. If not specified, selects with normal priorities. Not considered if position is specified.
 ---@param name string @Name of the item to select.
 ---@param position MapPosition|nil @When given, it will find the storage 'best' storage point from this position.
----@overload fun(include_buffers: boolean|nil, members: string|nil, name: string): LuaLogisticPoint|nil
----@return LuaLogisticPoint|nil @`nil` if no point was found.
-function LuaLogisticNetwork.select_pickup_point(include_buffers, members, name, position) end
+---@return LuaLogisticPoint @`nil` if no point was found.
+function LuaLogisticNetwork.select_pickup_point(p) end
 
 ---@class LuaLogisticPoint: any @Logistic point of a particular [LuaEntity](LuaEntity). A "Logistic point" is the name given for settings and properties used by requester, provider, and storage points in a given logistic network. These "points" don't have to be a logistic container but often are. One other entity that can own several points is the "character" character type entity.
   ---@field exact boolean @RW; If this logistic point is using the exact mode. In exact mode robots never over-deliver requests.
-  ---@field filters LogisticFilter[]|nil @RW; The logistic filters for this logistic point, if this uses any.
+  ---@field filters LogisticFilter[] @RW nilable; The logistic filters for this logistic point, if this uses any.
   ---@field force LuaForce @RW; The force of this logistic point.
   ---@field logistic_member_index uint @RW; The Logistic member index of this logistic point.
   ---@field logistic_network LuaLogisticNetwork @RW
@@ -4778,15 +4768,15 @@ LuaMiningDrillControlBehavior = {}
 function LuaMiningDrillControlBehavior.help() end
 
 ---@class LuaModSettingPrototype: any @Prototype of a mod setting.
-  ---@field allow_blank boolean|nil @RW; Whether this string setting allows blank values. `nil` if not a string setting.
-  ---@field allowed_values (string[] | int[] | double[])|nil @RW; The allowed values for this setting. `nil` if this setting doesn't use the a fixed set of values.
-  ---@field auto_trim boolean|nil @RW; Whether this string setting auto-trims values. `nil` if not a string setting
+  ---@field allow_blank boolean @RW nilable; Whether this string setting allows blank values. `nil` if not a string setting.
+  ---@field allowed_values string[] | int[] | double[] @RW nilable; The allowed values for this setting. `nil` if this setting doesn't use the a fixed set of values.
+  ---@field auto_trim boolean @RW nilable; Whether this string setting auto-trims values. `nil` if not a string setting
   ---@field default_value boolean | double | int | string @RW; The default value of this setting.
   ---@field hidden boolean @RW; Whether this setting is hidden from the GUI.
   ---@field localised_description LocalisedString @RW
   ---@field localised_name LocalisedString @RW
-  ---@field maximum_value (double | int)|nil @RW; The maximum value for this setting. `nil` if this setting type doesn't support a maximum.
-  ---@field minimum_value (double | int)|nil @RW; The minimum value for this setting. `nil` if this setting type doesn't support a minimum.
+  ---@field maximum_value double | int @RW nilable; The maximum value for this setting. `nil` if this setting type doesn't support a maximum.
+  ---@field minimum_value double | int @RW nilable; The minimum value for this setting. `nil` if this setting type doesn't support a minimum.
   ---@field mod string @RW; The mod that owns this setting.
   ---@field name string @RW; Name of this prototype.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
@@ -4907,13 +4897,13 @@ LuaPermissionGroups = {}
 
 --- Creates a new permission group.
 ---@param name string|nil
----@overload fun(): LuaPermissionGroup|nil
----@return LuaPermissionGroup|nil @`nil` if the calling player doesn't have permission to make groups.
+---@overload fun(): LuaPermissionGroup
+---@return LuaPermissionGroup @`nil` if the calling player doesn't have permission to make groups.
 function LuaPermissionGroups.create_group(name) end
 
 --- Gets the permission group with the given name or group ID.
 ---@param group string | uint
----@return LuaPermissionGroup|nil @`nil` if there is no matching group.
+---@return LuaPermissionGroup @`nil` if there is no matching group.
 function LuaPermissionGroups.get_group(group) end
 
 --- All methods and properties that this object supports.
@@ -4925,18 +4915,18 @@ function LuaPermissionGroups.help() end
   ---@field afk_time uint @RW; How many ticks since the last action of this player
   ---@field auto_sort_main_inventory boolean @RW; If the main inventory will be auto sorted.
   ---@field blueprint_to_setup LuaItemStack @RW; The item stack containing a blueprint to be setup.
-  ---@field character LuaEntity|nil @RW; The character attached to this player, if any. Returns `nil` when the player is disconnected (see [LuaPlayer::connected](LuaPlayer::connected)).
+  ---@field character LuaEntity @RW nilable; The character attached to this player, if any. Returns `nil` when the player is disconnected (see [LuaPlayer::connected](LuaPlayer::connected)).
   ---@field chat_color Color @RW; The color used when this player talks in game.
   ---@field color Color @RW; The color associated with the player. This will be used to tint the player's character as well as their buildings and vehicles.
   ---@field connected boolean @RW; `true` if the player is currently connected to the game.
   ---@field controller_type defines__controllers|number @RW
-  ---@field cutscene_character LuaEntity|nil @RW; When in a cutscene; the character this player would be using once the cutscene is over, if any. Returns `nil` when the player is disconnected (see [LuaPlayer::connected](LuaPlayer::connected)).
+  ---@field cutscene_character LuaEntity @RW nilable; When in a cutscene; the character this player would be using once the cutscene is over, if any. Returns `nil` when the player is disconnected (see [LuaPlayer::connected](LuaPlayer::connected)).
   ---@field display_resolution DisplayResolution @RW; The display resolution for this player.
   ---@field display_scale double @RW; The display scale for this player.
-  ---@field entity_copy_source LuaEntity|nil @RW; The source entity used during entity settings copy-paste, if any.
+  ---@field entity_copy_source LuaEntity @RW nilable; The source entity used during entity settings copy-paste, if any.
   ---@field game_view_settings GameViewSettings @RW; The player's game view settings.
   ---@field gui LuaGui @RW
-  ---@field hand_location ItemStackLocation|nil @RW; The original location of the item in the cursor, marked with a hand. `nil` if the cursor stack is empty. When writing, the specified inventory slot must be empty and the cursor stack must not be empty.
+  ---@field hand_location ItemStackLocation @RW nilable; The original location of the item in the cursor, marked with a hand. `nil` if the cursor stack is empty. When writing, the specified inventory slot must be empty and the cursor stack must not be empty.
   ---@field index uint @RW; This player's unique index in [LuaGameScript::players](LuaGameScript::players). It is given to them when they are [created](on_player_created) and remains assigned to them until they are [removed](on_player_removed).
   ---@field infinity_inventory_filters InfinityInventoryFilter[] @RW; The filters for this map editor infinity inventory settings.
   ---@field last_online uint @RW; At what tick this player was last online.
@@ -4947,14 +4937,14 @@ function LuaPermissionGroups.help() end
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field online_time uint @RW; How many ticks did this player spend playing this save (all sessions combined)
   ---@field opened_self boolean @RW; `true` if the player opened itself. I.e. if they opened the character or god-controller GUI.
-  ---@field permission_group LuaPermissionGroup|nil @RW; The permission group this player is part of, if any.
+  ---@field permission_group LuaPermissionGroup @RW nilable; The permission group this player is part of, if any.
   ---@field remove_unfiltered_items boolean @RW; If items not included in this map editor infinity inventory filters should be removed.
   ---@field render_mode defines__render_mode|number @RW; The render mode of the player, like map or zoom to world. The render mode can be set using [LuaPlayer::open_map](LuaPlayer::open_map), [LuaPlayer::zoom_to_world](LuaPlayer::zoom_to_world) and [LuaPlayer::close_map](LuaPlayer::close_map).
   ---@field show_on_map boolean @RW; If `true`, circle and name of given player is rendered on the map/chart.
   ---@field spectator boolean @RW; If `true`, zoom-to-world noise effect will be disabled and environmental sounds will be based on zoom-to-world view instead of position of player's character.
-  ---@field stashed_controller_type (defines__controllers|number)|nil @RW; The stashed controller type, if any.
+  ---@field stashed_controller_type defines__controllers|number @RW nilable; The stashed controller type, if any.
   ---@field tag string @RW; The tag that is shown after the player in chat and on the map.
-  ---@field ticks_to_respawn uint|nil @RW; The number of ticks until this player will respawn. `nil` if this player is not waiting to respawn. Set to `nil` to immediately respawn the player.
+  ---@field ticks_to_respawn uint @RW nilable; The number of ticks until this player will respawn. `nil` if this player is not waiting to respawn. Set to `nil` to immediately respawn the player.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
   ---@field zoom double @The player's zoom-level.
 LuaPlayer = {}
@@ -4987,32 +4977,31 @@ function LuaPlayer.add_to_clipboard(blueprint) end
 function LuaPlayer.associate_character(character) end
 
 --- Builds what ever is in the cursor on the surface the player is on.
+---@param p {alt: boolean|nil, direction: (defines__direction|number)|nil, position: MapPosition, skip_fog_of_war: boolean|nil, terrain_building_size: uint|nil}
 ---@param alt boolean|nil @If alt build should be used instead of normal build. Defaults to normal.
 ---@param direction (defines__direction|number)|nil @Direction the entity would be placed
 ---@param position MapPosition @Where the entity would be placed
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
 ---@param terrain_building_size uint|nil @The size for building terrain if building terrain. Defaults to 2.
----@overload fun(alt: boolean|nil, direction: (defines__direction|number)|nil, position: MapPosition, skip_fog_of_war: boolean|nil)
----@overload fun(alt: boolean|nil, direction: (defines__direction|number)|nil, position: MapPosition)
-function LuaPlayer.build_from_cursor(alt, direction, position, skip_fog_of_war, terrain_building_size) end
+function LuaPlayer.build_from_cursor(p) end
 
 --- Checks if this player can build what ever is in the cursor on the surface the player is on.
+---@param p {alt: boolean|nil, direction: (defines__direction|number)|nil, position: MapPosition, skip_fog_of_war: boolean|nil, terrain_building_size: uint|nil}
 ---@param alt boolean|nil @If alt build should be used instead of normal build. Defaults to normal.
 ---@param direction (defines__direction|number)|nil @Direction the entity would be placed
 ---@param position MapPosition @Where the entity would be placed
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
 ---@param terrain_building_size uint|nil @The size for building terrain if building terrain. Defaults to 2.
----@overload fun(alt: boolean|nil, direction: (defines__direction|number)|nil, position: MapPosition, skip_fog_of_war: boolean|nil): boolean
----@overload fun(alt: boolean|nil, direction: (defines__direction|number)|nil, position: MapPosition): boolean
 ---@return boolean
-function LuaPlayer.can_build_from_cursor(alt, direction, position, skip_fog_of_war, terrain_building_size) end
+function LuaPlayer.can_build_from_cursor(p) end
 
 --- Checks if this player can build the give entity at the given location on the surface the player is on.
+---@param p {direction: (defines__direction|number)|nil, name: string, position: MapPosition}
 ---@param direction (defines__direction|number)|nil @Direction the entity would be placed
 ---@param name string @Name of the entity to check
 ---@param position MapPosition @Where the entity would be placed
 ---@return boolean
-function LuaPlayer.can_place_entity(direction, name, position) end
+function LuaPlayer.can_place_entity(p) end
 
 --- Clear the chat console.
 function LuaPlayer.clear_console() end
@@ -5031,14 +5020,12 @@ function LuaPlayer.clear_selection() end
 function LuaPlayer.close_map() end
 
 --- Asks the player if they would like to connect to the given server.
+---@param p {address: string, description: LocalisedString|nil, name: LocalisedString|nil, password: string|nil}
 ---@param address string @The server (address:port) if port is not given the default Factorio port is used.
 ---@param description LocalisedString|nil
 ---@param name LocalisedString|nil @The name of the server.
 ---@param password string|nil @The password if different from the one used to join this game. Note, if the current password is not empty but the one required to join the new server is an empty string should be given for this field.
----@overload fun(address: string, description: LocalisedString|nil, name: LocalisedString|nil)
----@overload fun(address: string, description: LocalisedString|nil)
----@overload fun(address: string)
-function LuaPlayer.connect_to_server(address, description, name, password) end
+function LuaPlayer.connect_to_server(p) end
 
 --- Creates and attaches a character entity to this player.
 ---@param character string|nil @The character to create else the default is used.
@@ -5047,14 +5034,14 @@ function LuaPlayer.connect_to_server(address, description, name, password) end
 function LuaPlayer.create_character(character) end
 
 --- Spawn flying text that is only visible to this player. Either `position` or `create_at_cursor` are required. When `create_at_cursor` is `true`, all parameters other than `text` are ignored.
+---@param p {color: Color|nil, create_at_cursor: boolean|nil, position: MapPosition|nil, speed: double|nil, text: LocalisedString, time_to_live: uint|nil}
 ---@param color Color|nil @The color of the flying text. Defaults to white text.
 ---@param create_at_cursor boolean|nil @If `true`, the flying text is created at the player's cursor. Defaults to `false`.
 ---@param position MapPosition|nil @The location on the map at which to show the flying text.
 ---@param speed double|nil @The speed at which the text rises upwards in tiles/second. Can't be a negative value.
 ---@param text LocalisedString @The flying text to show.
 ---@param time_to_live uint|nil @The amount of ticks that the flying text will be shown for. Defaults to `80`.
----@overload fun(color: Color|nil, create_at_cursor: boolean|nil, position: MapPosition|nil, speed: double|nil, text: LocalisedString)
-function LuaPlayer.create_local_flying_text(color, create_at_cursor, position, speed, text, time_to_live) end
+function LuaPlayer.create_local_flying_text(p) end
 
 --- Disables alerts for the given alert category.
 ---@param alert_type defines__alert_type|number
@@ -5072,9 +5059,10 @@ function LuaPlayer.disable_recipe_subgroups() end
 function LuaPlayer.disassociate_character(character) end
 
 --- Start/end wire dragging at the specified location, wire type is based on the cursor contents
+---@param p {position: MapPosition}
 ---@param position MapPosition @Position at which cursor was clicked. Used only to decide which side of arithmetic combinator, decider combinator or power switch is to be connected. Entity itself to be connected is based on the player's selected entity.
 ---@return boolean @`true` if the action did something
-function LuaPlayer.drag_wire(position) end
+function LuaPlayer.drag_wire(p) end
 
 --- Enables alerts for the given alert category.
 ---@param alert_type defines__alert_type|number
@@ -5092,22 +5080,18 @@ function LuaPlayer.exit_cutscene() end
 
 --- Gets which quick bar page is being used for the given screen page or `nil` if not known.
 ---@param index uint @The screen page. Index 1 is the top row in the gui. Index can go beyond the visible number of bars on the screen to account for the interface config setting change.
----@return uint8|nil
+---@return uint8
 function LuaPlayer.get_active_quick_bar_page(index) end
 
 --- Get all alerts matching the given filters, or all alerts if no filters are given.
+---@param p {entity: LuaEntity|nil, position: MapPosition|nil, prototype: LuaEntityPrototype|nil, surface: SurfaceIdentification|nil, type: (defines__alert_type|number)|nil}
 ---@param entity LuaEntity|nil
 ---@param position MapPosition|nil
 ---@param prototype LuaEntityPrototype|nil
 ---@param surface SurfaceIdentification|nil
 ---@param type (defines__alert_type|number)|nil
----@overload fun(entity: LuaEntity|nil, position: MapPosition|nil, prototype: LuaEntityPrototype|nil, surface: SurfaceIdentification|nil): table<uint, table<defines__alert_type|number, Alert[]>>
----@overload fun(entity: LuaEntity|nil, position: MapPosition|nil, prototype: LuaEntityPrototype|nil): table<uint, table<defines__alert_type|number, Alert[]>>
----@overload fun(entity: LuaEntity|nil, position: MapPosition|nil): table<uint, table<defines__alert_type|number, Alert[]>>
----@overload fun(entity: LuaEntity|nil): table<uint, table<defines__alert_type|number, Alert[]>>
----@overload fun(): table<uint, table<defines__alert_type|number, Alert[]>>
 ---@return table<uint, table<defines__alert_type|number, Alert[]>> @A mapping of surface index to an array of arrays of [alerts](Alert) indexed by the [alert type](defines.alert_type).
-function LuaPlayer.get_alerts(entity, position, prototype, surface, type) end
+function LuaPlayer.get_alerts(p) end
 
 --- The characters associated with this player.
 ---@return LuaEntity[]
@@ -5119,12 +5103,12 @@ function LuaPlayer.get_goal_description() end
 
 --- Gets the filter for this map editor infinity filters at the given index or `nil` if the filter index doesn't exist or is empty.
 ---@param index uint @The index to get.
----@return InfinityInventoryFilter|nil
+---@return InfinityInventoryFilter
 function LuaPlayer.get_infinity_inventory_filter(index) end
 
 --- Gets the quick bar filter for the given slot or `nil`.
 ---@param index uint @The slot index. 1 for the first slot of page one, 2 for slot two of page one, 11 for the first slot of page 2, etc.
----@return LuaItemPrototype|nil
+---@return LuaItemPrototype
 function LuaPlayer.get_quick_bar_slot(index) end
 
 --- All methods and properties that this object supports.
@@ -5178,13 +5162,12 @@ function LuaPlayer.open_map(position, scale) end
 function LuaPlayer.pipette_entity(entity) end
 
 --- Play a sound for this player.
+---@param p {override_sound_type: SoundType|nil, path: SoundPath, position: MapPosition|nil, volume_modifier: double|nil}
 ---@param override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
 ---@param path SoundPath @The sound to play.
 ---@param position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of the player.
 ---@param volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
----@overload fun(override_sound_type: SoundType|nil, path: SoundPath, position: MapPosition|nil)
----@overload fun(override_sound_type: SoundType|nil, path: SoundPath)
-function LuaPlayer.play_sound(override_sound_type, path, position, volume_modifier) end
+function LuaPlayer.play_sound(p) end
 
 --- Print text to the chat console.
 ---@param color Color|nil
@@ -5203,6 +5186,7 @@ function LuaPlayer.print_lua_object_statistics() end
 function LuaPlayer.print_robot_jobs() end
 
 --- Removes all alerts matching the given filters or if an empty filters table is given all alerts are removed.
+---@param p {entity: LuaEntity|nil, icon: SignalID|nil, message: LocalisedString|nil, position: MapPosition|nil, prototype: (LuaEntityPrototype | string)|nil, surface: SurfaceIdentification|nil, type: (defines__alert_type|number)|nil}
 ---@param entity LuaEntity|nil
 ---@param icon SignalID|nil
 ---@param message LocalisedString|nil
@@ -5210,14 +5194,7 @@ function LuaPlayer.print_robot_jobs() end
 ---@param prototype (LuaEntityPrototype | string)|nil
 ---@param surface SurfaceIdentification|nil
 ---@param type (defines__alert_type|number)|nil
----@overload fun(entity: LuaEntity|nil, icon: SignalID|nil, message: LocalisedString|nil, position: MapPosition|nil, prototype: (LuaEntityPrototype | string)|nil, surface: SurfaceIdentification|nil)
----@overload fun(entity: LuaEntity|nil, icon: SignalID|nil, message: LocalisedString|nil, position: MapPosition|nil, prototype: (LuaEntityPrototype | string)|nil)
----@overload fun(entity: LuaEntity|nil, icon: SignalID|nil, message: LocalisedString|nil, position: MapPosition|nil)
----@overload fun(entity: LuaEntity|nil, icon: SignalID|nil, message: LocalisedString|nil)
----@overload fun(entity: LuaEntity|nil, icon: SignalID|nil)
----@overload fun(entity: LuaEntity|nil)
----@overload fun()
-function LuaPlayer.remove_alert(entity, icon, message, position, prototype, surface, type) end
+function LuaPlayer.remove_alert(p) end
 
 --- Requests a translation for the given localised string. If the request is successful the [on_string_translated](on_string_translated) event will be fired at a later time with the results.
 ---@param localised_string LocalisedString
@@ -5230,6 +5207,7 @@ function LuaPlayer.request_translation(localised_string) end
 function LuaPlayer.set_active_quick_bar_page(page_index, screen_index) end
 
 --- Set the controller type of the player.
+---@param p {character: LuaEntity|nil, chart_mode_cutoff: double|nil, final_transition_time: uint|nil, start_position: MapPosition|nil, start_zoom: double|nil, type: defines__controllers|number, waypoints: CutsceneWaypoint|nil}
 ---@param character LuaEntity|nil @Entity to control. Mandatory when `type` is [defines.controllers.character](defines.controllers.character), ignored otherwise.
 ---@param chart_mode_cutoff double|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the game will switch to chart-mode (map zoomed out) rendering when the zoom level is less than this value.
 ---@param final_transition_time uint|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), it is the time in ticks it will take for the camera to pan from the final waypoint back to the starting position. If not given the camera will not pan back to the start position/zoom.
@@ -5237,8 +5215,7 @@ function LuaPlayer.set_active_quick_bar_page(page_index, screen_index) end
 ---@param start_zoom double|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the cutscene will start at this zoom level. If not given the start zoom will be the players zoom.
 ---@param type defines__controllers|number @Which controller to use.
 ---@param waypoints CutsceneWaypoint|nil @List of waypoints for the cutscene controller. This parameter is mandatory when `type` is [defines.controllers.cutscene](defines.controllers.cutscene).
----@overload fun(character: LuaEntity|nil, chart_mode_cutoff: double|nil, final_transition_time: uint|nil, start_position: MapPosition|nil, start_zoom: double|nil, type: defines__controllers|number)
-function LuaPlayer.set_controller(character, chart_mode_cutoff, final_transition_time, start_position, start_zoom, type, waypoints) end
+function LuaPlayer.set_controller(p) end
 
 --- Setup the screen to be shown when the game is finished.
 ---@param file string|nil @Path to image to be shown.
@@ -5458,7 +5435,7 @@ function LuaRecipeCategoryPrototype.help() end
   ---@field ingredients Ingredient[] @RW; Ingredients for this recipe.
   ---@field localised_description LocalisedString @RW
   ---@field localised_name LocalisedString @RW; Localised name of the recipe.
-  ---@field main_product Product|nil @RW; The main product of this recipe, if any.
+  ---@field main_product Product @RW nilable; The main product of this recipe, if any.
   ---@field name string @RW; Name of the recipe. This can be different than the name of the result items as there could be more recipes to make the same item.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field order string @RW; The string used to alphabetically sort these prototypes. It is a simple string that has no additional semantic meaning.
@@ -5488,7 +5465,7 @@ function LuaRemote.add_interface(functions, name) end
 --- Call a function of an interface.
 ---@param func string @Function name that belongs to `interface`.
 ---@param interface string @Interface to look up `function` in.
----@return Any|nil
+---@return Any
 function LuaRemote.call(func, interface) end
 
 --- Removes an interface with the given name.
@@ -5514,6 +5491,7 @@ function LuaRendering.clear(mod_name) end
 function LuaRendering.destroy(id) end
 
 --- Create an animation.
+---@param p {animation: string, animation_offset: double|nil, animation_speed: double|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, tint: Color|nil, visible: boolean|nil, x_scale: double|nil, y_scale: double|nil}
 ---@param animation string @Name of an [animation prototype](https://wiki.factorio.com/Prototype/Animation).
 ---@param animation_offset double|nil @Offset of the animation in frames. Default is 0.
 ---@param animation_speed double|nil @How many frames the animation goes forward per tick. Default is 1.
@@ -5533,16 +5511,11 @@ function LuaRendering.destroy(id) end
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
 ---@param x_scale double|nil @Horizontal scale of the animation. Default is 1.
 ---@param y_scale double|nil @Vertical scale of the animation. Default is 1.
----@overload fun(animation: string, animation_offset: double|nil, animation_speed: double|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, tint: Color|nil, visible: boolean|nil, x_scale: double|nil): uint64
----@overload fun(animation: string, animation_offset: double|nil, animation_speed: double|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, tint: Color|nil, visible: boolean|nil): uint64
----@overload fun(animation: string, animation_offset: double|nil, animation_speed: double|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, tint: Color|nil): uint64
----@overload fun(animation: string, animation_offset: double|nil, animation_speed: double|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil): uint64
----@overload fun(animation: string, animation_offset: double|nil, animation_speed: double|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil): uint64
----@overload fun(animation: string, animation_offset: double|nil, animation_speed: double|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity): uint64
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_animation(animation, animation_offset, animation_speed, forces, only_in_alt_mode, orientation, orientation_target, orientation_target_offset, oriented_offset, players, render_layer, surface, target, target_offset, time_to_live, tint, visible, x_scale, y_scale) end
+function LuaRendering.draw_animation(p) end
 
 --- Create an arc.
+---@param p {angle: float, color: Color, draw_on_ground: boolean|nil, forces: ForceIdentification[]|nil, max_radius: double, min_radius: double, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, start_angle: float, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, visible: boolean|nil}
 ---@param angle float @The angle of the arc, in radian.
 ---@param color Color
 ---@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
@@ -5557,13 +5530,11 @@ function LuaRendering.draw_animation(animation, animation_offset, animation_spee
 ---@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
 ---@param time_to_live uint|nil @In ticks. Defaults to living forever.
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@overload fun(angle: float, color: Color, draw_on_ground: boolean|nil, forces: ForceIdentification[]|nil, max_radius: double, min_radius: double, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, start_angle: float, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil): uint64
----@overload fun(angle: float, color: Color, draw_on_ground: boolean|nil, forces: ForceIdentification[]|nil, max_radius: double, min_radius: double, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, start_angle: float, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil): uint64
----@overload fun(angle: float, color: Color, draw_on_ground: boolean|nil, forces: ForceIdentification[]|nil, max_radius: double, min_radius: double, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, start_angle: float, surface: SurfaceIdentification, target: MapPosition | LuaEntity): uint64
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_arc(angle, color, draw_on_ground, forces, max_radius, min_radius, only_in_alt_mode, players, start_angle, surface, target, target_offset, time_to_live, visible) end
+function LuaRendering.draw_arc(p) end
 
 --- Create a circle.
+---@param p {color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, radius: double, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, visible: boolean|nil, width: float|nil}
 ---@param color Color
 ---@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
 ---@param filled boolean @If the circle should be filled.
@@ -5577,14 +5548,11 @@ function LuaRendering.draw_arc(angle, color, draw_on_ground, forces, max_radius,
 ---@param time_to_live uint|nil @In ticks. Defaults to living forever.
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
 ---@param width float|nil @Width of the outline, used only if filled = false. Value is in pixels (32 per tile).
----@overload fun(color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, radius: double, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, visible: boolean|nil): uint64
----@overload fun(color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, radius: double, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil): uint64
----@overload fun(color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, radius: double, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil): uint64
----@overload fun(color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, radius: double, surface: SurfaceIdentification, target: MapPosition | LuaEntity): uint64
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_circle(color, draw_on_ground, filled, forces, only_in_alt_mode, players, radius, surface, target, target_offset, time_to_live, visible, width) end
+function LuaRendering.draw_circle(p) end
 
 --- Create a light.
+---@param p {color: Color|nil, forces: ForceIdentification[]|nil, intensity: float|nil, minimum_darkness: float|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, oriented: boolean|nil, players: PlayerIdentification[]|nil, scale: float|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, visible: boolean|nil}
 ---@param color Color|nil @Defaults to white (no tint).
 ---@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
 ---@param intensity float|nil @Default is 1.
@@ -5600,13 +5568,11 @@ function LuaRendering.draw_circle(color, draw_on_ground, filled, forces, only_in
 ---@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
 ---@param time_to_live uint|nil @In ticks. Defaults to living forever.
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@overload fun(color: Color|nil, forces: ForceIdentification[]|nil, intensity: float|nil, minimum_darkness: float|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, oriented: boolean|nil, players: PlayerIdentification[]|nil, scale: float|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil): uint64
----@overload fun(color: Color|nil, forces: ForceIdentification[]|nil, intensity: float|nil, minimum_darkness: float|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, oriented: boolean|nil, players: PlayerIdentification[]|nil, scale: float|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil): uint64
----@overload fun(color: Color|nil, forces: ForceIdentification[]|nil, intensity: float|nil, minimum_darkness: float|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, oriented: boolean|nil, players: PlayerIdentification[]|nil, scale: float|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity): uint64
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_light(color, forces, intensity, minimum_darkness, only_in_alt_mode, orientation, oriented, players, scale, sprite, surface, target, target_offset, time_to_live, visible) end
+function LuaRendering.draw_light(p) end
 
 --- Create a line.
+---@param p {color: Color, dash_length: double|nil, draw_on_ground: boolean|nil, forces: ForceIdentification[]|nil, from: MapPosition | LuaEntity, from_offset: Vector|nil, gap_length: double|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, surface: SurfaceIdentification, time_to_live: uint|nil, to: MapPosition | LuaEntity, to_offset: Vector|nil, visible: boolean|nil, width: float}
 ---@param color Color
 ---@param dash_length double|nil @Length of the dashes that this line has. Used only if gap_length > 0. Default is 0.
 ---@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
@@ -5623,9 +5589,10 @@ function LuaRendering.draw_light(color, forces, intensity, minimum_darkness, onl
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
 ---@param width float @In pixels (32 per tile).
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_line(color, dash_length, draw_on_ground, forces, from, from_offset, gap_length, only_in_alt_mode, players, surface, time_to_live, to, to_offset, visible, width) end
+function LuaRendering.draw_line(p) end
 
 --- Create a triangle mesh defined by a triangle strip.
+---@param p {color: Color, draw_on_ground: boolean|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, players: PlayerIdentification[]|nil, surface: SurfaceIdentification, target: (MapPosition | LuaEntity)|nil, target_offset: Vector|nil, time_to_live: uint|nil, vertices: ScriptRenderVertexTarget[], visible: boolean|nil}
 ---@param color Color
 ---@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
 ---@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
@@ -5640,11 +5607,11 @@ function LuaRendering.draw_line(color, dash_length, draw_on_ground, forces, from
 ---@param time_to_live uint|nil @In ticks. Defaults to living forever.
 ---@param vertices ScriptRenderVertexTarget[]
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@overload fun(color: Color, draw_on_ground: boolean|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, players: PlayerIdentification[]|nil, surface: SurfaceIdentification, target: (MapPosition | LuaEntity)|nil, target_offset: Vector|nil, time_to_live: uint|nil, vertices: ScriptRenderVertexTarget[]): uint64
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_polygon(color, draw_on_ground, forces, only_in_alt_mode, orientation, orientation_target, orientation_target_offset, players, surface, target, target_offset, time_to_live, vertices, visible) end
+function LuaRendering.draw_polygon(p) end
 
 --- Create a rectangle.
+---@param p {color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, left_top: MapPosition | LuaEntity, left_top_offset: Vector|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, right_bottom: MapPosition | LuaEntity, right_bottom_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, visible: boolean|nil, width: float|nil}
 ---@param color Color
 ---@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
 ---@param filled boolean @If the rectangle should be filled.
@@ -5659,13 +5626,11 @@ function LuaRendering.draw_polygon(color, draw_on_ground, forces, only_in_alt_mo
 ---@param time_to_live uint|nil @In ticks. Defaults to living forever.
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
 ---@param width float|nil @Width of the outline, used only if filled = false. Value is in pixels (32 per tile).
----@overload fun(color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, left_top: MapPosition | LuaEntity, left_top_offset: Vector|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, right_bottom: MapPosition | LuaEntity, right_bottom_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, visible: boolean|nil): uint64
----@overload fun(color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, left_top: MapPosition | LuaEntity, left_top_offset: Vector|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, right_bottom: MapPosition | LuaEntity, right_bottom_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil): uint64
----@overload fun(color: Color, draw_on_ground: boolean|nil, filled: boolean, forces: ForceIdentification[]|nil, left_top: MapPosition | LuaEntity, left_top_offset: Vector|nil, only_in_alt_mode: boolean|nil, players: PlayerIdentification[]|nil, right_bottom: MapPosition | LuaEntity, right_bottom_offset: Vector|nil, surface: SurfaceIdentification): uint64
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_rectangle(color, draw_on_ground, filled, forces, left_top, left_top_offset, only_in_alt_mode, players, right_bottom, right_bottom_offset, surface, time_to_live, visible, width) end
+function LuaRendering.draw_rectangle(p) end
 
 --- Create a sprite.
+---@param p {forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, tint: Color|nil, visible: boolean|nil, x_scale: double|nil, y_scale: double|nil}
 ---@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
 ---@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
 ---@param orientation RealOrientation|nil @The orientation of the sprite. Default is 0.
@@ -5683,16 +5648,11 @@ function LuaRendering.draw_rectangle(color, draw_on_ground, filled, forces, left
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
 ---@param x_scale double|nil @Horizontal scale of the sprite. Default is 1.
 ---@param y_scale double|nil @Vertical scale of the sprite. Default is 1.
----@overload fun(forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, tint: Color|nil, visible: boolean|nil, x_scale: double|nil): uint64
----@overload fun(forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, tint: Color|nil, visible: boolean|nil): uint64
----@overload fun(forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil, tint: Color|nil): uint64
----@overload fun(forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, time_to_live: uint|nil): uint64
----@overload fun(forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil): uint64
----@overload fun(forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, players: PlayerIdentification[]|nil, render_layer: RenderLayer|nil, sprite: SpritePath, surface: SurfaceIdentification, target: MapPosition | LuaEntity): uint64
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_sprite(forces, only_in_alt_mode, orientation, orientation_target, orientation_target_offset, oriented_offset, players, render_layer, sprite, surface, target, target_offset, time_to_live, tint, visible, x_scale, y_scale) end
+function LuaRendering.draw_sprite(p) end
 
 --- Create a text.
+---@param p {alignment: string|nil, color: Color, draw_on_ground: boolean|nil, font: string|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, players: PlayerIdentification[]|nil, scale: double|nil, scale_with_zoom: boolean|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, text: LocalisedString, time_to_live: uint|nil, vertical_alignment: string|nil, visible: boolean|nil}
 ---@param alignment string|nil @Defaults to "left". Other options are "right" and "center".
 ---@param color Color
 ---@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
@@ -5710,15 +5670,12 @@ function LuaRendering.draw_sprite(forces, only_in_alt_mode, orientation, orienta
 ---@param time_to_live uint|nil @In ticks. Defaults to living forever.
 ---@param vertical_alignment string|nil @Defaults to "top". Other options are "middle", "baseline" and "bottom".
 ---@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@overload fun(alignment: string|nil, color: Color, draw_on_ground: boolean|nil, font: string|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, players: PlayerIdentification[]|nil, scale: double|nil, scale_with_zoom: boolean|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, text: LocalisedString, time_to_live: uint|nil, vertical_alignment: string|nil): uint64
----@overload fun(alignment: string|nil, color: Color, draw_on_ground: boolean|nil, font: string|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, players: PlayerIdentification[]|nil, scale: double|nil, scale_with_zoom: boolean|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, text: LocalisedString, time_to_live: uint|nil): uint64
----@overload fun(alignment: string|nil, color: Color, draw_on_ground: boolean|nil, font: string|nil, forces: ForceIdentification[]|nil, only_in_alt_mode: boolean|nil, orientation: RealOrientation|nil, players: PlayerIdentification[]|nil, scale: double|nil, scale_with_zoom: boolean|nil, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, text: LocalisedString): uint64
 ---@return uint64 @Id of the render object
-function LuaRendering.draw_text(alignment, color, draw_on_ground, font, forces, only_in_alt_mode, orientation, players, scale, scale_with_zoom, surface, target, target_offset, text, time_to_live, vertical_alignment, visible) end
+function LuaRendering.draw_text(p) end
 
 --- Get the alignment of the text with this id.
 ---@param id uint64
----@return string|nil @`nil` if the object is not a text.
+---@return string @`nil` if the object is not a text.
 function LuaRendering.get_alignment(id) end
 
 --- Gets an array of all valid object ids.
@@ -5729,32 +5686,32 @@ function LuaRendering.get_all_ids(mod_name) end
 
 --- Get the angle of the arc with this id.
 ---@param id uint64
----@return float|nil @Angle in radian. `nil` if the object is not a arc.
+---@return float @Angle in radian. `nil` if the object is not a arc.
 function LuaRendering.get_angle(id) end
 
 --- Get the animation prototype name of the animation with this id.
 ---@param id uint64
----@return string|nil @`nil` if the object is not an animation.
+---@return string @`nil` if the object is not an animation.
 function LuaRendering.get_animation(id) end
 
 --- Get the animation offset of the animation with this id.
 ---@param id uint64
----@return double|nil @Animation offset in frames. `nil` if the object is not an animation.
+---@return double @Animation offset in frames. `nil` if the object is not an animation.
 function LuaRendering.get_animation_offset(id) end
 
 --- Get the animation speed of the animation with this id.
 ---@param id uint64
----@return double|nil @Animation speed in frames per tick. `nil` if the object is not an animation.
+---@return double @Animation speed in frames per tick. `nil` if the object is not an animation.
 function LuaRendering.get_animation_speed(id) end
 
 --- Get the color or tint of the object with this id.
 ---@param id uint64
----@return Color|nil @`nil` if the object does not support color.
+---@return Color @`nil` if the object does not support color.
 function LuaRendering.get_color(id) end
 
 --- Get the dash length of the line with this id.
 ---@param id uint64
----@return double|nil @`nil` if the object is not a line.
+---@return double @`nil` if the object is not a line.
 function LuaRendering.get_dash_length(id) end
 
 --- Get whether this is being drawn on the ground, under most entities and sprites.
@@ -5764,52 +5721,52 @@ function LuaRendering.get_draw_on_ground(id) end
 
 --- Get if the circle or rectangle with this id is filled.
 ---@param id uint64
----@return boolean|nil @`nil` if the object is not a circle or rectangle.
+---@return boolean @`nil` if the object is not a circle or rectangle.
 function LuaRendering.get_filled(id) end
 
 --- Get the font of the text with this id.
 ---@param id uint64
----@return string|nil @`nil` if the object is not a text.
+---@return string @`nil` if the object is not a text.
 function LuaRendering.get_font(id) end
 
 --- Get the forces that the object with this id is rendered to or `nil` if visible to all forces.
 ---@param id uint64
----@return LuaForce[]|nil
+---@return LuaForce[]
 function LuaRendering.get_forces(id) end
 
 --- Get from where the line with this id is drawn.
 ---@param id uint64
----@return ScriptRenderTarget|nil @`nil` if this object is not a line.
+---@return ScriptRenderTarget @`nil` if this object is not a line.
 function LuaRendering.get_from(id) end
 
 --- Get the length of the gaps in the line with this id.
 ---@param id uint64
----@return double|nil @`nil` if the object is not a line.
+---@return double @`nil` if the object is not a line.
 function LuaRendering.get_gap_length(id) end
 
 --- Get the intensity of the light with this id.
 ---@param id uint64
----@return float|nil @`nil` if the object is not a light.
+---@return float @`nil` if the object is not a light.
 function LuaRendering.get_intensity(id) end
 
 --- Get where top left corner of the rectangle with this id is drawn.
 ---@param id uint64
----@return ScriptRenderTarget|nil @`nil` if the object is not a rectangle.
+---@return ScriptRenderTarget @`nil` if the object is not a rectangle.
 function LuaRendering.get_left_top(id) end
 
 --- Get the radius of the outer edge of the arc with this id.
 ---@param id uint64
----@return double|nil @`nil` if the object is not a arc.
+---@return double @`nil` if the object is not a arc.
 function LuaRendering.get_max_radius(id) end
 
 --- Get the radius of the inner edge of the arc with this id.
 ---@param id uint64
----@return double|nil @`nil` if the object is not a arc.
+---@return double @`nil` if the object is not a arc.
 function LuaRendering.get_min_radius(id) end
 
 --- Get the minimum darkness at which the light with this id is rendered.
 ---@param id uint64
----@return float|nil @`nil` if the object is not a light.
+---@return float @`nil` if the object is not a light.
 function LuaRendering.get_minimum_darkness(id) end
 
 --- Get whether this is only rendered in alt-mode.
@@ -5819,62 +5776,62 @@ function LuaRendering.get_only_in_alt_mode(id) end
 
 --- Get the orientation of the object with this id.
 ---@param id uint64
----@return RealOrientation|nil @`nil` if the object is not a text, polygon, sprite, light or animation.
+---@return RealOrientation @`nil` if the object is not a text, polygon, sprite, light or animation.
 function LuaRendering.get_orientation(id) end
 
 --- The object rotates so that it faces this target. Note that `orientation` is still applied to the object. Get the orientation_target of the object with this id.
 ---@param id uint64
----@return ScriptRenderTarget|nil @`nil` if no target or if this object is not a polygon, sprite, or animation.
+---@return ScriptRenderTarget @`nil` if no target or if this object is not a polygon, sprite, or animation.
 function LuaRendering.get_orientation_target(id) end
 
 --- Get if the light with this id is rendered has the same orientation as the target entity. Note that `orientation` is still applied to the sprite.
 ---@param id uint64
----@return boolean|nil @`nil` if the object is not a light.
+---@return boolean @`nil` if the object is not a light.
 function LuaRendering.get_oriented(id) end
 
 --- Offsets the center of the sprite or animation if `orientation_target` is given. This offset will rotate together with the sprite or animation. Get the oriented_offset of the sprite or animation with this id.
 ---@param id uint64
----@return Vector|nil @`nil` if this object is not a sprite or animation.
+---@return Vector @`nil` if this object is not a sprite or animation.
 function LuaRendering.get_oriented_offset(id) end
 
 --- Get the players that the object with this id is rendered to or `nil` if visible to all players.
 ---@param id uint64
----@return LuaPlayer[]|nil
+---@return LuaPlayer[]
 function LuaRendering.get_players(id) end
 
 --- Get the radius of the circle with this id.
 ---@param id uint64
----@return double|nil @`nil` if the object is not a circle.
+---@return double @`nil` if the object is not a circle.
 function LuaRendering.get_radius(id) end
 
 --- Get the render layer of the sprite or animation with this id.
 ---@param id uint64
----@return RenderLayer|nil @`nil` if the object is not a sprite or animation.
+---@return RenderLayer @`nil` if the object is not a sprite or animation.
 function LuaRendering.get_render_layer(id) end
 
 --- Get where bottom right corner of the rectangle with this id is drawn.
 ---@param id uint64
----@return ScriptRenderTarget|nil @`nil` if the object is not a rectangle.
+---@return ScriptRenderTarget @`nil` if the object is not a rectangle.
 function LuaRendering.get_right_bottom(id) end
 
 --- Get the scale of the text or light with this id.
 ---@param id uint64
----@return double|nil @`nil` if the object is not a text or light.
+---@return double @`nil` if the object is not a text or light.
 function LuaRendering.get_scale(id) end
 
 --- Get if the text with this id scales with player zoom.
 ---@param id uint64
----@return boolean|nil @`nil` if the object is not a text.
+---@return boolean @`nil` if the object is not a text.
 function LuaRendering.get_scale_with_zoom(id) end
 
 --- Get the sprite of the sprite or light with this id.
 ---@param id uint64
----@return SpritePath|nil @`nil` if the object is not a sprite or light.
+---@return SpritePath @`nil` if the object is not a sprite or light.
 function LuaRendering.get_sprite(id) end
 
 --- Get where the arc with this id starts.
 ---@param id uint64
----@return float|nil @Angle in radian. `nil` if the object is not a arc.
+---@return float @Angle in radian. `nil` if the object is not a arc.
 function LuaRendering.get_start_angle(id) end
 
 --- The surface the object with this id is rendered on.
@@ -5884,12 +5841,12 @@ function LuaRendering.get_surface(id) end
 
 --- Get where the object with this id is drawn.
 ---@param id uint64
----@return ScriptRenderTarget|nil @`nil` if the object does not support target.
+---@return ScriptRenderTarget @`nil` if the object does not support target.
 function LuaRendering.get_target(id) end
 
 --- Get the text that is displayed by the text with this id.
 ---@param id uint64
----@return LocalisedString|nil @`nil` if the object is not a text.
+---@return LocalisedString @`nil` if the object is not a text.
 function LuaRendering.get_text(id) end
 
 --- Get the time to live of the object with this id. This will be 0 if the object does not expire.
@@ -5899,7 +5856,7 @@ function LuaRendering.get_time_to_live(id) end
 
 --- Get where the line with this id is drawn to.
 ---@param id uint64
----@return ScriptRenderTarget|nil @`nil` if the object is not a line.
+---@return ScriptRenderTarget @`nil` if the object is not a line.
 function LuaRendering.get_to(id) end
 
 --- Gets the type of the given object. The types are "text", "line", "circle", "rectangle", "arc", "polygon", "sprite", "light" and "animation".
@@ -5909,12 +5866,12 @@ function LuaRendering.get_type(id) end
 
 --- Get the vertical alignment of the text with this id.
 ---@param id uint64
----@return string|nil @`nil` if the object is not a text.
+---@return string @`nil` if the object is not a text.
 function LuaRendering.get_vertical_alignment(id) end
 
 --- Get the vertices of the polygon with this id.
 ---@param id uint64
----@return ScriptRenderTarget[]|nil @`nil` if the object is not a polygon.
+---@return ScriptRenderTarget[] @`nil` if the object is not a polygon.
 function LuaRendering.get_vertices(id) end
 
 --- Get whether this is rendered to anyone at all.
@@ -5924,17 +5881,17 @@ function LuaRendering.get_visible(id) end
 
 --- Get the width of the object with this id. Value is in pixels (32 per tile).
 ---@param id uint64
----@return float|nil @`nil` if the object does not support width.
+---@return float @`nil` if the object does not support width.
 function LuaRendering.get_width(id) end
 
 --- Get the horizontal scale of the sprite or animation with this id.
 ---@param id uint64
----@return double|nil @`nil` if the object is not a sprite or animation.
+---@return double @`nil` if the object is not a sprite or animation.
 function LuaRendering.get_x_scale(id) end
 
 --- Get the vertical scale of the sprite or animation with this id.
 ---@param id uint64
----@return double|nil @`nil` if the object is not a sprite or animation.
+---@return double @`nil` if the object is not a sprite or animation.
 function LuaRendering.get_y_scale(id) end
 
 --- Does a font with this name exist?
@@ -6219,14 +6176,14 @@ function LuaSettings.get_player_settings(player) end
 
 ---@class LuaShortcutPrototype: any @Prototype of a shortcut.
   ---@field action string @RW
-  ---@field associated_control_input string|nil @RW; The control input that is associated with this shortcut, if any.
-  ---@field item_to_spawn LuaItemPrototype|nil @RW; The item to create when this shortcut is used, if any.
+  ---@field associated_control_input string @RW nilable; The control input that is associated with this shortcut, if any.
+  ---@field item_to_spawn LuaItemPrototype @RW nilable; The item to create when this shortcut is used, if any.
   ---@field localised_description LocalisedString @RW
   ---@field localised_name LocalisedString @RW
   ---@field name string @RW; Name of this prototype.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field order string @RW; The string used to alphabetically sort these prototypes. It is a simple string that has no additional semantic meaning.
-  ---@field technology_to_unlock LuaTechnologyPrototype|nil @RW; The technology to unlock when this shortcut is used, if any.
+  ---@field technology_to_unlock LuaTechnologyPrototype @RW nilable; The technology to unlock when this shortcut is used, if any.
   ---@field toggleable boolean @RW
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaShortcutPrototype = {}
@@ -6273,10 +6230,10 @@ function LuaStorageTankControlBehavior.help() end
   ---@field font_color Color @RW
   ---@field gui LuaGui @RW; Gui of the [LuaGuiElement](LuaGuiElement) of this style.
   ---@field height int @Sets both minimal and maximal height to the given value.
-  ---@field horizontal_align string|nil @RW; Horizontal align of the inner content of the widget, if any. Possible values are "left", "center" or "right".
+  ---@field horizontal_align string @RW nilable; Horizontal align of the inner content of the widget, if any. Possible values are "left", "center" or "right".
   ---@field horizontal_spacing int @RW; Horizontal space between individual cells.
-  ---@field horizontally_squashable boolean|nil @RW; Whether the GUI element can be squashed (by maximal width of some parent element) horizontally. `nil` if this element does not support squashing. This is mainly meant to be used for scroll-pane The default value is false.
-  ---@field horizontally_stretchable boolean|nil @RW; Whether the GUI element stretches its size horizontally to other elements. `nil` if this element does not support stretching.
+  ---@field horizontally_squashable boolean @RW nilable; Whether the GUI element can be squashed (by maximal width of some parent element) horizontally. `nil` if this element does not support squashing. This is mainly meant to be used for scroll-pane The default value is false.
+  ---@field horizontally_stretchable boolean @RW nilable; Whether the GUI element stretches its size horizontally to other elements. `nil` if this element does not support stretching.
   ---@field hovered_font_color Color @RW
   ---@field left_cell_padding int @RW; Space between the table cell contents left and border.
   ---@field left_margin int @RW
@@ -6309,10 +6266,10 @@ function LuaStorageTankControlBehavior.help() end
   ---@field top_padding int @RW
   ---@field use_header_filler boolean @RW
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
-  ---@field vertical_align string|nil @RW; Vertical align of the inner content of the widget, if any. Possible values are "top", "center" or "bottom".
+  ---@field vertical_align string @RW nilable; Vertical align of the inner content of the widget, if any. Possible values are "top", "center" or "bottom".
   ---@field vertical_spacing int @RW; Vertical space between individual cells.
-  ---@field vertically_squashable boolean|nil @RW; Whether the GUI element can be squashed (by maximal height of some parent element) vertically. `nil` if this element does not support squashing. This is mainly meant to be used for scroll-pane The default (parent) value for scroll pane is true, false otherwise.
-  ---@field vertically_stretchable boolean|nil @RW; Whether the GUI element stretches its size vertically to other elements. `nil` if this element does not support stretching.
+  ---@field vertically_squashable boolean @RW nilable; Whether the GUI element can be squashed (by maximal height of some parent element) vertically. `nil` if this element does not support squashing. This is mainly meant to be used for scroll-pane The default (parent) value for scroll pane is true, false otherwise.
+  ---@field vertically_stretchable boolean @RW nilable; Whether the GUI element stretches its size vertically to other elements. `nil` if this element does not support stretching.
   ---@field width int @Sets both minimal and maximal width to the given value.
 LuaStyle = {}
 
@@ -6372,14 +6329,16 @@ function LuaSurface.build_enemy_base(force, position, unit_count) end
 function LuaSurface.calculate_tile_properties(positions, property_names) end
 
 --- If there exists an entity at the given location that can be fast-replaced with the given entity parameters.
+---@param p {direction: (defines__direction|number)|nil, force: ForceIdentification|nil, name: string, position: MapPosition}
 ---@param direction (defines__direction|number)|nil @Direction the entity would be placed
 ---@param force ForceIdentification|nil @The force that would place the entity. If not specified, the enemy force is assumed.
 ---@param name string @Name of the entity to check
 ---@param position MapPosition @Where the entity would be placed
 ---@return boolean
-function LuaSurface.can_fast_replace(direction, force, name, position) end
+function LuaSurface.can_fast_replace(p) end
 
 --- Check for collisions with terrain or other entities.
+---@param p {build_check_type: (defines__build_check_type|number)|nil, direction: (defines__direction|number)|nil, force: ForceIdentification|nil, forced: boolean|nil, inner_name: string|nil, name: string, position: MapPosition}
 ---@param build_check_type (defines__build_check_type|number)|nil @Which type of check should be carried out.
 ---@param direction (defines__direction|number)|nil @Direction of the placed entity.
 ---@param force ForceIdentification|nil @The force that would place the entity. If not specified, the enemy force is assumed.
@@ -6388,29 +6347,25 @@ function LuaSurface.can_fast_replace(direction, force, name, position) end
 ---@param name string @Name of the entity prototype to check.
 ---@param position MapPosition @Where the entity would be placed.
 ---@return boolean
-function LuaSurface.can_place_entity(build_check_type, direction, force, forced, inner_name, name, position) end
+function LuaSurface.can_place_entity(p) end
 
 --- Cancel a deconstruction order.
+---@param p {area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil, player: PlayerIdentification|nil, skip_fog_of_war: boolean|nil}
 ---@param area BoundingBox @The area to cancel deconstruction orders in.
 ---@param force ForceIdentification @The force whose deconstruction orders to cancel.
 ---@param item LuaItemStack|nil @The deconstruction item to use if any.
 ---@param player PlayerIdentification|nil @The player to set the last_user to if any.
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@overload fun(area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil, player: PlayerIdentification|nil)
----@overload fun(area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil)
----@overload fun(area: BoundingBox, force: ForceIdentification)
-function LuaSurface.cancel_deconstruct_area(area, force, item, player, skip_fog_of_war) end
+function LuaSurface.cancel_deconstruct_area(p) end
 
 --- Cancel a upgrade order.
+---@param p {area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil, player: PlayerIdentification|nil, skip_fog_of_war: boolean|nil}
 ---@param area BoundingBox @The area to cancel upgrade orders in.
 ---@param force ForceIdentification @The force whose upgrade orders to cancel.
 ---@param item LuaItemStack|nil @The upgrade item to use if any.
 ---@param player PlayerIdentification|nil @The player to set the last_user to if any.
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@overload fun(area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil, player: PlayerIdentification|nil)
----@overload fun(area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil)
----@overload fun(area: BoundingBox, force: ForceIdentification)
-function LuaSurface.cancel_upgrade_area(area, force, item, player, skip_fog_of_war) end
+function LuaSurface.cancel_upgrade_area(p) end
 
 --- Clears this surface deleting all entities and chunks on it.
 ---@param ignore_characters boolean|nil @Whether characters on this surface that are connected to or associated with players should be ignored (not destroyed).
@@ -6421,6 +6376,7 @@ function LuaSurface.clear(ignore_characters) end
 function LuaSurface.clear_pollution() end
 
 --- Clones the given area.
+---@param p {clear_destination_decoratives: boolean|nil, clear_destination_entities: boolean|nil, clone_decoratives: boolean|nil, clone_entities: boolean|nil, clone_tiles: boolean|nil, create_build_effect_smoke: boolean|nil, destination_area: BoundingBox, destination_force: (LuaForce | string)|nil, destination_surface: SurfaceIdentification|nil, expand_map: boolean|nil, source_area: BoundingBox}
 ---@param clear_destination_decoratives boolean|nil @If the destination decoratives should be cleared
 ---@param clear_destination_entities boolean|nil @If the destination entities should be cleared
 ---@param clone_decoratives boolean|nil @If decoratives should be cloned
@@ -6432,9 +6388,10 @@ function LuaSurface.clear_pollution() end
 ---@param destination_surface SurfaceIdentification|nil
 ---@param expand_map boolean|nil @If the destination surface should be expanded when destination_area is outside current bounds. Default false.
 ---@param source_area BoundingBox
-function LuaSurface.clone_area(clear_destination_decoratives, clear_destination_entities, clone_decoratives, clone_entities, clone_tiles, create_build_effect_smoke, destination_area, destination_force, destination_surface, expand_map, source_area) end
+function LuaSurface.clone_area(p) end
 
 --- Clones the given area.
+---@param p {clear_destination_decoratives: boolean|nil, clear_destination_entities: boolean|nil, clone_decoratives: boolean|nil, clone_entities: boolean|nil, clone_tiles: boolean|nil, create_build_effect_smoke: boolean|nil, destination_force: (LuaForce | string)|nil, destination_offset: TilePosition, destination_surface: SurfaceIdentification|nil, expand_map: boolean|nil, manual_collision_mode: boolean|nil, source_offset: TilePosition, source_positions: TilePosition[]}
 ---@param clear_destination_decoratives boolean|nil @If the destination decoratives should be cleared
 ---@param clear_destination_entities boolean|nil @If the destination entities should be cleared
 ---@param clone_decoratives boolean|nil @If decoratives should be cloned
@@ -6448,20 +6405,21 @@ function LuaSurface.clone_area(clear_destination_decoratives, clear_destination_
 ---@param manual_collision_mode boolean|nil @If manual-style collision checks should be done.
 ---@param source_offset TilePosition
 ---@param source_positions TilePosition[]
-function LuaSurface.clone_brush(clear_destination_decoratives, clear_destination_entities, clone_decoratives, clone_entities, clone_tiles, create_build_effect_smoke, destination_force, destination_offset, destination_surface, expand_map, manual_collision_mode, source_offset, source_positions) end
+function LuaSurface.clone_brush(p) end
 
 --- Clones the given entities.
+---@param p {create_build_effect_smoke: boolean|nil, destination_force: ForceIdentification|nil, destination_offset: Vector, destination_surface: SurfaceIdentification|nil, entities: LuaEntity[], snap_to_grid: boolean|nil}
 ---@param create_build_effect_smoke boolean|nil @If true, the building effect smoke will be shown around the new entities.
 ---@param destination_force ForceIdentification|nil
 ---@param destination_offset Vector
 ---@param destination_surface SurfaceIdentification|nil
 ---@param entities LuaEntity[]
 ---@param snap_to_grid boolean|nil
----@overload fun(create_build_effect_smoke: boolean|nil, destination_force: ForceIdentification|nil, destination_offset: Vector, destination_surface: SurfaceIdentification|nil, entities: LuaEntity[])
-function LuaSurface.clone_entities(create_build_effect_smoke, destination_force, destination_offset, destination_surface, entities, snap_to_grid) end
+function LuaSurface.clone_entities(p) end
 
 --- Count entities of given type or name in a given area. Works just like [LuaSurface::find_entities_filtered](LuaSurface::find_entities_filtered), except this only returns the count. As it doesn't construct all the wrapper objects, this is more efficient if one is only interested in the number of entities.
 --- If no `area` or `position` are given, the entire surface is searched. If `position` is given, this returns the entities colliding with that position (i.e the given position is within the entity's collision box). If `position` and `radius` are given, this returns entities in the radius of the position. If `area` is specified, this returns entities colliding with that area.
+---@param p {area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil, type: (string | string[])|nil}
 ---@param area BoundingBox|nil
 ---@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
 ---@param direction ((defines__direction|number) | ((defines__direction|number)[]))|nil
@@ -6477,26 +6435,12 @@ function LuaSurface.clone_entities(create_build_effect_smoke, destination_force,
 ---@param to_be_deconstructed boolean|nil
 ---@param to_be_upgraded boolean|nil
 ---@param type (string | string[])|nil
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil, to_be_deconstructed: boolean|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil): uint
----@overload fun(area: BoundingBox|nil): uint
----@overload fun(): uint
 ---@return uint
-function LuaSurface.count_entities_filtered(area, collision_mask, direction, force, ghost_name, ghost_type, invert, is_military_target, limit, name, position, radius, to_be_deconstructed, to_be_upgraded, type) end
+function LuaSurface.count_entities_filtered(p) end
 
 --- Count tiles of a given name in a given area. Works just like [LuaSurface::find_tiles_filtered](LuaSurface::find_tiles_filtered), except this only returns the count. As it doesn't construct all the wrapper objects, this is more efficient if one is only interested in the number of tiles.
 --- If no `area` or `position` and `radius` is given, the entire surface is searched. If `position` and `radius` are given, only tiles within the radius of the position are included.
+---@param p {area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil, to_be_deconstructed: boolean|nil}
 ---@param area BoundingBox|nil
 ---@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
 ---@param force (ForceIdentification | ForceIdentification[])|nil
@@ -6508,26 +6452,17 @@ function LuaSurface.count_entities_filtered(area, collision_mask, direction, for
 ---@param position MapPosition|nil @Ignored if not given with radius.
 ---@param radius double|nil @If given with position, will return all entities within the radius of the position.
 ---@param to_be_deconstructed boolean|nil @Can be further filtered by supplying a `force` filter.
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[])|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil): uint
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil): uint
----@overload fun(area: BoundingBox|nil): uint
----@overload fun(): uint
 ---@return uint
-function LuaSurface.count_tiles_filtered(area, collision_mask, force, has_hidden_tile, has_tile_ghost, invert, limit, name, position, radius, to_be_deconstructed) end
+function LuaSurface.count_tiles_filtered(p) end
 
 --- Adds the given decoratives to the surface.
+---@param p {check_collision: boolean|nil, decoratives: Decorative[]}
 ---@param check_collision boolean|nil @If collision should be checked against entities/tiles.
 ---@param decoratives Decorative[]
-function LuaSurface.create_decoratives(check_collision, decoratives) end
+function LuaSurface.create_decoratives(p) end
 
 --- Create an entity on this surface.
+---@param p {create_build_effect_smoke: boolean|nil, direction: (defines__direction|number)|nil, fast_replace: boolean|nil, force: ForceIdentification|nil, item: LuaItemStack|nil, move_stuck_players: boolean|nil, name: string, player: PlayerIdentification|nil, position: MapPosition, raise_built: boolean|nil, source: (LuaEntity | MapPosition)|nil, spawn_decorations: boolean|nil, spill: boolean|nil, target: (LuaEntity | MapPosition)|nil}
 ---@param create_build_effect_smoke boolean|nil @If false, the building effect smoke will not be shown around the new entity.
 ---@param direction (defines__direction|number)|nil @Desired orientation of the entity after creation.
 ---@param fast_replace boolean|nil @If true, building will attempt to simulate fast-replace building.
@@ -6542,43 +6477,39 @@ function LuaSurface.create_decoratives(check_collision, decoratives) end
 ---@param spawn_decorations boolean|nil @If true, entity types that have spawn_decorations property will apply triggers defined in the property.
 ---@param spill boolean|nil @If false while fast_replace is true and player is nil any items from fast-replacing will be deleted instead of dropped on the ground.
 ---@param target (LuaEntity | MapPosition)|nil @Entity with health for the new entity to target.
----@overload fun(create_build_effect_smoke: boolean|nil, direction: (defines__direction|number)|nil, fast_replace: boolean|nil, force: ForceIdentification|nil, item: LuaItemStack|nil, move_stuck_players: boolean|nil, name: string, player: PlayerIdentification|nil, position: MapPosition, raise_built: boolean|nil, source: (LuaEntity | MapPosition)|nil, spawn_decorations: boolean|nil, spill: boolean|nil): LuaEntity|nil
----@overload fun(create_build_effect_smoke: boolean|nil, direction: (defines__direction|number)|nil, fast_replace: boolean|nil, force: ForceIdentification|nil, item: LuaItemStack|nil, move_stuck_players: boolean|nil, name: string, player: PlayerIdentification|nil, position: MapPosition, raise_built: boolean|nil, source: (LuaEntity | MapPosition)|nil, spawn_decorations: boolean|nil): LuaEntity|nil
----@overload fun(create_build_effect_smoke: boolean|nil, direction: (defines__direction|number)|nil, fast_replace: boolean|nil, force: ForceIdentification|nil, item: LuaItemStack|nil, move_stuck_players: boolean|nil, name: string, player: PlayerIdentification|nil, position: MapPosition, raise_built: boolean|nil, source: (LuaEntity | MapPosition)|nil): LuaEntity|nil
----@overload fun(create_build_effect_smoke: boolean|nil, direction: (defines__direction|number)|nil, fast_replace: boolean|nil, force: ForceIdentification|nil, item: LuaItemStack|nil, move_stuck_players: boolean|nil, name: string, player: PlayerIdentification|nil, position: MapPosition, raise_built: boolean|nil): LuaEntity|nil
----@overload fun(create_build_effect_smoke: boolean|nil, direction: (defines__direction|number)|nil, fast_replace: boolean|nil, force: ForceIdentification|nil, item: LuaItemStack|nil, move_stuck_players: boolean|nil, name: string, player: PlayerIdentification|nil, position: MapPosition): LuaEntity|nil
----@return LuaEntity|nil @The created entity or `nil` if the creation failed.
-function LuaSurface.create_entity(create_build_effect_smoke, direction, fast_replace, force, item, move_stuck_players, name, player, position, raise_built, source, spawn_decorations, spill, target) end
+---@return LuaEntity @The created entity or `nil` if the creation failed.
+function LuaSurface.create_entity(p) end
 
 --- Creates a particle at the given location
+---@param p {frame_speed: float, height: float, movement: Vector, name: string, position: MapPosition, vertical_speed: float}
 ---@param frame_speed float
 ---@param height float
 ---@param movement Vector
 ---@param name string @The particle name.
 ---@param position MapPosition @Where to create the particle.
 ---@param vertical_speed float
-function LuaSurface.create_particle(frame_speed, height, movement, name, position, vertical_speed) end
+function LuaSurface.create_particle(p) end
 
+---@param p {name: string, position: MapPosition}
 ---@param name string @The smoke prototype name to create.
 ---@param position MapPosition @Where to create the smoke.
-function LuaSurface.create_trivial_smoke(name, position) end
+function LuaSurface.create_trivial_smoke(p) end
 
 --- Create a new unit group at a given position.
+---@param p {force: ForceIdentification|nil, position: MapPosition}
 ---@param force ForceIdentification|nil @Force of the new unit group. Defaults to `"enemy"`.
 ---@param position MapPosition @Initial position of the new unit group.
 ---@return LuaUnitGroup
-function LuaSurface.create_unit_group(force, position) end
+function LuaSurface.create_unit_group(p) end
 
 --- Place a deconstruction request.
+---@param p {area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil, player: PlayerIdentification|nil, skip_fog_of_war: boolean|nil}
 ---@param area BoundingBox @The area to mark for deconstruction.
 ---@param force ForceIdentification @The force whose bots should perform the deconstruction.
 ---@param item LuaItemStack|nil @The deconstruction item to use if any.
 ---@param player PlayerIdentification|nil @The player to set the last_user to if any.
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@overload fun(area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil, player: PlayerIdentification|nil)
----@overload fun(area: BoundingBox, force: ForceIdentification, item: LuaItemStack|nil)
----@overload fun(area: BoundingBox, force: ForceIdentification)
-function LuaSurface.deconstruct_area(area, force, item, player, skip_fog_of_war) end
+function LuaSurface.deconstruct_area(p) end
 
 ---@param position MapPosition @The position to check
 ---@param prototype string @The decorative prototype to check
@@ -6588,6 +6519,7 @@ function LuaSurface.decorative_prototype_collides(position, prototype) end
 function LuaSurface.delete_chunk(position) end
 
 --- Removes all decoratives from the given area. If no area and no position are given, then the entire surface is searched.
+---@param p {area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil, position: TilePosition|nil, to_layer: string|nil}
 ---@param area BoundingBox|nil
 ---@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
 ---@param exclude_soft boolean|nil @Soft decoratives can be drawn over rails.
@@ -6597,16 +6529,7 @@ function LuaSurface.delete_chunk(position) end
 ---@param name (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil
 ---@param position TilePosition|nil
 ---@param to_layer string|nil
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil, position: TilePosition|nil)
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil)
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil, limit: uint|nil)
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil)
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil)
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil)
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil)
----@overload fun(area: BoundingBox|nil)
----@overload fun()
-function LuaSurface.destroy_decoratives(area, collision_mask, exclude_soft, from_layer, invert, limit, name, position, to_layer) end
+function LuaSurface.destroy_decoratives(p) end
 
 --- Sets the given script area to the new values.
 ---@param area ScriptArea
@@ -6626,6 +6549,7 @@ function LuaSurface.entity_prototype_collides(direction, position, prototype, us
 
 --- Find decoratives of a given name in a given area.
 --- If no filters are given, returns all decoratives in the search area. If multiple filters are specified, returns only decoratives matching every given filter. If no area and no position are given, the entire surface is searched.
+---@param p {area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil, position: TilePosition|nil, to_layer: string|nil}
 ---@param area BoundingBox|nil
 ---@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
 ---@param exclude_soft boolean|nil @Soft decoratives can be drawn over rails.
@@ -6635,17 +6559,8 @@ function LuaSurface.entity_prototype_collides(direction, position, prototype, us
 ---@param name (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil
 ---@param position TilePosition|nil
 ---@param to_layer string|nil
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil, position: TilePosition|nil): DecorativeResult[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil): DecorativeResult[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil, limit: uint|nil): DecorativeResult[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil, invert: boolean|nil): DecorativeResult[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil, from_layer: string|nil): DecorativeResult[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, exclude_soft: boolean|nil): DecorativeResult[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil): DecorativeResult[]
----@overload fun(area: BoundingBox|nil): DecorativeResult[]
----@overload fun(): DecorativeResult[]
 ---@return DecorativeResult[]
-function LuaSurface.find_decoratives_filtered(area, collision_mask, exclude_soft, from_layer, invert, limit, name, position, to_layer) end
+function LuaSurface.find_decoratives_filtered(p) end
 
 --- Find enemy units (entities with type "unit") of a given force within an area.
 ---@param center MapPosition @Center of the search area
@@ -6667,6 +6582,7 @@ function LuaSurface.find_entities(area) end
 --- - If `position` is given, this returns the entities colliding with that position (i.e the given position is within the entity's collision box).
 --- - If `position` and `radius` are given, this returns the entities within the radius of the position. Looks for the center of entities.
 --- - If `area` is specified, this returns the entities colliding with that area.
+---@param p {area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil, type: (string | string[])|nil}
 ---@param area BoundingBox|nil
 ---@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
 ---@param direction ((defines__direction|number) | ((defines__direction|number)[]))|nil
@@ -6682,34 +6598,19 @@ function LuaSurface.find_entities(area) end
 ---@param to_be_deconstructed boolean|nil
 ---@param to_be_upgraded boolean|nil
 ---@param type (string | string[])|nil
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil, to_be_deconstructed: boolean|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil, name: (string | string[])|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil, limit: uint|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil, is_military_target: boolean|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, invert: boolean|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil, ghost_name: (string | string[])|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, force: (ForceIdentification | ForceIdentification[])|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil): LuaEntity[]
----@overload fun(area: BoundingBox|nil): LuaEntity[]
----@overload fun(): LuaEntity[]
 ---@return LuaEntity[]
-function LuaSurface.find_entities_filtered(area, collision_mask, direction, force, ghost_name, ghost_type, invert, is_military_target, limit, name, position, radius, to_be_deconstructed, to_be_upgraded, type) end
+function LuaSurface.find_entities_filtered(p) end
 
 --- Find a specific entity at a specific position.
 ---@param entity string @Entity to look for.
 ---@param position MapPosition @Coordinates to look at.
----@return LuaEntity|nil @`nil` if no such entity is found.
+---@return LuaEntity @`nil` if no such entity is found.
 function LuaSurface.find_entity(entity, position) end
 
 --- Find the logistic network that covers a given position.
 ---@param force ForceIdentification @Force the logistic network should belong to.
 ---@param position MapPosition
----@return LuaLogisticNetwork|nil @The found network or `nil` if no such network was found.
+---@return LuaLogisticNetwork @The found network or `nil` if no such network was found.
 function LuaSurface.find_logistic_network_by_position(force, position) end
 
 --- Finds all of the logistics networks whose construction area intersects with the given position.
@@ -6719,18 +6620,20 @@ function LuaSurface.find_logistic_network_by_position(force, position) end
 function LuaSurface.find_logistic_networks_by_construction_area(force, position) end
 
 --- Find the enemy military target ([military entity](https://wiki.factorio.com/Military_units_and_structures)) closest to the given position.
+---@param p {force: ForceIdentification|nil, max_distance: double, position: MapPosition}
 ---@param force ForceIdentification|nil @The force the result will be an enemy of. Uses the player force if not specified.
 ---@param max_distance double @Radius of the circular search area.
 ---@param position MapPosition @Center of the search area.
----@return LuaEntity|nil @The nearest enemy military target or `nil` if no enemy could be found within the given area.
-function LuaSurface.find_nearest_enemy(force, max_distance, position) end
+---@return LuaEntity @The nearest enemy military target or `nil` if no enemy could be found within the given area.
+function LuaSurface.find_nearest_enemy(p) end
 
 --- Find the enemy entity-with-owner closest to the given position.
+---@param p {force: ForceIdentification|nil, max_distance: double, position: MapPosition}
 ---@param force ForceIdentification|nil @The force the result will be an enemy of. Uses the player force if not specified.
 ---@param max_distance double @Radius of the circular search area.
 ---@param position MapPosition @Center of the search area.
 ---@return LuaEntity @The nearest enemy entity-with-owner or `nil` if no enemy could be found within the given area.
-function LuaSurface.find_nearest_enemy_entity_with_owner(force, max_distance, position) end
+function LuaSurface.find_nearest_enemy_entity_with_owner(p) end
 
 --- Find a non-colliding position within a given radius.
 ---@param center MapPosition @Center of the search area.
@@ -6738,7 +6641,7 @@ function LuaSurface.find_nearest_enemy_entity_with_owner(force, max_distance, po
 ---@param name string @Prototype name of the entity to find a position for. (The bounding box for the collision checking is taken from this prototype.)
 ---@param precision double @The step length from the given position as it searches, in tiles. Minimum value is `0.01`.
 ---@param radius double @Max distance from `center` to search in. A radius of `0` means an infinitely-large search area.
----@return MapPosition|nil @The non-colliding position. May be `nil` if no suitable position was found.
+---@return MapPosition @The non-colliding position. May be `nil` if no suitable position was found.
 function LuaSurface.find_non_colliding_position(center, force_to_tile_center, name, precision, radius) end
 
 --- Find a non-colliding position within a given rectangle.
@@ -6746,12 +6649,13 @@ function LuaSurface.find_non_colliding_position(center, force_to_tile_center, na
 ---@param name string @Prototype name of the entity to find a position for. (The bounding box for the collision checking is taken from this prototype.)
 ---@param precision double @The step length from the given position as it searches, in tiles. Minimum value is 0.01.
 ---@param search_space BoundingBox @The rectangle to search inside.
----@return MapPosition|nil @The non-colliding position. May be `nil` if no suitable position was found.
+---@return MapPosition @The non-colliding position. May be `nil` if no suitable position was found.
 function LuaSurface.find_non_colliding_position_in_box(force_to_tile_center, name, precision, search_space) end
 
 --- Find all tiles of the given name in the given area.
 --- If no filters are given, this returns all tiles in the search area.
 --- If no `area` or `position` and `radius` is given, the entire surface is searched. If `position` and `radius` are given, only tiles within the radius of the position are included.
+---@param p {area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil, to_be_deconstructed: boolean|nil}
 ---@param area BoundingBox|nil
 ---@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
 ---@param force (ForceIdentification | ForceIdentification[])|nil
@@ -6763,26 +6667,16 @@ function LuaSurface.find_non_colliding_position_in_box(force_to_tile_center, nam
 ---@param position MapPosition|nil @Ignored if not given with radius.
 ---@param radius double|nil @If given with position, will return all entities within the radius of the position.
 ---@param to_be_deconstructed boolean|nil @Can be further filtered by supplying a `force` filter.
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil, radius: double|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[])|nil, position: MapPosition|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil, name: (string | string[])|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil, limit: uint|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, invert: boolean|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, has_hidden_tile: boolean|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil): LuaTile[]
----@overload fun(area: BoundingBox|nil): LuaTile[]
----@overload fun(): LuaTile[]
 ---@return LuaTile[]
-function LuaSurface.find_tiles_filtered(area, collision_mask, force, has_hidden_tile, has_tile_ghost, invert, limit, name, position, radius, to_be_deconstructed) end
+function LuaSurface.find_tiles_filtered(p) end
 
 --- Find units (entities with type "unit") of a given force and force condition within a given area.
+---@param p {area: BoundingBox, condition: ForceCondition, force: LuaForce | string}
 ---@param area BoundingBox @Box to find units within.
 ---@param condition ForceCondition @Only forces which meet the condition will be included in the search.
 ---@param force LuaForce | string @Force performing the search.
 ---@return LuaEntity[]
-function LuaSurface.find_units(area, condition, force) end
+function LuaSurface.find_units(p) end
 
 --- Blocks and generates all chunks that have been requested using all available threads.
 function LuaSurface.force_generate_chunk_requests() end
@@ -6794,7 +6688,7 @@ function LuaSurface.get_chunks() end
 --- Gets the closest entity in the list to this position.
 ---@param entities LuaEntity[] @The Entities to check
 ---@param position MapPosition
----@return LuaEntity|nil
+---@return LuaEntity
 function LuaSurface.get_closest(entities, position) end
 
 --- Gets all tiles of the given types that are connected horizontally or vertically to the given tile position including the given tile position.
@@ -6811,7 +6705,7 @@ function LuaSurface.get_entities_with_force(force, position) end
 
 --- The hidden tile name.
 ---@param position TilePosition @The tile position.
----@return string|nil @`nil` if there isn't one for the given position.
+---@return string @`nil` if there isn't one for the given position.
 function LuaSurface.get_hidden_tile(position) end
 
 --- Gets the map exchange string for the current map generation settings of this surface.
@@ -6833,8 +6727,8 @@ function LuaSurface.get_resource_counts() end
 
 --- Gets the first script area by name or id.
 ---@param key (string | uint)|nil @The name or id of the area to get.
----@overload fun(): ScriptArea|nil
----@return ScriptArea|nil
+---@overload fun(): ScriptArea
+---@return ScriptArea
 function LuaSurface.get_script_area(key) end
 
 --- Gets the script areas that match the given name or if no name is given all areas are returned.
@@ -6845,8 +6739,8 @@ function LuaSurface.get_script_areas(name) end
 
 --- Gets the first script position by name or id.
 ---@param key (string | uint)|nil @The name or id of the position to get.
----@overload fun(): ScriptPosition|nil
----@return ScriptPosition|nil
+---@overload fun(): ScriptPosition
+---@return ScriptPosition
 function LuaSurface.get_script_position(key) end
 
 --- Gets the script positions that match the given name or if no name is given all positions are returned.
@@ -6870,12 +6764,12 @@ function LuaSurface.get_tile(x, y) end
 function LuaSurface.get_total_pollution() end
 
 --- Gets train stops matching the given filters.
+---@param p {force: ForceIdentification|nil, name: (string | string[])|nil}
 ---@param force ForceIdentification|nil
 ---@param name (string | string[])|nil
----@overload fun(force: ForceIdentification|nil): LuaEntity[]
----@overload fun(): LuaEntity[]
 ---@return LuaEntity[]
-function LuaSurface.get_train_stops(force, name) end
+---@overload fun(): LuaEntity[]
+function LuaSurface.get_train_stops(p) end
 
 ---@param force ForceIdentification|nil @If given only trains matching this force are returned.
 ---@overload fun(): LuaTrain[]
@@ -6892,13 +6786,12 @@ function LuaSurface.help() end
 function LuaSurface.is_chunk_generated(position) end
 
 --- Play a sound for every player on this surface.
+---@param p {override_sound_type: SoundType|nil, path: SoundPath, position: MapPosition|nil, volume_modifier: double|nil}
 ---@param override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
 ---@param path SoundPath @The sound to play.
 ---@param position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
 ---@param volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
----@overload fun(override_sound_type: SoundType|nil, path: SoundPath, position: MapPosition|nil)
----@overload fun(override_sound_type: SoundType|nil, path: SoundPath)
-function LuaSurface.play_sound(override_sound_type, path, position, volume_modifier) end
+function LuaSurface.play_sound(p) end
 
 --- Spawn pollution at the given position.
 ---@param amount double @How much pollution to add.
@@ -6936,6 +6829,7 @@ function LuaSurface.remove_script_position(id) end
 
 --- Generates a path with the specified constraints (as an array of [PathfinderWaypoints](PathfinderWaypoint)) using the unit pathfinding algorithm. This path can be used to emulate pathing behavior by script for non-unit entities, such as vehicles. If you want to command actual units (such as biters or spitters) to move, use [LuaEntity::set_command](LuaEntity::set_command) instead.
 --- The resulting path is ultimately returned asynchronously via [on_script_path_request_finished](on_script_path_request_finished).
+---@param p {bounding_box: BoundingBox, can_open_gates: boolean|nil, collision_mask: CollisionMaskWithFlags | string[], entity_to_ignore: LuaEntity|nil, force: ForceIdentification, goal: MapPosition, path_resolution_modifier: int|nil, pathfind_flags: PathfinderFlags|nil, radius: double|nil, start: MapPosition}
 ---@param bounding_box BoundingBox @The dimensions of the object that's supposed to travel the path.
 ---@param can_open_gates boolean|nil @Whether the path request can open gates. Defaults to `false`.
 ---@param collision_mask CollisionMaskWithFlags | string[] @The list of masks the `bounding_box` collides with.
@@ -6947,7 +6841,7 @@ function LuaSurface.remove_script_position(id) end
 ---@param radius double|nil @How close the pathfinder needs to get to its `goal` (in tiles). Defaults to `1`.
 ---@param start MapPosition @The position from which to start pathfinding.
 ---@return uint @A unique handle to identify this call when [on_script_path_request_finished](on_script_path_request_finished) fires.
-function LuaSurface.request_path(bounding_box, can_open_gates, collision_mask, entity_to_ignore, force, goal, path_resolution_modifier, pathfind_flags, radius, start) end
+function LuaSurface.request_path(p) end
 
 --- Request that the game's map generator generate chunks at the given position for the given radius on this surface.
 ---@param position MapPosition @Where to generate the new chunks.
@@ -6965,13 +6859,13 @@ function LuaSurface.set_chunk_generated_status(position, status) end
 function LuaSurface.set_hidden_tile(position, tile) end
 
 --- Give a command to multiple units. This will automatically select suitable units for the task.
+---@param p {command: Command, force: ForceIdentification|nil, unit_count: uint, unit_search_distance: uint|nil}
 ---@param command Command
 ---@param force ForceIdentification|nil @Force of the units this command is to be given to. If not specified, uses the enemy force.
 ---@param unit_count uint @Number of units to give the command to.
 ---@param unit_search_distance uint|nil @Radius to search for units. The search area is centered on the destination of the command.
----@overload fun(command: Command, force: ForceIdentification|nil, unit_count: uint): uint
 ---@return uint @Number of units actually sent. May be less than `count` if not enough units were available.
-function LuaSurface.set_multi_command(command, force, unit_count, unit_search_distance) end
+function LuaSurface.set_multi_command(p) end
 
 --- Set tiles at specified locations. Can automatically correct the edges around modified tiles.
 --- Placing a [mineable](LuaTilePrototype::mineable_properties) tile on top of a non-mineable one will turn the latter into the [LuaTile::hidden_tile](LuaTile::hidden_tile) for that tile. Placing a mineable tile on a mineable one or a non-mineable tile on a non-mineable one will not modify the hidden tile. This restriction can however be circumvented by using [LuaSurface::set_hidden_tile](LuaSurface::set_hidden_tile).
@@ -6992,14 +6886,13 @@ function LuaSurface.set_tiles(correct_tiles, raise_event, remove_colliding_decor
 function LuaSurface.spill_item_stack(allow_belts, enable_looted, force, items, position) end
 
 --- Place an upgrade request.
+---@param p {area: BoundingBox, force: ForceIdentification, item: LuaItemStack, player: PlayerIdentification|nil, skip_fog_of_war: boolean|nil}
 ---@param area BoundingBox @The area to mark for upgrade.
 ---@param force ForceIdentification @The force whose bots should perform the upgrade.
 ---@param item LuaItemStack @The upgrade item to use.
 ---@param player PlayerIdentification|nil @The player to set the last_user to if any.
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@overload fun(area: BoundingBox, force: ForceIdentification, item: LuaItemStack, player: PlayerIdentification|nil)
----@overload fun(area: BoundingBox, force: ForceIdentification, item: LuaItemStack)
-function LuaSurface.upgrade_area(area, force, item, player, skip_fog_of_war) end
+function LuaSurface.upgrade_area(p) end
 
 ---@class LuaTechnology: any @One research item.
   ---@field effects TechnologyModifier[] @RW; Effects applied when this technology is researched.
@@ -7014,7 +6907,7 @@ function LuaSurface.upgrade_area(area, force, item, player, skip_fog_of_war) end
   ---@field prerequisites table<string, LuaTechnology> @RW; Prerequisites of this technology. The result maps technology name to the [LuaTechnology](LuaTechnology) object.
   ---@field prototype LuaTechnologyPrototype @RW; The prototype of this technology.
   ---@field research_unit_count uint @RW; The number of research units required for this technology.
-  ---@field research_unit_count_formula string|nil @RW; The count formula used for this infinite research. `nil` if this research isn't infinite.
+  ---@field research_unit_count_formula string @RW nilable; The count formula used for this infinite research. `nil` if this research isn't infinite.
   ---@field research_unit_energy double @RW; Amount of energy required to finish a unit of research.
   ---@field research_unit_ingredients Ingredient[] @RW; The types of ingredients that labs will require to research this technology.
   ---@field researched boolean @RW; Has this technology been researched? Switching from `false` to `true` will trigger the technology advancement perks; switching from `true` to `false` will reverse them.
@@ -7044,7 +6937,7 @@ function LuaTechnology.reload() end
   ---@field order string @RW; The string used to alphabetically sort these prototypes. It is a simple string that has no additional semantic meaning.
   ---@field prerequisites table<string, LuaTechnologyPrototype> @RW; Prerequisites of this technology. The result maps technology name to the [LuaTechnologyPrototype](LuaTechnologyPrototype) object.
   ---@field research_unit_count uint @RW; The number of research units required for this technology.
-  ---@field research_unit_count_formula string|nil @RW; The count formula used for this infinite research. `nil` if this research isn't infinite.
+  ---@field research_unit_count_formula string @RW nilable; The count formula used for this infinite research. `nil` if this research isn't infinite.
   ---@field research_unit_energy double @RW; Amount of energy required to finish a unit of research.
   ---@field research_unit_ingredients Ingredient[] @RW; The types of ingredients that labs will require to research this technology.
   ---@field upgrade boolean @RW; If the is technology prototype is an upgrade to some other technology.
@@ -7057,7 +6950,7 @@ LuaTechnologyPrototype = {}
 function LuaTechnologyPrototype.help() end
 
 ---@class LuaTile: any @A single "square" on the map.
-  ---@field hidden_tile string|nil @RW; The name of the [LuaTilePrototype](LuaTilePrototype) hidden under this tile, if any. During normal gameplay, only [non-mineable](LuaTilePrototype::mineable_properties) tiles can become hidden. This can however be circumvented with [LuaSurface::set_hidden_tile](LuaSurface::set_hidden_tile).
+  ---@field hidden_tile string @RW nilable; The name of the [LuaTilePrototype](LuaTilePrototype) hidden under this tile, if any. During normal gameplay, only [non-mineable](LuaTilePrototype::mineable_properties) tiles can become hidden. This can however be circumvented with [LuaSurface::set_hidden_tile](LuaSurface::set_hidden_tile).
   ---@field name string @RW; Prototype name of this tile. E.g. `"sand-3"` or `"grass-2"`.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field position TilePosition @RW; The position this tile references.
@@ -7096,8 +6989,8 @@ function LuaTile.help() end
 --- Orders deconstruction of this tile by the given force.
 ---@param force ForceIdentification @The force whose robots are supposed to do the deconstruction.
 ---@param player PlayerIdentification|nil @The player to set the last_user to if any.
----@overload fun(force: ForceIdentification): LuaEntity|nil
----@return LuaEntity|nil @The deconstructible tile proxy created, if any.
+---@overload fun(force: ForceIdentification): LuaEntity
+---@return LuaEntity @The deconstructible tile proxy created, if any.
 function LuaTile.order_deconstruction(force, player) end
 
 --- Is this tile marked for deconstruction?
@@ -7109,7 +7002,7 @@ function LuaTile.to_be_deconstructed(force) end
 ---@class LuaTilePrototype: any @Prototype of a tile.
   ---@field allowed_neighbors table<string, LuaTilePrototype> @RW
   ---@field automatic_neighbors boolean @RW
-  ---@field autoplace_specification AutoplaceSpecification|nil @RW; Autoplace specification for this prototype, if any.
+  ---@field autoplace_specification AutoplaceSpecification @RW nilable; Autoplace specification for this prototype, if any.
   ---@field can_be_part_of_blueprint boolean @RW; False if this tile is not allowed in blueprints regardless of the ability to build it.
   ---@field check_collision_with_entities boolean @RW; True if building this tile should check for colliding entities above and prevent building if such are found. Also during mining tiles above this tile checks for entities colliding with this tile and prevents mining if such are found.
   ---@field collision_mask CollisionMask @RW; The collision mask this tile uses
@@ -7124,7 +7017,7 @@ function LuaTile.to_be_deconstructed(force) end
   ---@field mineable_properties _table15 @RW
   ---@field name string @RW; Name of this prototype.
   ---@field needs_correction boolean @RW; If this tile needs correction logic applied when it's generated in the world..
-  ---@field next_direction LuaTilePrototype|nil @RW; The next direction of this tile, if any. Used when a tile has multiple directions (such as hazard concrete)
+  ---@field next_direction LuaTilePrototype @RW nilable; The next direction of this tile, if any. Used when a tile has multiple directions (such as hazard concrete)
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field order string @RW; The string used to alphabetically sort these prototypes. It is a simple string that has no additional semantic meaning.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
@@ -7137,13 +7030,13 @@ LuaTilePrototype = {}
 function LuaTilePrototype.help() end
 
 ---@class LuaTrain: any @A train. Trains are a sequence of connected rolling stocks -- locomotives and wagons.
-  ---@field back_rail LuaEntity|nil @RW; The rail at the back end of the train, if any.
-  ---@field back_stock LuaEntity|nil @RW; The back stock of this train, if any. The back of the train is at the opposite end of the [front](LuaTrain::front_stock).
+  ---@field back_rail LuaEntity @RW nilable; The rail at the back end of the train, if any.
+  ---@field back_stock LuaEntity @RW nilable; The back stock of this train, if any. The back of the train is at the opposite end of the [front](LuaTrain::front_stock).
   ---@field cargo_wagons LuaEntity[] @RW; The cargo carriages the train contains.
   ---@field carriages LuaEntity[] @RW; The rolling stocks this train is composed of, with the numbering starting at the [front](LuaTrain::front_stock) of the train.
   ---@field fluid_wagons LuaEntity[] @RW; The fluid carriages the train contains.
-  ---@field front_rail LuaEntity|nil @RW; The rail at the front end of the train, if any.
-  ---@field front_stock LuaEntity|nil @RW; The front stock of this train, if any. The front of the train is in the direction that a majority of locomotives are pointing in. If it's a tie, the North and West directions take precedence.
+  ---@field front_rail LuaEntity @RW nilable; The rail at the front end of the train, if any.
+  ---@field front_stock LuaEntity @RW nilable; The front stock of this train, if any. The front of the train is in the direction that a majority of locomotives are pointing in. If it's a tie, the North and West directions take precedence.
   ---@field has_path boolean @RW; If this train has a path.
   ---@field id uint @RW; The unique train ID.
   ---@field kill_count uint @RW; The total number of kills by this train.
@@ -7154,17 +7047,17 @@ function LuaTilePrototype.help() end
   ---@field max_forward_speed double @RW; Current max speed when moving forward, depends on locomotive prototype and fuel.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field passengers LuaPlayer[] @RW; The player passengers on the train
-  ---@field path LuaRailPath|nil @RW; The path this train is using, if any.
-  ---@field path_end_rail LuaEntity|nil @RW; The destination rail this train is currently pathing to, if any.
-  ---@field path_end_stop LuaEntity|nil @RW; The destination train stop this train is currently pathing to, if any.
+  ---@field path LuaRailPath @RW nilable; The path this train is using, if any.
+  ---@field path_end_rail LuaEntity @RW nilable; The destination rail this train is currently pathing to, if any.
+  ---@field path_end_stop LuaEntity @RW nilable; The destination train stop this train is currently pathing to, if any.
   ---@field rail_direction_from_back_rail defines__rail_direction|number @RW
   ---@field rail_direction_from_front_rail defines__rail_direction|number @RW
   ---@field riding_state RidingState @RW; The riding state of this train.
-  ---@field schedule TrainSchedule|nil @RW; This train's current schedule, if any. Set to `nil` to clear.
-  ---@field signal LuaEntity|nil @RW; The signal this train is arriving or waiting at, if any.
+  ---@field schedule TrainSchedule @RW nilable; This train's current schedule, if any. Set to `nil` to clear.
+  ---@field signal LuaEntity @RW nilable; The signal this train is arriving or waiting at, if any.
   ---@field speed double @RW; Current speed.
   ---@field state defines__train_state|number @RW; This train's current state.
-  ---@field station LuaEntity|nil @RW; The train stop this train is stopped at, if any.
+  ---@field station LuaEntity @RW nilable; The train stop this train is stopped at, if any.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
   ---@field weight double @RW; The weight of this train.
 LuaTrain = {}
@@ -7345,8 +7238,8 @@ LuaTrivialSmokePrototype = {}
 function LuaTrivialSmokePrototype.help() end
 
 ---@class LuaUnitGroup: any @A collection of units moving and attacking together. The engine creates autonomous unit groups to attack polluted areas. The script can create and control such groups as well. Groups can accept commands in the same manner as regular units.
-  ---@field command Command|nil @RW; The command given to this group, if any.
-  ---@field distraction_command Command|nil @RW; The distraction command given to this group, if any.
+  ---@field command Command @RW nilable; The command given to this group, if any.
+  ---@field distraction_command Command @RW nilable; The distraction command given to this group, if any.
   ---@field force LuaForce @RW; The force of this unit group.
   ---@field group_number uint @RW; The group number for this unit group.
   ---@field is_script_driven boolean @RW; Whether this unit group is controlled by a script or by the game engine. This can be changed using [LuaUnitGroup::set_autonomous](LuaUnitGroup::set_autonomous).
@@ -7431,7 +7324,7 @@ function LuaWallControlBehavior.help() end
   ---@field input_name string @The prototype name of the custom input that was activated.
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint @The player that activated the custom input.
-  ---@field selected_prototype SelectedPrototypeData|nil @Information about the prototype that is selected when the custom input is used. Needs to be enabled on the custom input's prototype. `nil` if none is selected.
+  ---@field selected_prototype SelectedPrototypeData @nilable; Information about the prototype that is selected when the custom input is used. Needs to be enabled on the custom input's prototype. `nil` if none is selected.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnAiCommandCompleted: EventData @Called when a unit/group completes a command.
@@ -7448,7 +7341,7 @@ function LuaWallControlBehavior.help() end
   ---@field clone_entities boolean
   ---@field clone_tiles boolean
   ---@field destination_area BoundingBox
-  ---@field destination_force LuaForce|nil
+  ---@field destination_force LuaForce @nilable
   ---@field destination_surface LuaSurface
   ---@field name defines__events|number @Identifier of the event
   ---@field source_area BoundingBox
@@ -7466,7 +7359,7 @@ function LuaWallControlBehavior.help() end
   ---@field clone_decoratives boolean
   ---@field clone_entities boolean
   ---@field clone_tiles boolean
-  ---@field destination_force LuaForce|nil
+  ---@field destination_force LuaForce @nilable
   ---@field destination_offset TilePosition
   ---@field destination_surface LuaSurface
   ---@field name defines__events|number @Identifier of the event
@@ -7476,31 +7369,31 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnBuildBaseArrived: EventData @Called when a [defines.command.build_base](defines.command.build_base) command reaches its destination, and before building starts.
-  ---@field group LuaUnitGroup|nil @The unit group the command was assigned to.
+  ---@field group LuaUnitGroup @nilable; The unit group the command was assigned to.
   ---@field name defines__events|number @Identifier of the event
   ---@field tick uint @Tick the event was generated.
-  ---@field unit LuaEntity|nil @The unit the command was assigned to.
+  ---@field unit LuaEntity @nilable; The unit the command was assigned to.
 
 ---@class OnBuiltEntity: EventData @Called when player builds something. Can be filtered using [LuaPlayerBuiltEntityEventFilter](LuaPlayerBuiltEntityEventFilter).
   ---@field created_entity LuaEntity
-  ---@field item LuaItemPrototype|nil @The item prototype used to build the entity. Note this won't exist in some situations (built from blueprint, undo, etc).
+  ---@field item LuaItemPrototype @nilable; The item prototype used to build the entity. Note this won't exist in some situations (built from blueprint, undo, etc).
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint
   ---@field stack LuaItemStack
-  ---@field tags Tags|nil @The tags associated with this entity if any.
+  ---@field tags Tags @nilable; The tags associated with this entity if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnCancelledDeconstruction: EventData @Called when the deconstruction of an entity is canceled. Can be filtered using [LuaEntityDeconstructionCancelledEventFilter](LuaEntityDeconstructionCancelledEventFilter).
   ---@field entity LuaEntity
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil
+  ---@field player_index uint @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnCancelledUpgrade: EventData @Called when the upgrade of an entity is canceled. Can be filtered using [LuaUpgradeCancelledEventFilter](LuaUpgradeCancelledEventFilter).
-  ---@field direction (defines__direction|number)|nil
+  ---@field direction defines__direction|number @nilable
   ---@field entity LuaEntity
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil
+  ---@field player_index uint @nilable
   ---@field target LuaEntityPrototype
   ---@field tick uint @Tick the event was generated.
 
@@ -7512,24 +7405,24 @@ function LuaWallControlBehavior.help() end
 ---@class OnChartTagAdded: EventData @Called when a chart tag is created.
   ---@field force LuaForce
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil
+  ---@field player_index uint @nilable
   ---@field tag LuaCustomChartTag
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnChartTagModified: EventData @Called when a chart tag is modified by a player.
   ---@field force LuaForce
   ---@field name defines__events|number @Identifier of the event
-  ---@field old_icon SignalID|nil
-  ---@field old_player uint|nil
+  ---@field old_icon SignalID @nilable
+  ---@field old_player uint @nilable
   ---@field old_text string
-  ---@field player_index uint|nil
+  ---@field player_index uint @nilable
   ---@field tag LuaCustomChartTag
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnChartTagRemoved: EventData @Called just before a chart tag is deleted.
   ---@field force LuaForce
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil
+  ---@field player_index uint @nilable
   ---@field tag LuaCustomChartTag
   ---@field tick uint @Tick the event was generated.
 
@@ -7556,21 +7449,21 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnCombatRobotExpired: EventData @Called when a combat robot expires through a lack of energy, or timeout.
   ---@field name defines__events|number @Identifier of the event
-  ---@field owner LuaEntity|nil @The entity that owns the robot if any.
+  ---@field owner LuaEntity @nilable; The entity that owns the robot if any.
   ---@field robot LuaEntity
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnConsoleChat: EventData @Called when a message is sent to the in-game console, either by a player or through the server interface.
   ---@field message string @The chat message that was sent.
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player doing the chatting, if any.
+  ---@field player_index uint @nilable; The player doing the chatting, if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnConsoleCommand: EventData @Called when someone enters a command-like message regardless of it being a valid command.
   ---@field command string @The command as typed without the preceding forward slash ('/').
   ---@field name defines__events|number @Identifier of the event
   ---@field parameters string @The parameters provided if any.
-  ---@field player_index uint|nil @The player if any.
+  ---@field player_index uint @nilable; The player if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnCutsceneCancelled: EventData @Called when a cutscene is cancelled by the player or by script.
@@ -7597,12 +7490,12 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEntityDamaged: EventData @Called when an entity is damaged. Can be filtered using [LuaEntityDamagedEventFilter](LuaEntityDamagedEventFilter).
-  ---@field cause LuaEntity|nil @The entity that did the attacking if available.
+  ---@field cause LuaEntity @nilable; The entity that did the attacking if available.
   ---@field damage_type LuaDamagePrototype
   ---@field entity LuaEntity
   ---@field final_damage_amount float @The damage amount after resistances.
   ---@field final_health float @The health of the entity after the damage was applied.
-  ---@field force LuaForce|nil @The force that did the attacking if any.
+  ---@field force LuaForce @nilable; The force that did the attacking if any.
   ---@field name defines__events|number @Identifier of the event
   ---@field original_damage_amount float @The damage amount before resistances.
   ---@field tick uint @Tick the event was generated.
@@ -7611,13 +7504,13 @@ function LuaWallControlBehavior.help() end
   ---@field name defines__events|number @Identifier of the event
   ---@field registration_number uint64 @The number returned by [register_on_entity_destroyed](LuaBootstrap::register_on_entity_destroyed) to uniquely identify this entity during this event.
   ---@field tick uint @Tick the event was generated.
-  ---@field unit_number uint|nil @The [LuaEntity::unit_number](LuaEntity::unit_number) of the destroyed entity, if it had one.
+  ---@field unit_number uint @nilable; The [LuaEntity::unit_number](LuaEntity::unit_number) of the destroyed entity, if it had one.
 
 ---@class OnEntityDied: EventData @Called when an entity dies. Can be filtered using [LuaEntityDiedEventFilter](LuaEntityDiedEventFilter).
-  ---@field cause LuaEntity|nil @The entity that did the killing if available.
-  ---@field damage_type LuaDamagePrototype|nil @The damage type if any.
+  ---@field cause LuaEntity @nilable; The entity that did the killing if available.
+  ---@field damage_type LuaDamagePrototype @nilable; The damage type if any.
   ---@field entity LuaEntity @The entity that died.
-  ---@field force LuaForce|nil @The force that did the killing if any.
+  ---@field force LuaForce @nilable; The force that did the killing if any.
   ---@field loot LuaInventory @The loot generated by this entity if any.
   ---@field name defines__events|number @Identifier of the event
   ---@field tick uint @Tick the event was generated.
@@ -7625,7 +7518,7 @@ function LuaWallControlBehavior.help() end
 ---@class OnEntityLogisticSlotChanged: EventData @Called when one of an entity's personal logistic slots changes.
   ---@field entity LuaEntity @The entity for whom a logistic slot was changed.
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player who changed the slot, or `nil` if changed by script.
+  ---@field player_index uint @nilable; The player who changed the slot, or `nil` if changed by script.
   ---@field slot_index uint @The slot index that was changed.
   ---@field tick uint @Tick the event was generated.
 
@@ -7634,7 +7527,7 @@ function LuaWallControlBehavior.help() end
   ---@field entity LuaEntity
   ---@field name defines__events|number @Identifier of the event
   ---@field old_name string
-  ---@field player_index uint|nil @If by_script is true this will not be included.
+  ---@field player_index uint @nilable; If by_script is true this will not be included.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEntitySettingsPasted: EventData @Called after entity copy-paste is done.
@@ -7721,18 +7614,18 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiClosed: EventData @Called when the player closes the GUI they have open. This can only be raised when the GUI's player controller is still valid. If a GUI is thus closed due to the player disconnecting, dying, or becoming a spectator in other ways, it won't cause this event to be raised.
-  ---@field element LuaGuiElement|nil @The custom GUI element that was open
-  ---@field entity LuaEntity|nil @The entity that was open
-  ---@field equipment LuaEquipment|nil @The equipment that was open
+  ---@field element LuaGuiElement @nilable; The custom GUI element that was open
+  ---@field entity LuaEntity @nilable; The entity that was open
+  ---@field equipment LuaEquipment @nilable; The equipment that was open
   ---@field gui_type defines__gui_type|number @The GUI type that was open.
-  ---@field inventory LuaInventory|nil @The script inventory that was open
-  ---@field item LuaItemStack|nil @The item that was open
+  ---@field inventory LuaInventory @nilable; The script inventory that was open
+  ---@field item LuaItemStack @nilable; The item that was open
   ---@field name defines__events|number @Identifier of the event
-  ---@field other_player LuaPlayer|nil @The other player that was open
+  ---@field other_player LuaPlayer @nilable; The other player that was open
   ---@field player_index uint @The player.
-  ---@field technology LuaTechnology|nil @The technology that was automatically selected when opening the research GUI
+  ---@field technology LuaTechnology @nilable; The technology that was automatically selected when opening the research GUI
   ---@field tick uint @Tick the event was generated.
-  ---@field tile_position TilePosition|nil @The tile position that was open
+  ---@field tile_position TilePosition @nilable; The tile position that was open
 
 ---@class OnGuiConfirmed: EventData @Called when a [LuaGuiElement](LuaGuiElement) is confirmed, for example by pressing Enter in a textfield.
   ---@field alt boolean @If alt was pressed.
@@ -7756,14 +7649,14 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiOpened: EventData @Called when the player opens a GUI.
-  ---@field element LuaGuiElement|nil @The custom GUI element that was opened
-  ---@field entity LuaEntity|nil @The entity that was opened
-  ---@field equipment LuaEquipment|nil @The equipment that was opened
+  ---@field element LuaGuiElement @nilable; The custom GUI element that was opened
+  ---@field entity LuaEntity @nilable; The entity that was opened
+  ---@field equipment LuaEquipment @nilable; The equipment that was opened
   ---@field gui_type defines__gui_type|number @The GUI type that was opened.
-  ---@field inventory LuaInventory|nil @The script inventory that was opened
-  ---@field item LuaItemStack|nil @The item that was opened
+  ---@field inventory LuaInventory @nilable; The script inventory that was opened
+  ---@field item LuaItemStack @nilable; The item that was opened
   ---@field name defines__events|number @Identifier of the event
-  ---@field other_player LuaPlayer|nil @The other player that was opened
+  ---@field other_player LuaPlayer @nilable; The other player that was opened
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
@@ -7812,14 +7705,14 @@ function LuaWallControlBehavior.help() end
 ---@class OnMarkedForDeconstruction: EventData @Called when an entity is marked for deconstruction with the Deconstruction planner or via script. Can be filtered using [LuaEntityMarkedForDeconstructionEventFilter](LuaEntityMarkedForDeconstructionEventFilter).
   ---@field entity LuaEntity
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil
+  ---@field player_index uint @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnMarkedForUpgrade: EventData @Called when an entity is marked for upgrade with the Upgrade planner or via script. Can be filtered using [LuaEntityMarkedForUpgradeEventFilter](LuaEntityMarkedForUpgradeEventFilter).
-  ---@field direction (defines__direction|number)|nil @The new direction (if any)
+  ---@field direction defines__direction|number @nilable; The new direction (if any)
   ---@field entity LuaEntity
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil
+  ---@field player_index uint @nilable
   ---@field target LuaEntityPrototype
   ---@field tick uint @Tick the event was generated.
 
@@ -7893,18 +7786,18 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerBanned: EventData @Called when a player is banned.
-  ---@field by_player uint|nil @The player that did the banning if any.
+  ---@field by_player uint @nilable; The player that did the banning if any.
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player banned.
+  ---@field player_index uint @nilable; The player banned.
   ---@field player_name string @The banned player name.
-  ---@field reason string|nil @The reason given if any.
+  ---@field reason string @nilable; The reason given if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerBuiltTile: EventData @Called after a player builds tiles.
-  ---@field item LuaItemPrototype|nil @The item type used to build the tiles
+  ---@field item LuaItemPrototype @nilable; The item type used to build the tiles
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint
-  ---@field stack LuaItemStack|nil @The stack used to build the tiles (may be empty if all of the items where used to build the tiles).
+  ---@field stack LuaItemStack @nilable; The stack used to build the tiles (may be empty if all of the items where used to build the tiles).
   ---@field surface_index uint @The surface the tile(s) were built on.
   ---@field tick uint @Tick the event was generated.
   ---@field tile LuaTilePrototype @The tile prototype that was placed.
@@ -7995,7 +7888,7 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerDied: EventData @Called after a player dies.
-  ---@field cause LuaEntity|nil
+  ---@field cause LuaEntity @nilable
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
@@ -8013,7 +7906,7 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerDrivingChangedState: EventData @Called when the player's driving state has changed, this means a player has either entered or left a vehicle.
-  ---@field entity LuaEntity|nil @The vehicle if any.
+  ---@field entity LuaEntity @nilable; The vehicle if any.
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
@@ -8051,10 +7944,10 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerKicked: EventData @Called when a player is kicked.
-  ---@field by_player uint|nil @The player that did the kicking if any.
+  ---@field by_player uint @nilable; The player that did the kicking if any.
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint @The player kicked.
-  ---@field reason string|nil @The reason given if any.
+  ---@field reason string @nilable; The reason given if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerLeftGame: EventData @Called after a player leaves the game. This is not called when closing a save file in singleplayer, as the player doesn't actually leave the game, and the save is just on pause until they rejoin.
@@ -8134,7 +8027,7 @@ function LuaWallControlBehavior.help() end
 ---@class OnPlayerRespawned: EventData @Called after a player respawns.
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint
-  ---@field player_port LuaEntity|nil @The player port used to respawn if one was used.
+  ---@field player_port LuaEntity @nilable; The player port used to respawn if one was used.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerReverseSelectedArea: EventData @Called after a player reverse-selects an area with a selection-tool item.
@@ -8196,11 +8089,11 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerUnbanned: EventData @Called when a player is un-banned.
-  ---@field by_player uint|nil @The player that did the un-banning if any.
+  ---@field by_player uint @nilable; The player that did the un-banning if any.
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player un-banned.
+  ---@field player_index uint @nilable; The player un-banned.
   ---@field player_name string @The player name un-banned.
-  ---@field reason string|nil @The reason the player was banned if any.
+  ---@field reason string @nilable; The reason the player was banned if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerUnmuted: EventData @Called when a player is unmuted.
@@ -8225,15 +8118,15 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnPostEntityDied: EventData @Called after an entity dies. Can be filtered using [LuaPostEntityDiedEventFilter](LuaPostEntityDiedEventFilter).
   ---@field corpses LuaEntity[] @The corpses created by the entity dying if any.
-  ---@field damage_type LuaDamagePrototype|nil @The damage type if any.
-  ---@field force LuaForce|nil @The force that did the killing if any.
-  ---@field ghost LuaEntity|nil @The ghost created by the entity dying if any.
+  ---@field damage_type LuaDamagePrototype @nilable; The damage type if any.
+  ---@field force LuaForce @nilable; The force that did the killing if any.
+  ---@field ghost LuaEntity @nilable; The ghost created by the entity dying if any.
   ---@field name defines__events|number @Identifier of the event
   ---@field position MapPosition @Position where the entity died.
   ---@field prototype LuaEntityPrototype @The entity prototype of the entity that died.
   ---@field surface_index uint @The surface the entity was on.
   ---@field tick uint @Tick the event was generated.
-  ---@field unit_number uint|nil @The unit number the entity had if any.
+  ---@field unit_number uint @nilable; The unit number the entity had if any.
 
 ---@class OnPreBuild: EventData @Called when players uses an item to build something. Called before [on_built_entity](on_built_entity).
   ---@field created_by_moving boolean @Item was placed while moving.
@@ -8262,13 +8155,13 @@ function LuaWallControlBehavior.help() end
 ---@class OnPreGhostDeconstructed: EventData @Called before a ghost entity is destroyed as a result of being marked for deconstruction. Can be filtered using [LuaPreGhostDeconstructedEventFilter](LuaPreGhostDeconstructedEventFilter).
   ---@field ghost LuaEntity
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player that did the deconstruction if any.
+  ---@field player_index uint @nilable; The player that did the deconstruction if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreGhostUpgraded: EventData @Called before a ghost entity is upgraded. Can be filtered using [LuaPreGhostUpgradedEventFilter](LuaPreGhostUpgradedEventFilter).
   ---@field ghost LuaEntity
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player that did the upgrade if any.
+  ---@field player_index uint @nilable; The player that did the upgrade if any.
   ---@field target LuaEntityPrototype
   ---@field tick uint @Tick the event was generated.
 
@@ -8292,7 +8185,7 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPrePlayerDied: EventData @Called before a players dies.
-  ---@field cause LuaEntity|nil
+  ---@field cause LuaEntity @nilable
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
@@ -8332,7 +8225,7 @@ function LuaWallControlBehavior.help() end
   ---@field name defines__events|number @Identifier of the event
   ---@field new_size uint @The new inventory size.
   ---@field old_size uint @The old inventory size.
-  ---@field player_index uint|nil @If done by console command; the player who ran the command.
+  ---@field player_index uint @nilable; If done by console command; the player who ran the command.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreSurfaceCleared: EventData @Called just before a surface is cleared (all entities removed and all chunks deleted).
@@ -8364,7 +8257,7 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnResearchStarted: EventData @Called when a technology research starts.
-  ---@field last_research LuaTechnology|nil
+  ---@field last_research LuaTechnology @nilable
   ---@field name defines__events|number @Identifier of the event
   ---@field research LuaTechnology @The technology being researched
   ---@field tick uint @Tick the event was generated.
@@ -8379,7 +8272,7 @@ function LuaWallControlBehavior.help() end
   ---@field name defines__events|number @Identifier of the event
   ---@field robot LuaEntity @The robot that did the building.
   ---@field stack LuaItemStack @The item used to do the building.
-  ---@field tags Tags|nil @The tags associated with this entity if any.
+  ---@field tags Tags @nilable; The tags associated with this entity if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRobotBuiltTile: EventData @Called after a robot builds tiles.
@@ -8426,21 +8319,21 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnRocketLaunchOrdered: EventData @Called when a rocket silo is ordered to be launched.
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player that is riding the rocket, if any.
+  ---@field player_index uint @nilable; The player that is riding the rocket, if any.
   ---@field rocket LuaEntity
   ---@field rocket_silo LuaEntity
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRocketLaunched: EventData @Called when the rocket is launched.
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player that is riding the rocket, if any.
+  ---@field player_index uint @nilable; The player that is riding the rocket, if any.
   ---@field rocket LuaEntity
-  ---@field rocket_silo LuaEntity|nil
+  ---@field rocket_silo LuaEntity @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRuntimeModSettingChanged: EventData @Called when a runtime mod setting is changed by a player.
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @If the `setting_type` is `"global"` and it was changed through the mod settings GUI, this is the index of the player that changed the global setting. If the `setting_type` is `"runtime-per-user"` and it changed a current setting of the player, this is the index of the player whose setting was changed. In all other cases, this is `nil`.
+  ---@field player_index uint @nilable; If the `setting_type` is `"global"` and it was changed through the mod settings GUI, this is the index of the player that changed the global setting. If the `setting_type` is `"runtime-per-user"` and it changed a current setting of the player, this is the index of the player whose setting was changed. In all other cases, this is `nil`.
   ---@field setting string @The prototype name of the setting that was changed.
   ---@field setting_type string @Either "runtime-per-user" or "runtime-global".
   ---@field tick uint @Tick the event was generated.
@@ -8452,24 +8345,24 @@ function LuaWallControlBehavior.help() end
   ---@field new_size uint @The new inventory size.
   ---@field old_size uint @The old inventory size.
   ---@field overflow_inventory LuaInventory @Any items which didn't fit into the new inventory size.
-  ---@field player_index uint|nil @If done by console command; the player who ran the command.
+  ---@field player_index uint @nilable; If done by console command; the player who ran the command.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnScriptPathRequestFinished: EventData @Called when a [LuaSurface::request_path](LuaSurface::request_path) call completes.
   ---@field id uint @Handle to associate the callback with a particular call to [LuaSurface::request_path](LuaSurface::request_path).
   ---@field name defines__events|number @Identifier of the event
-  ---@field path PathfinderWaypoint[]|nil @The actual path that the pathfinder has determined. `nil` if pathfinding failed.
+  ---@field path PathfinderWaypoint[] @nilable; The actual path that the pathfinder has determined. `nil` if pathfinding failed.
   ---@field tick uint @Tick the event was generated.
   ---@field try_again_later boolean @Indicates that the pathfinder failed because it is too busy, and that you can retry later.
 
 ---@class OnScriptTriggerEffect: EventData @Called when a script trigger effect is triggered.
   ---@field effect_id string @The effect_id specified in the trigger effect.
   ---@field name defines__events|number @Identifier of the event
-  ---@field source_entity LuaEntity|nil
-  ---@field source_position MapPosition|nil
+  ---@field source_entity LuaEntity @nilable
+  ---@field source_position MapPosition @nilable
   ---@field surface_index uint @The surface the effect happened on.
-  ---@field target_entity LuaEntity|nil
-  ---@field target_position MapPosition|nil
+  ---@field target_entity LuaEntity @nilable
+  ---@field target_position MapPosition @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnSectorScanned: EventData @Called when an entity of type `radar` finishes scanning a sector. Can be filtered for the radar using [LuaSectorScannedEventFilter](LuaSectorScannedEventFilter).
@@ -8480,7 +8373,7 @@ function LuaWallControlBehavior.help() end
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnSelectedEntityChanged: EventData @Called after the selected entity changes for a given player.
-  ---@field last_entity LuaEntity|nil @The last selected entity if it still exists and there was one.
+  ---@field last_entity LuaEntity @nilable; The last selected entity if it still exists and there was one.
   ---@field name defines__events|number @Identifier of the event
   ---@field player_index uint @The player whose selected entity changed.
   ---@field tick uint @Tick the event was generated.
@@ -8543,27 +8436,27 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnTrainCreated: EventData @Called when a new train is created either through disconnecting/connecting an existing one or building a new one.
   ---@field name defines__events|number @Identifier of the event
-  ---@field old_train_id_1 uint|nil @The first old train id when splitting/merging trains.
-  ---@field old_train_id_2 uint|nil @The second old train id when splitting/merging trains.
+  ---@field old_train_id_1 uint @nilable; The first old train id when splitting/merging trains.
+  ---@field old_train_id_2 uint @nilable; The second old train id when splitting/merging trains.
   ---@field tick uint @Tick the event was generated.
   ---@field train LuaTrain
 
 ---@class OnTrainScheduleChanged: EventData @Called when a trains schedule is changed either by the player or through script.
   ---@field name defines__events|number @Identifier of the event
-  ---@field player_index uint|nil @The player who made the change if any.
+  ---@field player_index uint @nilable; The player who made the change if any.
   ---@field tick uint @Tick the event was generated.
   ---@field train LuaTrain
 
 ---@class OnTriggerCreatedEntity: EventData @Called when an entity with a trigger prototype (such as capsules) create an entity AND that trigger prototype defined `trigger_created_entity="true"`.
   ---@field entity LuaEntity
   ---@field name defines__events|number @Identifier of the event
-  ---@field source LuaEntity|nil
+  ---@field source LuaEntity @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnTriggerFiredArtillery: EventData @Called when an entity with a trigger prototype (such as capsules) fire an artillery projectile AND that trigger prototype defined `trigger_fired_artillery="true"`.
   ---@field entity LuaEntity
   ---@field name defines__events|number @Identifier of the event
-  ---@field source LuaEntity|nil
+  ---@field source LuaEntity @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnUnitAddedToGroup: EventData @Called when a unit is added to a unit group.
@@ -8606,7 +8499,7 @@ function LuaWallControlBehavior.help() end
 ---@class ScriptRaisedRevive: EventData @A static event mods can use to tell other mods they revived something by script. This event is only raised if a mod does so with [LuaBootstrap::raise_event](LuaBootstrap::raise_event) or [LuaBootstrap::raise_script_revive](LuaBootstrap::raise_script_revive), or when `raise_revive` is passed to [LuaEntity::revive](LuaEntity::revive). Can be filtered using [LuaScriptRaisedReviveEventFilter](LuaScriptRaisedReviveEventFilter).
   ---@field entity LuaEntity @The entity that was revived.
   ---@field name defines__events|number @Identifier of the event
-  ---@field tags Tags|nil @The tags associated with this entity, if any.
+  ---@field tags Tags @nilable; The tags associated with this entity, if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class ScriptRaisedSetTiles: EventData @A static event mods can use to tell other mods they changed tiles on a surface by script. This event is only raised if a mod does so with [LuaBootstrap::raise_event](LuaBootstrap::raise_event) or [LuaBootstrap::raise_script_set_tiles](LuaBootstrap::raise_script_set_tiles), or when `raise_event` is passed to [LuaSurface::set_tiles](LuaSurface::set_tiles).
@@ -8674,8 +8567,8 @@ settings = settings
 
 ---@shape AchievementPrototypeFilter
   ---@field filter string @The condition to filter on. One of `"allowed-without-fight"`, `"type"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string | string[] @type; The prototype type, or a list of acceptable types.
 
 ---@shape AdvancedMapGenSettings
@@ -8686,29 +8579,29 @@ settings = settings
 
 ---@shape Alert
   ---@field tick uint @The tick this alert was created.
-  ---@field target LuaEntity|nil
-  ---@field prototype LuaEntityPrototype|nil
-  ---@field position MapPosition|nil
-  ---@field icon SignalID|nil @The SignalID used for a custom alert. Only present for custom alerts.
-  ---@field message LocalisedString|nil @The message for a custom alert. Only present for custom alerts.
+  ---@field target LuaEntity @nilable
+  ---@field prototype LuaEntityPrototype @nilable
+  ---@field position MapPosition @nilable
+  ---@field icon SignalID @nilable; The SignalID used for a custom alert. Only present for custom alerts.
+  ---@field message LocalisedString @nilable; The message for a custom alert. Only present for custom alerts.
 
 ---@shape AmmoType
-  ---@field action TriggerItem[]|nil
+  ---@field action TriggerItem[] @nilable
   ---@field target_type string @One of `"entity"` (fires at an entity), `"position"` (fires directly at a position), or `"direction"` (fires in a direction).
-  ---@field clamp_position boolean|nil @When `true`, the gun will be able to shoot even when the target is out of range. Only applies when `target_type` is `position`. The gun will fire at the maximum range in the direction of the target position. Defaults to `false`.
+  ---@field clamp_position boolean @nilable; When `true`, the gun will be able to shoot even when the target is out of range. Only applies when `target_type` is `position`. The gun will fire at the maximum range in the direction of the target position. Defaults to `false`.
   ---@field category string @Ammo category of this ammo.
-  ---@field energy_consumption double|nil @Energy consumption of a single shot, if applicable. Defaults to `0`.
-  ---@field range_modifier double|nil
-  ---@field cooldown_modifier double|nil
-  ---@field consumption_modifier double|nil
+  ---@field energy_consumption double @nilable; Energy consumption of a single shot, if applicable. Defaults to `0`.
+  ---@field range_modifier double @nilable
+  ---@field cooldown_modifier double @nilable
+  ---@field consumption_modifier double @nilable
 
 ---@shape ArithmeticCombinatorParameters
-  ---@field first_signal SignalID|nil @First signal to use in an operation. If not specified, the second argument will be the value of `first_constant`.
-  ---@field second_signal SignalID|nil @Second signal to use in an operation. If not specified, the second argument will be the value of `second_constant`.
-  ---@field first_constant int|nil @Constant to use as the first argument of the operation. Has no effect when `first_signal` is set. Defaults to `0`.
-  ---@field second_constant int|nil @Constant to use as the second argument of the operation. Has no effect when `second_signal` is set. Defaults to `0`.
-  ---@field operation string|nil @Must be one of `"*"`, `"/"`, `"+"`, `"-"`, `"%"`, `"^"`, `"<<"`, `">>"`, `"AND"`, `"OR"`, `"XOR"`. When not specified, defaults to `"*"`.
-  ---@field output_signal SignalID|nil @Specifies the signal to output.
+  ---@field first_signal SignalID @nilable; First signal to use in an operation. If not specified, the second argument will be the value of `first_constant`.
+  ---@field second_signal SignalID @nilable; Second signal to use in an operation. If not specified, the second argument will be the value of `second_constant`.
+  ---@field first_constant int @nilable; Constant to use as the first argument of the operation. Has no effect when `first_signal` is set. Defaults to `0`.
+  ---@field second_constant int @nilable; Constant to use as the second argument of the operation. Has no effect when `second_signal` is set. Defaults to `0`.
+  ---@field operation string @nilable; Must be one of `"*"`, `"/"`, `"+"`, `"-"`, `"%"`, `"^"`, `"<<"`, `">>"`, `"AND"`, `"OR"`, `"XOR"`. When not specified, defaults to `"*"`.
+  ---@field output_signal SignalID @nilable; Specifies the signal to output.
 
 ---@shape AttackParameterFluid
   ---@field type string @Name of the [LuaFluidPrototype](LuaFluidPrototype).
@@ -8730,18 +8623,18 @@ settings = settings
   ---@field warmup uint @Number of ticks it takes for the weapon to actually shoot after it has been ordered to do so.
   ---@field movement_slow_down_factor double
   ---@field movement_slow_down_cooldown float
-  ---@field ammo_type AmmoType|nil
-  ---@field ammo_categories string[]|nil @List of the names of compatible [LuaAmmoCategoryPrototypes](LuaAmmoCategoryPrototype).
+  ---@field ammo_type AmmoType @nilable
+  ---@field ammo_categories string[] @nilable; List of the names of compatible [LuaAmmoCategoryPrototypes](LuaAmmoCategoryPrototype).
   ---@field projectile_center Vector @projectile
   ---@field projectile_creation_distance float @projectile
   ---@field projectile_orientation_offset float @projectile
-  ---@field shell_particle CircularParticleCreationSpecification|nil @projectile
-  ---@field projectile_creation_parameters CircularProjectileCreationSpecification[]|nil @projectile
+  ---@field shell_particle CircularParticleCreationSpecification @nilable; projectile
+  ---@field projectile_creation_parameters CircularProjectileCreationSpecification[] @nilable; projectile
   ---@field gun_barrel_length float @stream
   ---@field gun_center_shift table<string, Vector> @stream
   ---@field fluid_consumption float @stream
-  ---@field fluids AttackParameterFluid[]|nil @stream
-  ---@field projectile_creation_parameters CircularProjectileCreationSpecification[]|nil @stream
+  ---@field fluids AttackParameterFluid[] @nilable; stream
+  ---@field projectile_creation_parameters CircularProjectileCreationSpecification[] @nilable; stream
 
 ---@shape AutoplaceControl
   ---@field frequency MapGenSize @For things that are placed as spots such as ores and enemy bases, frequency is generally proportional to number of spots placed per unit area. For continuous features such as forests, frequency is how compressed the probability function is over distance, i.e. the inverse of 'scale' (similar to terrain_segmentation). When the [LuaAutoplaceControlPrototype](LuaAutoplaceControlPrototype) is of the category `"terrain"`, then scale is shown in the map generator GUI instead of frequency.
@@ -8765,9 +8658,9 @@ settings = settings
   ---@field starting_area_size uint
   ---@field order string
   ---@field default_enabled boolean
-  ---@field peaks AutoplaceSpecificationPeak[]|nil
-  ---@field control string|nil @Control prototype name.
-  ---@field tile_restriction AutoplaceSpecificationRestriction[]|nil
+  ---@field peaks AutoplaceSpecificationPeak[] @nilable
+  ---@field control string @nilable; Control prototype name.
+  ---@field tile_restriction AutoplaceSpecificationRestriction[] @nilable
   ---@field force string
   ---@field random_probability_penalty double
 
@@ -8777,7 +8670,7 @@ settings = settings
   ---@field min_influence double
   ---@field richness_influence double
   ---@field noisePersistence double
-  ---@field noise_layer string|nil @Prototype name of the noise layer.
+  ---@field noise_layer string @nilable; Prototype name of the noise layer.
   ---@field noise_octaves_difference double
   ---@field water_optimal double
   ---@field water_range double
@@ -8809,23 +8702,23 @@ settings = settings
   ---@field aux_top_property_limit double
 
 ---@shape AutoplaceSpecificationRestriction
-  ---@field first string|nil @Tile prototype name
-  ---@field second string|nil @Second prototype name
+  ---@field first string @nilable; Tile prototype name
+  ---@field second string @nilable; Second prototype name
 
 ---@shape BeamTarget
-  ---@field entity LuaEntity|nil @The target entity.
-  ---@field position MapPosition|nil @The target position.
+  ---@field entity LuaEntity @nilable; The target entity.
+  ---@field position MapPosition @nilable; The target position.
 
 ---@shape BlueprintEntity
   ---@field entity_number uint @The entity's unique identifier in the blueprint.
   ---@field name string @The prototype name of the entity.
   ---@field position MapPosition @The position of the entity.
-  ---@field direction (defines__direction|number)|nil @The direction the entity is facing. Only present for entities that can face in different directions and when the entity is not facing north.
-  ---@field tags Tags|nil @The entity tags of the entity, if there are any. Only relevant for entity ghosts.
-  ---@field items (table<string, uint>)|nil @The items that the entity will request when revived, if there are any. It's a mapping of prototype names to amounts. Only relevant for entity ghosts.
-  ---@field connections BlueprintCircuitConnection|nil @The circuit network connections of the entity, if there are any. Only relevant for entities that support circuit connections.
-  ---@field control_behavior BlueprintControlBehavior|nil @The control behavior of the entity, if it has one. The format of the control behavior depends on the entity's type. Only relevant for entities that support control behaviors.
-  ---@field schedule TrainScheduleRecord[]|nil @The schedule of the entity, if it has one. Only relevant for locomotives.
+  ---@field direction defines__direction|number @nilable; The direction the entity is facing. Only present for entities that can face in different directions and when the entity is not facing north.
+  ---@field tags Tags @nilable; The entity tags of the entity, if there are any. Only relevant for entity ghosts.
+  ---@field items table<string, uint> @nilable; The items that the entity will request when revived, if there are any. It's a mapping of prototype names to amounts. Only relevant for entity ghosts.
+  ---@field connections BlueprintCircuitConnection @nilable; The circuit network connections of the entity, if there are any. Only relevant for entities that support circuit connections.
+  ---@field control_behavior BlueprintControlBehavior @nilable; The control behavior of the entity, if it has one. The format of the control behavior depends on the entity's type. Only relevant for entities that support control behaviors.
+  ---@field schedule TrainScheduleRecord[] @nilable; The schedule of the entity, if it has one. Only relevant for locomotives.
 
 ---@shape BlueprintItemIcon
   ---@field name string @Name of the item prototype whose icon should be used.
@@ -8838,23 +8731,23 @@ settings = settings
 ---@shape _BoundingBox1
   ---@field left_top MapPosition
   ---@field right_bottom MapPosition
-  ---@field orientation RealOrientation|nil
+  ---@field orientation RealOrientation @nilable
 
 ---@shape _BoundingBox2
   ---@field [1] MapPosition
   ---@field [2] MapPosition
-  ---@field [3] RealOrientation|nil
+  ---@field [3] RealOrientation @nilable
 
 ---@shape CapsuleAction
   ---@field type string @One of `"throw"`, `"equipment-remote"`, `"use-on-self"`.
-  ---@field attack_parameters AttackParameters|nil @Only present when `type` is `"throw"` or `"use-on-self"`.
-  ---@field equipment string|nil @Only present when `type` is `"equipment-remote"`. It is the equipment prototype name.
+  ---@field attack_parameters AttackParameters @nilable; Only present when `type` is `"throw"` or `"use-on-self"`.
+  ---@field equipment string @nilable; Only present when `type` is `"equipment-remote"`. It is the equipment prototype name.
 
 ---@shape ChartTagSpec
   ---@field position MapPosition
-  ---@field icon SignalID|nil
-  ---@field text string|nil
-  ---@field last_user PlayerIdentification|nil
+  ---@field icon SignalID @nilable
+  ---@field text string @nilable
+  ---@field last_user PlayerIdentification @nilable
 
 ---@shape _ChunkPosition1
   ---@field x int
@@ -8870,14 +8763,14 @@ settings = settings
   ---@field area BoundingBox
 
 ---@shape CircuitCondition
-  ---@field comparator ComparatorString|nil @Specifies how the inputs should be compared. If not specified, defaults to `"<"`.
-  ---@field first_signal SignalID|nil @Defaults to blank
-  ---@field second_signal SignalID|nil @What to compare `first_signal` to. If not specified, `first_signal` will be compared to `constant`.
-  ---@field constant int|nil @Constant to compare `first_signal` to. Has no effect when `second_signal` is set. When neither `second_signal` nor `constant` are specified, the effect is as though `constant` were specified with the value `0`.
+  ---@field comparator ComparatorString @nilable; Specifies how the inputs should be compared. If not specified, defaults to `"<"`.
+  ---@field first_signal SignalID @nilable; Defaults to blank
+  ---@field second_signal SignalID @nilable; What to compare `first_signal` to. If not specified, `first_signal` will be compared to `constant`.
+  ---@field constant int @nilable; Constant to compare `first_signal` to. Has no effect when `second_signal` is set. When neither `second_signal` nor `constant` are specified, the effect is as though `constant` were specified with the value `0`.
 
 ---@shape CircuitConditionDefinition
   ---@field condition CircuitCondition
-  ---@field fulfilled boolean|nil @Whether the condition is currently fulfilled
+  ---@field fulfilled boolean @nilable; Whether the condition is currently fulfilled
 
 ---@shape CircuitConnectionDefinition
   ---@field wire defines__wire_type|number @Wire color, either [defines.wire_type.red](defines.wire_type.red) or [defines.wire_type.green](defines.wire_type.green).
@@ -8913,61 +8806,61 @@ settings = settings
   ---@field richness MapGenSize @Corresponds to 'continuity' in the GUI. This value is not used directly, but is used by the 'cliffiness' noise expression, which in combination with elevation and the two cliff elevation properties drives cliff placement (cliffs are placed when elevation crosses the elevation contours defined by `cliff_elevation_0` and `cliff_elevation_interval` when 'cliffiness' is greater than `0.5`). The default 'cliffiness' expression interprets this value such that larger values result in longer unbroken walls of cliffs, and smaller values (between `0` and `1`) result in larger gaps in cliff walls.
 
 ---@shape _Color1
-  ---@field r float|nil
-  ---@field g float|nil
-  ---@field b float|nil
-  ---@field a float|nil
+  ---@field r float @nilable
+  ---@field g float @nilable
+  ---@field b float @nilable
+  ---@field a float @nilable
 
 ---@shape _Color2
-  ---@field [1] float|nil
-  ---@field [2] float|nil
-  ---@field [3] float|nil
-  ---@field [4] float|nil
+  ---@field [1] float @nilable
+  ---@field [2] float @nilable
+  ---@field [3] float @nilable
+  ---@field [4] float @nilable
 
 ---@shape _ColorModifier1
-  ---@field r float|nil
-  ---@field g float|nil
-  ---@field b float|nil
-  ---@field a float|nil
+  ---@field r float @nilable
+  ---@field g float @nilable
+  ---@field b float @nilable
+  ---@field a float @nilable
 
 ---@shape _ColorModifier2
-  ---@field [1] float|nil
-  ---@field [2] float|nil
-  ---@field [3] float|nil
-  ---@field [4] float|nil
+  ---@field [1] float @nilable
+  ---@field [2] float @nilable
+  ---@field [3] float @nilable
+  ---@field [4] float @nilable
 
 ---@shape Command
   ---@field type defines__command|number @Type of command. The remaining fields depend on the value of this field.
   ---@field target LuaEntity @defines.command.attack
-  ---@field distraction (defines__distraction|number)|nil @defines.command.attack; Defaults to `defines.distraction.by_enemy`.
-  ---@field destination MapPosition|nil @defines.command.go_to_location; The position to path to. Either this or `destination_entity` need to be specified. If both are, `destination_entity` is used.
-  ---@field destination_entity LuaEntity|nil @defines.command.go_to_location; The entity to path to. Either this or `destination` need to be specified. If both are, `destination_entity` is used.
-  ---@field distraction (defines__distraction|number)|nil @defines.command.go_to_location; Defaults to `defines.distraction.by_enemy`.
-  ---@field pathfind_flags PathfinderFlags|nil @defines.command.go_to_location; Flags that affect pathfinder behavior.
-  ---@field radius double|nil @defines.command.go_to_location; How close the pathfinder needs to get to its destination (in tiles). Defaults to `3`.
+  ---@field distraction defines__distraction|number @nilable; defines.command.attack; Defaults to `defines.distraction.by_enemy`.
+  ---@field destination MapPosition @nilable; defines.command.go_to_location; The position to path to. Either this or `destination_entity` need to be specified. If both are, `destination_entity` is used.
+  ---@field destination_entity LuaEntity @nilable; defines.command.go_to_location; The entity to path to. Either this or `destination` need to be specified. If both are, `destination_entity` is used.
+  ---@field distraction defines__distraction|number @nilable; defines.command.go_to_location; Defaults to `defines.distraction.by_enemy`.
+  ---@field pathfind_flags PathfinderFlags @nilable; defines.command.go_to_location; Flags that affect pathfinder behavior.
+  ---@field radius double @nilable; defines.command.go_to_location; How close the pathfinder needs to get to its destination (in tiles). Defaults to `3`.
   ---@field structure_type defines__compound_command|number @defines.command.compound; How the commands should be chained together.
   ---@field commands Command[] @defines.command.compound; The sub-commands.
   ---@field group LuaUnitGroup @defines.command.group; The group whose command to follow.
-  ---@field distraction (defines__distraction|number)|nil @defines.command.group; Defaults to `defines.distraction.by_enemy`.
-  ---@field use_group_distraction boolean|nil @defines.command.group; Whether the unit will use the group distraction or the commands distraction. Defaults to true.
+  ---@field distraction defines__distraction|number @nilable; defines.command.group; Defaults to `defines.distraction.by_enemy`.
+  ---@field use_group_distraction boolean @nilable; defines.command.group; Whether the unit will use the group distraction or the commands distraction. Defaults to true.
   ---@field destination MapPosition @defines.command.attack_area; Center of the attack area.
   ---@field radius double @defines.command.attack_area; Radius of the attack area.
-  ---@field distraction (defines__distraction|number)|nil @defines.command.attack_area; Defaults to `defines.distraction.by_enemy`.
-  ---@field distraction (defines__distraction|number)|nil @defines.command.wander; Defaults to `defines.distraction.by_enemy`.
-  ---@field radius double|nil @defines.command.wander; Defaults to 10. Does not apply when `wander_in_group` is `true`.
-  ---@field wander_in_group boolean|nil @defines.command.wander; When commanding a group, defines how the group will wander. When `true`, the units in the group will wander around inside the group's radius, just like gathering biters. When `false`, the units will wander as a group, ie they will all walk together in the same random direction. Default is true for groups. Passing true for a single unit is an error.
-  ---@field ticks_to_wait uint|nil @defines.command.wander; Ticks to wander before successfully completing the command. Default is max uint, which means wander forever.
-  ---@field distraction (defines__distraction|number)|nil @defines.command.stop; Defaults to `defines.distraction.by_enemy`.
-  ---@field ticks_to_wait uint|nil @defines.command.stop; Ticks to wander before successfully completing the command. Default is max uint, which means stop forever.
+  ---@field distraction defines__distraction|number @nilable; defines.command.attack_area; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction|number @nilable; defines.command.wander; Defaults to `defines.distraction.by_enemy`.
+  ---@field radius double @nilable; defines.command.wander; Defaults to 10. Does not apply when `wander_in_group` is `true`.
+  ---@field wander_in_group boolean @nilable; defines.command.wander; When commanding a group, defines how the group will wander. When `true`, the units in the group will wander around inside the group's radius, just like gathering biters. When `false`, the units will wander as a group, ie they will all walk together in the same random direction. Default is true for groups. Passing true for a single unit is an error.
+  ---@field ticks_to_wait uint @nilable; defines.command.wander; Ticks to wander before successfully completing the command. Default is max uint, which means wander forever.
+  ---@field distraction defines__distraction|number @nilable; defines.command.stop; Defaults to `defines.distraction.by_enemy`.
+  ---@field ticks_to_wait uint @nilable; defines.command.stop; Ticks to wander before successfully completing the command. Default is max uint, which means stop forever.
   ---@field from LuaEntity @defines.command.flee; The entity to flee from
-  ---@field distraction (defines__distraction|number)|nil @defines.command.flee; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction|number @nilable; defines.command.flee; Defaults to `defines.distraction.by_enemy`.
   ---@field destination MapPosition @defines.command.build_base; Where to build the base.
-  ---@field distraction (defines__distraction|number)|nil @defines.command.build_base; Defaults to `defines.distraction.by_enemy`.
-  ---@field ignore_planner boolean|nil @defines.command.build_base; Whether the units should ignore expansion candidate chunks. When `false`, they will obey and not build a base in a non-candidate chunk. Defaults to `false`.
+  ---@field distraction defines__distraction|number @nilable; defines.command.build_base; Defaults to `defines.distraction.by_enemy`.
+  ---@field ignore_planner boolean @nilable; defines.command.build_base; Whether the units should ignore expansion candidate chunks. When `false`, they will obey and not build a base in a non-candidate chunk. Defaults to `false`.
 
 ---@shape ConfigurationChangedData
-  ---@field old_version string|nil @Old version of the map. Present only when loading map version other than the current version.
-  ---@field new_version string|nil @New version of the map. Present only when loading map version other than the current version.
+  ---@field old_version string @nilable; Old version of the map. Present only when loading map version other than the current version.
+  ---@field new_version string @nilable; New version of the map. Present only when loading map version other than the current version.
   ---@field mod_changes table<string, ModChangeData> @Dictionary of mod changes. It is indexed by mod name.
   ---@field mod_startup_settings_changed boolean @`true` when mod startup settings have changed since the last time this save was loaded.
   ---@field migration_applied boolean @`true` when mod prototype migrations have been applied since the last time this save was loaded.
@@ -8986,23 +8879,23 @@ settings = settings
 ---@shape CustomCommandData
   ---@field name string @The name of the command.
   ---@field tick uint @The tick the command was used in.
-  ---@field player_index uint|nil @The player who issued the command, or `nil` if it was issued from the server console.
-  ---@field parameter string|nil @The parameter passed after the command, if there is one.
+  ---@field player_index uint @nilable; The player who issued the command, or `nil` if it was issued from the server console.
+  ---@field parameter string @nilable; The parameter passed after the command, if there is one.
 
 ---@shape CutsceneWaypoint
-  ---@field position MapPosition|nil @Position to pan the camera to.
-  ---@field target (LuaEntity | LuaUnitGroup)|nil @Entity or unit group to pan the camera to.
+  ---@field position MapPosition @nilable; Position to pan the camera to.
+  ---@field target LuaEntity | LuaUnitGroup @nilable; Entity or unit group to pan the camera to.
   ---@field transition_time uint @How many ticks it will take to reach this waypoint from the previous one.
   ---@field time_to_wait uint @Time in ticks to wait before moving to the next waypoint.
-  ---@field zoom double|nil @Zoom level to be set when the waypoint is reached. When not specified, the previous waypoint's zoom is used.
+  ---@field zoom double @nilable; Zoom level to be set when the waypoint is reached. When not specified, the previous waypoint's zoom is used.
 
 ---@shape DeciderCombinatorParameters
-  ---@field first_signal SignalID|nil @Defaults to blank.
-  ---@field second_signal SignalID|nil @Second signal to use in an operation, if any. If this is not specified, the second argument to a decider combinator's operation is assumed to be the value of `constant`.
-  ---@field constant uint|nil @Constant to use as the second argument of operation. Defaults to `0`.
-  ---@field comparator ComparatorString|nil @Specifies how the inputs should be compared. If not specified, defaults to `"<"`.
-  ---@field output_signal SignalID|nil @Defaults to blank.
-  ---@field copy_count_from_input boolean|nil @Defaults to `true`. When `false`, will output a value of `1` for the given `output_signal`.
+  ---@field first_signal SignalID @nilable; Defaults to blank.
+  ---@field second_signal SignalID @nilable; Second signal to use in an operation, if any. If this is not specified, the second argument to a decider combinator's operation is assumed to be the value of `constant`.
+  ---@field constant uint @nilable; Constant to use as the second argument of operation. Defaults to `0`.
+  ---@field comparator ComparatorString @nilable; Specifies how the inputs should be compared. If not specified, defaults to `"<"`.
+  ---@field output_signal SignalID @nilable; Defaults to blank.
+  ---@field copy_count_from_input boolean @nilable; Defaults to `true`. When `false`, will output a value of `1` for the given `output_signal`.
 
 ---@shape Decorative
   ---@field name string @The name of the decorative prototype.
@@ -9011,8 +8904,8 @@ settings = settings
 
 ---@shape DecorativePrototypeFilter
   ---@field filter string @The condition to filter on. One of `"decal"`, `"autoplace"`, `"collision-mask"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field mask CollisionMask | CollisionMaskWithFlags @collision-mask
   ---@field mask_mode string @collision-mask; How to filter: `"collides"`, `"layers-equals"`, `"contains-any"` or `"contains-all"`
 
@@ -9054,8 +8947,8 @@ settings = settings
 
 ---@shape EntityPrototypeFilter
   ---@field filter string @The condition to filter on. One of `"flying-robot"`, `"robot-with-logistics-interface"`, `"rail"`, `"ghost"`, `"explosion"`, `"vehicle"`, `"crafting-machine"`, `"rolling-stock"`, `"turret"`, `"transport-belt-connectable"`, `"wall-connectable"`, `"buildable"`, `"placable-in-editor"`, `"clonable"`, `"selectable"`, `"hidden"`, `"entity-with-health"`, `"building"`, `"fast-replaceable"`, `"uses-direction"`, `"minable"`, `"circuit-connectable"`, `"autoplace"`, `"blueprintable"`, `"item-to-place"`, `"name"`, `"type"`, `"collision-mask"`, `"flag"`, `"build-base-evolution-requirement"`, `"selection-priority"`, `"emissions"`, `"crafting-category"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field name string | string[] @name; The prototype name, or list of acceptable names.
   ---@field type string | string[] @type; The prototype type, or a list of acceptable types.
   ---@field mask CollisionMask | CollisionMaskWithFlags @collision-mask
@@ -9083,24 +8976,24 @@ settings = settings
 
 ---@shape EquipmentPrototypeFilter
   ---@field filter string @The condition to filter on. One of `"item-to-place"`, `"type"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string | string[] @type; The prototype type, or a list of acceptable types.
 
 ---@shape EventData
   ---@field name defines__events|number @The identifier of the event this handler was registered to.
   ---@field tick uint @The tick during which the event happened.
-  ---@field mod_name string|nil @The name of the mod that raised the event if it was raised using [LuaBootstrap::raise_event](LuaBootstrap::raise_event).
+  ---@field mod_name string @nilable; The name of the mod that raised the event if it was raised using [LuaBootstrap::raise_event](LuaBootstrap::raise_event).
 
 ---@shape Fluid
   ---@field name string @Fluid prototype name of the fluid.
   ---@field amount double @Amount of the fluid.
-  ---@field temperature double|nil @The temperature. When reading from [LuaFluidBox](LuaFluidBox), this field will always be present. It is not necessary to specify it when writing, however. When not specified, the fluid will be set to the fluid's default temperature as specified in the fluid's prototype.
+  ---@field temperature double @nilable; The temperature. When reading from [LuaFluidBox](LuaFluidBox), this field will always be present. It is not necessary to specify it when writing, however. When not specified, the fluid will be set to the fluid's default temperature as specified in the fluid's prototype.
 
 ---@shape FluidBoxConnection
   ---@field type string @The connection type: "input", "output", or "input-output".
   ---@field positions Vector[] @The 4 cardinal direction connection points for this pipe. This vector is a table with `x` and `y` keys instead of an array.
-  ---@field max_underground_distance uint|nil @The maximum tile distance this underground connection can connect at if this is an underground pipe.
+  ---@field max_underground_distance uint @nilable; The maximum tile distance this underground connection can connect at if this is an underground pipe.
 
 ---@shape FluidBoxFilter
   ---@field name string @Fluid prototype name of the filtered fluid.
@@ -9109,14 +9002,14 @@ settings = settings
 
 ---@shape FluidBoxFilterSpec
   ---@field name string @Fluid prototype name of the filtered fluid.
-  ---@field minimum_temperature double|nil @The minimum temperature allowed into the fluidbox.
-  ---@field maximum_temperature double|nil @The maximum temperature allowed into the fluidbox.
-  ---@field force boolean|nil @Force the filter to be set, regardless of current fluid content.
+  ---@field minimum_temperature double @nilable; The minimum temperature allowed into the fluidbox.
+  ---@field maximum_temperature double @nilable; The maximum temperature allowed into the fluidbox.
+  ---@field force boolean @nilable; Force the filter to be set, regardless of current fluid content.
 
 ---@shape FluidPrototypeFilter
   ---@field filter string @The condition to filter on. One of `"hidden"`, `"name"`, `"subgroup"`, `"default-temperature"`, `"max-temperature"`, `"heat-capacity"`, `"fuel-value"`, `"emissions-multiplier"`, `"gas-temperature"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field name string | string[] @name; The prototype name, or list of acceptable names.
   ---@field subgroup string @subgroup; A [LuaGroup](LuaGroup) (subgroup) name
   ---@field comparison ComparatorString @default-temperature
@@ -9148,9 +9041,9 @@ settings = settings
 ---@shape GuiAnchor
   ---@field gui defines__relative_gui_type|number
   ---@field position defines__relative_gui_position|number
-  ---@field type string|nil @If provided, only anchors the GUI element when the opened things type matches the type.
-  ---@field name string|nil @If provided, only anchors the GUI element when the opened thing matches the name. `name` takes precedence over `names`.
-  ---@field names string[]|nil @If provided, only anchors the GUI element when the opened thing matches one of the names. When reading an anchor, `names` is always populated.
+  ---@field type string @nilable; If provided, only anchors the GUI element when the opened things type matches the type.
+  ---@field name string @nilable; If provided, only anchors the GUI element when the opened thing matches the name. `name` takes precedence over `names`.
+  ---@field names string[] @nilable; If provided, only anchors the GUI element when the opened thing matches one of the names. When reading an anchor, `names` is always populated.
 
 ---@shape GuiArrowSpecification
   ---@field type string @This determines which of the following fields will be required. Must be one of `"nowhere"` (will remove the arrow entirely), `"goal"` (will point to the current goal), `"entity_info"`, `"active_window"`, `"entity"`, `"position"`, `"crafting_queue"` or `"item_stack"` (will point to a given item stack in an inventory). Depending on this value, other fields may have to be specified.
@@ -9174,32 +9067,32 @@ settings = settings
   ---@field direction defines__direction|number
 
 ---@shape HeatSetting
-  ---@field temperature double|nil @The target temperature. Defaults to the minimum temperature of the heat buffer.
-  ---@field mode string|nil @`"at-least"`, `"at-most"`, `"exactly"`, `"add"`, or `"remove"`. Defaults to `"at-least"`.
+  ---@field temperature double @nilable; The target temperature. Defaults to the minimum temperature of the heat buffer.
+  ---@field mode string @nilable; `"at-least"`, `"at-most"`, `"exactly"`, `"add"`, or `"remove"`. Defaults to `"at-least"`.
 
 ---@shape InfinityInventoryFilter
   ---@field name string @Name of the item.
-  ---@field count uint|nil @The count of the filter.
-  ---@field mode string|nil @`"at-least"`, `"at-most"`, or `"exactly"`. Defaults to `"at-least"`.
+  ---@field count uint @nilable; The count of the filter.
+  ---@field mode string @nilable; `"at-least"`, `"at-most"`, or `"exactly"`. Defaults to `"at-least"`.
   ---@field index uint @The index of this filter in the filters list.
 
 ---@shape InfinityPipeFilter
   ---@field name string @Name of the fluid.
-  ---@field percentage double|nil @The fill percentage the pipe (e.g. 0.5 for 50%). Can't be negative.
-  ---@field temperature double|nil @The temperature of the fluid. Defaults to the default/minimum temperature of the fluid.
-  ---@field mode string|nil @`"at-least"`, `"at-most"`, `"exactly"`, `"add"`, or `"remove"`. Defaults to `"at-least"`.
+  ---@field percentage double @nilable; The fill percentage the pipe (e.g. 0.5 for 50%). Can't be negative.
+  ---@field temperature double @nilable; The temperature of the fluid. Defaults to the default/minimum temperature of the fluid.
+  ---@field mode string @nilable; `"at-least"`, `"at-most"`, `"exactly"`, `"add"`, or `"remove"`. Defaults to `"at-least"`.
 
 ---@shape Ingredient
   ---@field type string @`"item"` or `"fluid"`.
   ---@field name string @Prototype name of the required item or fluid.
   ---@field amount double @Amount of the item or fluid.
-  ---@field catalyst_amount (uint | double)|nil @How much of this ingredient is a catalyst.
-  ---@field minimum_temperature double|nil @fluid; The minimum fluid temperature required.
-  ---@field maximum_temperature double|nil @fluid; The maximum fluid temperature allowed.
+  ---@field catalyst_amount uint | double @nilable; How much of this ingredient is a catalyst.
+  ---@field minimum_temperature double @nilable; fluid; The minimum fluid temperature required.
+  ---@field maximum_temperature double @nilable; fluid; The maximum fluid temperature allowed.
 
 ---@shape InserterCircuitConditions
-  ---@field circuit CircuitCondition|nil
-  ---@field logistics CircuitCondition|nil
+  ---@field circuit CircuitCondition @nilable
+  ---@field logistics CircuitCondition @nilable
 
 ---@shape InventoryFilter
   ---@field index uint @Position of the corresponding filter slot.
@@ -9207,12 +9100,12 @@ settings = settings
 
 ---@shape ItemPrototypeFilter
   ---@field filter string @The condition to filter on. One of `"tool"`, `"mergeable"`, `"item-with-inventory"`, `"selection-tool"`, `"item-with-label"`, `"has-rocket-launch-products"`, `"fuel"`, `"place-result"`, `"burnt-result"`, `"place-as-tile"`, `"placed-as-equipment-result"`, `"name"`, `"type"`, `"flag"`, `"subgroup"`, `"fuel-category"`, `"stack-size"`, `"default-request-amount"`, `"wire-count"`, `"fuel-value"`, `"fuel-acceleration-multiplier"`, `"fuel-top-speed-multiplier"`, `"fuel-emissions-multiplier"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
-  ---@field elem_filters EntityPrototypeFilter[]|nil @place-result; Filters for the place result.
-  ---@field elem_filters ItemPrototypeFilter[]|nil @burnt-result; Filters for the burnt result.
-  ---@field elem_filters TilePrototypeFilter[]|nil @place-as-tile; Filters for the placed tile.
-  ---@field elem_filters EquipmentPrototypeFilter[]|nil @placed-as-equipment-result; Filters for the placed equipment.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
+  ---@field elem_filters EntityPrototypeFilter[] @nilable; place-result; Filters for the place result.
+  ---@field elem_filters ItemPrototypeFilter[] @nilable; burnt-result; Filters for the burnt result.
+  ---@field elem_filters TilePrototypeFilter[] @nilable; place-as-tile; Filters for the placed tile.
+  ---@field elem_filters EquipmentPrototypeFilter[] @nilable; placed-as-equipment-result; Filters for the placed equipment.
   ---@field name string | string[] @name; The prototype name, or list of acceptable names.
   ---@field type string | string[] @type; The prototype type, or a list of acceptable types.
   ---@field flag string @flag; One of the values in [ItemPrototypeFlags](ItemPrototypeFlags).
@@ -9235,11 +9128,11 @@ settings = settings
 
 ---@shape ItemStackDefinition
   ---@field name string @Prototype name of the item the stack holds.
-  ---@field count uint|nil @Number of items the stack holds. If not specified, defaults to `1`.
-  ---@field health float|nil @Health of the items in the stack. Defaults to `1.0`.
-  ---@field durability double|nil @Durability of the tool items in the stack.
-  ---@field ammo double|nil @Amount of ammo in the ammo items in the stack.
-  ---@field tags string[]|nil @Tags of the items with tags in the stack.
+  ---@field count uint @nilable; Number of items the stack holds. If not specified, defaults to `1`.
+  ---@field health float @nilable; Health of the items in the stack. Defaults to `1.0`.
+  ---@field durability double @nilable; Durability of the tool items in the stack.
+  ---@field ammo double @nilable; Amount of ammo in the ammo items in the stack.
+  ---@field tags string[] @nilable; Tags of the items with tags in the stack.
 
 ---@shape ItemStackLocation
   ---@field inventory defines__inventory|number
@@ -9251,9 +9144,9 @@ settings = settings
   ---@field count uint @The count for this filter.
 
 ---@shape LogisticParameters
-  ---@field name string|nil @The item. `nil` clears the filter.
-  ---@field min uint|nil
-  ---@field max uint|nil
+  ---@field name string @nilable; The item. `nil` clears the filter.
+  ---@field min uint @nilable
+  ---@field max uint @nilable
 
 ---@shape Loot
   ---@field item string @Item prototype name of the result.
@@ -9263,8 +9156,8 @@ settings = settings
 
 ---@shape LuaEntityClonedEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9272,8 +9165,8 @@ settings = settings
 
 ---@shape LuaEntityDamagedEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`, `"original-damage-amount"`, `"final-damage-amount"`, `"damage-type"`, `"final-health"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9288,8 +9181,8 @@ settings = settings
 
 ---@shape LuaEntityDeconstructionCancelledEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9297,8 +9190,8 @@ settings = settings
 
 ---@shape LuaEntityDiedEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9306,8 +9199,8 @@ settings = settings
 
 ---@shape LuaEntityMarkedForDeconstructionEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9315,8 +9208,8 @@ settings = settings
 
 ---@shape LuaEntityMarkedForUpgradeEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9324,8 +9217,8 @@ settings = settings
 
 ---@shape LuaPlayerBuiltEntityEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`, `"force"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9334,8 +9227,8 @@ settings = settings
 
 ---@shape LuaPlayerMinedEntityEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9343,8 +9236,8 @@ settings = settings
 
 ---@shape LuaPlayerRepairedEntityEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9352,14 +9245,14 @@ settings = settings
 
 ---@shape LuaPostEntityDiedEventFilter
   ---@field filter string @The condition to filter on. Can only be `"type"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
 
 ---@shape LuaPreGhostDeconstructedEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9367,8 +9260,8 @@ settings = settings
 
 ---@shape LuaPreGhostUpgradedEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9376,8 +9269,8 @@ settings = settings
 
 ---@shape LuaPrePlayerMinedEntityEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9385,8 +9278,8 @@ settings = settings
 
 ---@shape LuaPreRobotMinedEntityEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9394,8 +9287,8 @@ settings = settings
 
 ---@shape LuaRobotBuiltEntityEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`, `"force"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9404,8 +9297,8 @@ settings = settings
 
 ---@shape LuaRobotMinedEntityEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9413,8 +9306,8 @@ settings = settings
 
 ---@shape LuaScriptRaisedBuiltEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9422,8 +9315,8 @@ settings = settings
 
 ---@shape LuaScriptRaisedDestroyEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9431,8 +9324,8 @@ settings = settings
 
 ---@shape LuaScriptRaisedReviveEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9440,8 +9333,8 @@ settings = settings
 
 ---@shape LuaSectorScannedEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9449,8 +9342,8 @@ settings = settings
 
 ---@shape LuaUpgradeCancelledEventFilter
   ---@field filter string @The condition to filter on. One of `"ghost"`, `"rail"`, `"rail-signal"`, `"rolling-stock"`, `"robot-with-logistics-interface"`, `"vehicle"`, `"turret"`, `"crafting-machine"`, `"wall-connectable"`, `"transport-belt-connectable"`, `"circuit-network-connectable"`, `"type"`, `"name"`, `"ghost_type"`, `"ghost_name"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string @type; The prototype type
   ---@field name string @name; The prototype name
   ---@field type string @ghost_type; The ghost prototype type
@@ -9472,9 +9365,9 @@ settings = settings
 
 ---@shape MapGenPreset
   ---@field order string @The string used to alphabetically sort the presets. It is a simple string that has no additional semantic meaning.
-  ---@field default boolean|nil @Whether this is the preset that is selected by default.
-  ---@field basic_settings MapGenSettings|nil
-  ---@field advanced_settings AdvancedMapGenSettings|nil
+  ---@field default boolean @nilable; Whether this is the preset that is selected by default.
+  ---@field basic_settings MapGenSettings @nilable
+  ---@field advanced_settings AdvancedMapGenSettings @nilable
 
 ---@shape MapGenSettings
   ---@field terrain_segmentation MapGenSize @The inverse of 'water scale' in the map generator GUI. Lower `terrain_segmentation` increases the scale of elevation features (lakes, continents, etc). This behavior can be overridden with alternate elevation generators (see `property_expression_names`, below).
@@ -9509,14 +9402,14 @@ settings = settings
   ---@field max_failed_behavior_count uint @If a behavior fails this many times, the enemy (or enemy group) is destroyed. This solves biters getting stuck within their own base.
 
 ---@shape MapViewSettings
-  ---@field ["show-logistic-network"] boolean|nil
-  ---@field ["show-electric-network"] boolean|nil
-  ---@field ["show-turret-range"] boolean|nil
-  ---@field ["show-pollution"] boolean|nil
-  ---@field ["show-train-station-names"] boolean|nil
-  ---@field ["show-player-names"] boolean|nil
-  ---@field ["show-networkless-logistic-members"] boolean|nil
-  ---@field ["show-non-standard-map-info"] boolean|nil
+  ---@field ["show-logistic-network"] boolean @nilable
+  ---@field ["show-electric-network"] boolean @nilable
+  ---@field ["show-turret-range"] boolean @nilable
+  ---@field ["show-pollution"] boolean @nilable
+  ---@field ["show-train-station-names"] boolean @nilable
+  ---@field ["show-player-names"] boolean @nilable
+  ---@field ["show-networkless-logistic-members"] boolean @nilable
+  ---@field ["show-non-standard-map-info"] boolean @nilable
 
 ---@shape ModChangeData
   ---@field old_version string @Old version of the mod. May be `nil` if the mod wasn't previously present (i.e. it was just added).
@@ -9527,8 +9420,8 @@ settings = settings
 
 ---@shape ModSettingPrototypeFilter
   ---@field filter string @The condition to filter on. One of `"type"`, `"mod"`, `"setting-type"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field type string | string[] @type; The prototype type, or a list of acceptable types.
   ---@field mod string @mod; The mod name
   ---@field type string @setting-type; The setting scope type (`"startup"`, `"runtime-global"`, or `"runtime-per-user"`)
@@ -9537,10 +9430,10 @@ settings = settings
   ---@field bonus float @The percentual increase of the attribute. A value of `0.6` means a 60% increase.
 
 ---@shape ModuleEffects
-  ---@field consumption ModuleEffectValue|nil
-  ---@field speed ModuleEffectValue|nil
-  ---@field productivity ModuleEffectValue|nil
-  ---@field pollution ModuleEffectValue|nil
+  ---@field consumption ModuleEffectValue @nilable
+  ---@field speed ModuleEffectValue @nilable
+  ---@field productivity ModuleEffectValue @nilable
+  ---@field pollution ModuleEffectValue @nilable
 
 ---@shape NoiseExpression
   ---@field type string @Names the type of the expression and determines what other fields are required.
@@ -9593,12 +9486,12 @@ settings = settings
   ---@field negative_path_cache_delay_interval uint @The delay in ticks between decrementing the score of all paths in the negative cache by one. Defaults to `20`.
 
 ---@shape PathfinderFlags
-  ---@field allow_destroy_friendly_entities boolean|nil @Allows pathing through friendly entities. Defaults to `false`.
-  ---@field allow_paths_through_own_entities boolean|nil @Allows the pathfinder to path through entities of the same force. Defaults to `false`.
-  ---@field cache boolean|nil @Enables path caching. This can be more efficient, but might fail to respond to changes in the environment. Defaults to `true`.
-  ---@field prefer_straight_paths boolean|nil @Makes the pathfinder try to path in straight lines. Defaults to `false`.
-  ---@field low_priority boolean|nil @Sets lower priority on the path request, meaning it might take longer to find a path at the expense of speeding up others. Defaults to `false`.
-  ---@field no_break boolean|nil @Makes the pathfinder not break in the middle of processing this pathfind, no matter how much work is needed. Defaults to `false`.
+  ---@field allow_destroy_friendly_entities boolean @nilable; Allows pathing through friendly entities. Defaults to `false`.
+  ---@field allow_paths_through_own_entities boolean @nilable; Allows the pathfinder to path through entities of the same force. Defaults to `false`.
+  ---@field cache boolean @nilable; Enables path caching. This can be more efficient, but might fail to respond to changes in the environment. Defaults to `true`.
+  ---@field prefer_straight_paths boolean @nilable; Makes the pathfinder try to path in straight lines. Defaults to `false`.
+  ---@field low_priority boolean @nilable; Sets lower priority on the path request, meaning it might take longer to find a path at the expense of speeding up others. Defaults to `false`.
+  ---@field no_break boolean @nilable; Makes the pathfinder not break in the middle of processing this pathfind, no matter how much work is needed. Defaults to `false`.
 
 ---@shape PathfinderWaypoint
   ---@field position MapPosition @The position of the waypoint on its surface.
@@ -9626,12 +9519,12 @@ settings = settings
 ---@shape Product
   ---@field type string @`"item"` or `"fluid"`.
   ---@field name string @Prototype name of the result.
-  ---@field amount double|nil @Amount of the item or fluid to give. If not specified, `amount_min`, `amount_max` and `probability` must all be specified.
-  ---@field amount_min (uint | double)|nil @Minimal amount of the item or fluid to give. Has no effect when `amount` is specified.
-  ---@field amount_max (uint | double)|nil @Maximum amount of the item or fluid to give. Has no effect when `amount` is specified.
-  ---@field probability double|nil @A value in range [0, 1]. Item or fluid is only given with this probability; otherwise no product is produced.
-  ---@field catalyst_amount (uint | double)|nil @How much of this product is a catalyst.
-  ---@field temperature double|nil @fluid; The fluid temperature of this product.
+  ---@field amount double @nilable; Amount of the item or fluid to give. If not specified, `amount_min`, `amount_max` and `probability` must all be specified.
+  ---@field amount_min uint | double @nilable; Minimal amount of the item or fluid to give. Has no effect when `amount` is specified.
+  ---@field amount_max uint | double @nilable; Maximum amount of the item or fluid to give. Has no effect when `amount` is specified.
+  ---@field probability double @nilable; A value in range [0, 1]. Item or fluid is only given with this probability; otherwise no product is produced.
+  ---@field catalyst_amount uint | double @nilable; How much of this product is a catalyst.
+  ---@field temperature double @nilable; fluid; The fluid temperature of this product.
 
 ---@shape ProgrammableSpeakerAlertParameters
   ---@field show_alert boolean
@@ -9655,12 +9548,12 @@ settings = settings
 
 ---@shape RecipePrototypeFilter
   ---@field filter string @The condition to filter on. One of `"enabled"`, `"hidden"`, `"hidden-from-flow-stats"`, `"hidden-from-player-crafting"`, `"allow-as-intermediate"`, `"allow-intermediates"`, `"allow-decomposition"`, `"always-show-made-in"`, `"always-show-products"`, `"show-amount-in-title"`, `"has-ingredients"`, `"has-products"`, `"has-ingredient-item"`, `"has-ingredient-fluid"`, `"has-product-item"`, `"has-product-fluid"`, `"subgroup"`, `"category"`, `"energy"`, `"emissions-multiplier"`, `"request-paste-multiplier"`, `"overload-multiplier"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
-  ---@field elem_filters ItemPrototypeFilter[]|nil @has-ingredient-item; Matches if at least 1 ingredient is an item that matches these filters.
-  ---@field elem_filters FluidPrototypeFilter[]|nil @has-ingredient-fluid; Matches if at least 1 ingredient is a fluid that matches these filters.
-  ---@field elem_filters ItemPrototypeFilter[]|nil @has-product-item; Matches if at least 1 product is an item that matches these filters.
-  ---@field elem_filters FluidPrototypeFilter[]|nil @has-product-fluid; Matches if at least 1 product is a fluid that matches these filters.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
+  ---@field elem_filters ItemPrototypeFilter[] @nilable; has-ingredient-item; Matches if at least 1 ingredient is an item that matches these filters.
+  ---@field elem_filters FluidPrototypeFilter[] @nilable; has-ingredient-fluid; Matches if at least 1 ingredient is a fluid that matches these filters.
+  ---@field elem_filters ItemPrototypeFilter[] @nilable; has-product-item; Matches if at least 1 product is an item that matches these filters.
+  ---@field elem_filters FluidPrototypeFilter[] @nilable; has-product-fluid; Matches if at least 1 product is a fluid that matches these filters.
   ---@field subgroup string @subgroup; A [LuaGroup](LuaGroup) (subgroup) name
   ---@field category string @category; A [LuaRecipeCategoryPrototype](LuaRecipeCategoryPrototype) name
   ---@field comparison ComparatorString @energy
@@ -9693,13 +9586,13 @@ settings = settings
   ---@field id uint
 
 ---@shape ScriptRenderTarget
-  ---@field entity LuaEntity|nil
-  ---@field entity_offset Vector|nil
-  ---@field position MapPosition|nil
+  ---@field entity LuaEntity @nilable
+  ---@field entity_offset Vector @nilable
+  ---@field position MapPosition @nilable
 
 ---@shape ScriptRenderVertexTarget
   ---@field target MapPosition | LuaEntity
-  ---@field target_offset Vector|nil @Only used if `target` is a LuaEntity.
+  ---@field target_offset Vector @nilable; Only used if `target` is a LuaEntity.
 
 ---@shape SelectedPrototypeData
   ---@field base_type string @E.g. `"entity"`.
@@ -9712,18 +9605,18 @@ settings = settings
 
 ---@shape SignalID
   ---@field type string @`"item"`, `"fluid"`, or `"virtual"`.
-  ---@field name string|nil @Name of the item, fluid or virtual signal.
+  ---@field name string @nilable; Name of the item, fluid or virtual signal.
 
 ---@shape SmokeSource
   ---@field name string
   ---@field frequency double
   ---@field offset double
-  ---@field position Vector|nil
-  ---@field north_position Vector|nil
-  ---@field east_position Vector|nil
-  ---@field south_position Vector|nil
-  ---@field west_position Vector|nil
-  ---@field deviation MapPosition|nil
+  ---@field position Vector @nilable
+  ---@field north_position Vector @nilable
+  ---@field east_position Vector @nilable
+  ---@field south_position Vector @nilable
+  ---@field west_position Vector @nilable
+  ---@field deviation MapPosition @nilable
   ---@field starting_frame_speed uint16
   ---@field starting_frame_speed_deviation double
   ---@field starting_frame uint16
@@ -9760,7 +9653,7 @@ settings = settings
   ---@field ammo_category string @ammo-damage; Prototype name of the ammunition category that is affected
   ---@field modifier double @ammo-damage; Modification value. This will be added to the current ammo damage modifier upon researching.
   ---@field item string @give-item; Item prototype name to give.
-  ---@field count uint|nil @give-item; Number of items to give. Defaults to `1`.
+  ---@field count uint @nilable; give-item; Number of items to give. Defaults to `1`.
   ---@field turret_id string @turret-attack; Turret prototype name this modifier will affect.
   ---@field modifier double @turret-attack; Modification value. This will be added to the current turret damage modifier upon researching.
   ---@field recipe string @unlock-recipe; Recipe prototype name to unlock.
@@ -9769,8 +9662,8 @@ settings = settings
 
 ---@shape TechnologyPrototypeFilter
   ---@field filter string @The condition to filter on. One of `"enabled"`, `"hidden"`, `"upgrade"`, `"visible-when-disabled"`, `"has-effects"`, `"has-prerequisites"`, `"research-unit-ingredient"`, `"level"`, `"max-level"`, `"time"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field ingredient string @research-unit-ingredient; The research ingredient to check.
   ---@field comparison ComparatorString @level
   ---@field value uint @level; The value to compare against.
@@ -9793,8 +9686,8 @@ settings = settings
 
 ---@shape TilePrototypeFilter
   ---@field filter string @The condition to filter on. One of `"minable"`, `"autoplace"`, `"blueprintable"`, `"item-to-place"`, `"collision-mask"`, `"walking-speed-modifier"`, `"vehicle-friction-modifier"`, `"decorative-removal-probability"`, `"emissions"`.
-  ---@field mode string|nil @How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
-  ---@field invert boolean|nil @Inverts the condition. Default is `false`.
+  ---@field mode string @nilable; How to combine this with the previous filter. Must be `"or"` or `"and"`. Defaults to `"or"`. When evaluating the filters, `"and"` has higher precedence than `"or"`.
+  ---@field invert boolean @nilable; Inverts the condition. Default is `false`.
   ---@field mask CollisionMask | CollisionMaskWithFlags @collision-mask
   ---@field mask_mode string @collision-mask; How to filter: `"collides"`, `"layers-equals"`, `"contains-any"` or `"contains-all"`
   ---@field comparison ComparatorString @walking-speed-modifier
@@ -9811,11 +9704,11 @@ settings = settings
   ---@field records TrainScheduleRecord[]
 
 ---@shape TrainScheduleRecord
-  ---@field station string|nil @Name of the station.
-  ---@field rail LuaEntity|nil @Rail to path to. Ignored if `station` is present.
-  ---@field rail_direction (defines__rail_direction|number)|nil @When a train is allowed to reach rail target from any direction it will be `nil`. If rail has to be reached from specific direction, this value allows to choose the direction. This value corresponds to [LuaEntity::connected_rail_direction](LuaEntity::connected_rail_direction) of a TrainStop.
-  ---@field wait_conditions WaitCondition[]|nil
-  ---@field temporary boolean|nil @Only present when the station is temporary, the value is then always `true`.
+  ---@field station string @nilable; Name of the station.
+  ---@field rail LuaEntity @nilable; Rail to path to. Ignored if `station` is present.
+  ---@field rail_direction defines__rail_direction|number @nilable; When a train is allowed to reach rail target from any direction it will be `nil`. If rail has to be reached from specific direction, this value allows to choose the direction. This value corresponds to [LuaEntity::connected_rail_direction](LuaEntity::connected_rail_direction) of a TrainStop.
+  ---@field wait_conditions WaitCondition[] @nilable
+  ---@field temporary boolean @nilable; Only present when the station is temporary, the value is then always `true`.
 
 ---@shape TriggerDelivery
   ---@field type string @One of `"instant"`, `"projectile"`, `"flame-thrower"`, `"beam"`, `"stream"`, `"artillery"`.
@@ -9830,8 +9723,8 @@ settings = settings
 
 ---@shape TriggerItem
   ---@field type string @One of `"direct"`, `"area"`, `"line"`, `"cluster"`.
-  ---@field action_delivery TriggerDelivery[]|nil
-  ---@field entity_flags EntityPrototypeFlags|nil @The trigger will only affect entities that contain any of these flags.
+  ---@field action_delivery TriggerDelivery[] @nilable
+  ---@field entity_flags EntityPrototypeFlags @nilable; The trigger will only affect entities that contain any of these flags.
   ---@field ignore_collision_condition boolean
   ---@field collision_mask CollisionMask @The trigger will only affect entities that would collide with given collision mask.
   ---@field trigger_target_mask TriggerTargetMask
@@ -9859,7 +9752,7 @@ settings = settings
 
 ---@shape UpgradeFilter
   ---@field type string @`"item"`, or `"entity"`.
-  ---@field name string|nil @Name of the item, or entity.
+  ---@field name string @nilable; Name of the item, or entity.
 
 ---@shape _Vector1
   ---@field x float
@@ -9876,23 +9769,23 @@ settings = settings
 ---@shape WaitCondition
   ---@field type string @One of `"time"`, `"inactivity"`, `"full"`, `"empty"`, `"item_count"`, `"circuit"`, `"robots_inactive"`, `"fluid_count"`, `"passenger_present"`, `"passenger_not_present"`.
   ---@field compare_type string @Either `"and"`, or `"or"`. Tells how this condition is to be compared with the preceding conditions in the corresponding `wait_conditions` array.
-  ---@field ticks uint|nil @Number of ticks to wait or of inactivity. Only present when `type` is `"time"` or `"inactivity"`.
-  ---@field condition CircuitCondition|nil @Only present when `type` is `"item_count"`, `"circuit"` or `"fluid_count"`.
+  ---@field ticks uint @nilable; Number of ticks to wait or of inactivity. Only present when `type` is `"time"` or `"inactivity"`.
+  ---@field condition CircuitCondition @nilable; Only present when `type` is `"item_count"`, `"circuit"` or `"fluid_count"`.
 
 ---@shape WireConnectionDefinition
   ---@field wire defines__wire_type|number @Wire color, either [defines.wire_type.red](defines.wire_type.red) or [defines.wire_type.green](defines.wire_type.green).
   ---@field target_entity LuaEntity @The entity to (dis)connect the source entity with.
-  ---@field source_circuit_id (defines__circuit_connector_id|number)|nil @Mandatory if the source entity has more than one circuit connection using circuit wire.
-  ---@field target_circuit_id (defines__circuit_connector_id|number)|nil @Mandatory if the target entity has more than one circuit connection using circuit wire.
-  ---@field source_wire_id (defines__circuit_connector_id|number)|nil @Mandatory if the source entity has more than one wire connection using copper wire.
-  ---@field target_wire_id (defines__circuit_connector_id|number)|nil @Mandatory if the target entity has more than one wire connection using copper wire.
+  ---@field source_circuit_id defines__circuit_connector_id|number @nilable; Mandatory if the source entity has more than one circuit connection using circuit wire.
+  ---@field target_circuit_id defines__circuit_connector_id|number @nilable; Mandatory if the target entity has more than one circuit connection using circuit wire.
+  ---@field source_wire_id defines__circuit_connector_id|number @nilable; Mandatory if the source entity has more than one wire connection using copper wire.
+  ---@field target_wire_id defines__circuit_connector_id|number @nilable; Mandatory if the target entity has more than one wire connection using copper wire.
 
 ---@shape _table1
-  ---@field is_simulation boolean|nil @Is this level a simulation? (The main menu and 'Tips and tricks' use simulations)
-  ---@field is_tutorial boolean|nil @Is this level a tutorial?
-  ---@field campaign_name string|nil @The campaign name if any.
+  ---@field is_simulation boolean @nilable; Is this level a simulation? (The main menu and 'Tips and tricks' use simulations)
+  ---@field is_tutorial boolean @nilable; Is this level a tutorial?
+  ---@field campaign_name string @nilable; The campaign name if any.
   ---@field level_name string @The level name.
-  ---@field mod_name string|nil @The mod name if any.
+  ---@field mod_name string @nilable; The mod name if any.
 
 ---@shape _table2
   ---@field minimum_intensity float
@@ -9906,7 +9799,7 @@ settings = settings
 
 ---@shape _table3
   ---@field mining boolean @Whether the player is mining at all
-  ---@field position MapPosition|nil @What tiles the player is mining; only used when the player is mining tiles (holding a tile in the cursor).
+  ---@field position MapPosition @nilable; What tiles the player is mining; only used when the player is mining tiles (holding a tile in the cursor).
 
 ---@shape _table4
   ---@field repairing boolean @The current state
@@ -9929,7 +9822,7 @@ settings = settings
   ---@field offsets Vector[]
   ---@field offset_deviation BoundingBox
   ---@field initial_height float
-  ---@field max_radius float|nil
+  ---@field max_radius float @nilable
   ---@field speed Vector
   ---@field speed_multiplier float
   ---@field speed_multiplier_deviation float
@@ -9960,11 +9853,11 @@ settings = settings
 ---@shape _table10
   ---@field minable boolean @Is this entity mineable at all?
   ---@field mining_time double @Energy required to mine an entity.
-  ---@field mining_particle string|nil @Prototype name of the particle produced when mining this entity. Will only be present if this entity produces any particle during mining.
-  ---@field products Product[]|nil @Products obtained by mining this entity.
-  ---@field fluid_amount double|nil @The required fluid amount if any.
-  ---@field required_fluid string|nil @The prototype name of the required fluid if any.
-  ---@field mining_trigger TriggerItem[]|nil @The mining trigger if any.
+  ---@field mining_particle string @nilable; Prototype name of the particle produced when mining this entity. Will only be present if this entity produces any particle during mining.
+  ---@field products Product[] @nilable; Products obtained by mining this entity.
+  ---@field fluid_amount double @nilable; The required fluid amount if any.
+  ---@field required_fluid string @nilable; The prototype name of the required fluid if any.
+  ---@field mining_trigger TriggerItem[] @nilable; The mining trigger if any.
 
 ---@shape _table11
   ---@field min double
@@ -9994,11 +9887,11 @@ settings = settings
 ---@shape _table14
   ---@field width uint
   ---@field height uint
-  ---@field points EquipmentPoint[]|nil @Only set when the shape is "manual"
+  ---@field points EquipmentPoint[] @nilable; Only set when the shape is "manual"
 
 ---@shape _table15
   ---@field minable boolean @Is this tile mineable at all?
   ---@field mining_time double @Energy required to mine a tile.
-  ---@field mining_particle string|nil @Prototype name of the particle produced when mining this tile. Will only be present if this tile produces any particle during mining.
+  ---@field mining_particle string @nilable; Prototype name of the particle produced when mining this tile. Will only be present if this tile produces any particle during mining.
   ---@field products Product[] @Products obtained by mining this tile.
 

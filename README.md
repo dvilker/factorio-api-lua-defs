@@ -5,7 +5,7 @@ Compatible with Luanalysis IDEA plugin: https://github.com/Benjamin-Dobell/Intel
 
 # How to generate
 1. Install nodejs.
-2. Check path to `runtime-api.json` in file `import.js`.
+2. Check path to `runtime-api.json` and options in file `import.js`. 
 3. Run `node import.js`
 4. Put generated file into you mod. Do not `require` it.
 
