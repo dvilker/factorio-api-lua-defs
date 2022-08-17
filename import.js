@@ -433,6 +433,7 @@ function addLuaMethod(m, className) {
     if (m.description) {
         out.pushLine(`--- ${m.description.replace(/[\r\n]+/g, "\n--- ")}`)
     }
+    m.parameters.sort((a, b) => a.order - b.order)
     if (m.takes_table) {
         out.push(`---@param p {`)
         let second = 0
