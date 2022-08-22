@@ -1154,10 +1154,10 @@ function LuaBootstrap.get_event_order() end
 function LuaBootstrap.on_configuration_changed(f) end
 
 --- Register a handler to run on the specified event(s). Each mod can only register once for every event, as any additional registration will overwrite the previous one. This holds true even if different filters are used for subsequent registrations.
----@param event (defines__events|number) | ((defines__events|number)[]) | string @The event(s) or custom-input to invoke the handler on.
+---@param event defines__events | defines__events[] | string @The event(s) or custom-input to invoke the handler on.
 ---@param f (fun(p0: EventData)) | nil @The handler for this event. Passing `nil` will unregister it.
 ---@param filters EventFilter|nil @The filters for this event. Can only be used when registering for individual events.
----@overload fun(event: (defines__events|number) | ((defines__events|number)[]) | string, f: (fun(p0: EventData)) | nil)
+---@overload fun(event: defines__events | defines__events[] | string, f: (fun(p0: EventData)) | nil)
 function LuaBootstrap.on_event(event, f, filters) end
 
 --- Register a function to be run on mod initialization. This is only called when a new save game is created or when a save file is loaded that previously didn't contain the mod. During it, the mod gets the chance to set up initial values that it will use for its lifetime. It has full access to [LuaGameScript](LuaGameScript) and the [global](global) table and can change anything about them that it deems appropriate. No other events will be raised for the mod until it has finished this step.
@@ -1300,14 +1300,14 @@ LuaChunkIterator = {}
 function LuaChunkIterator.help() end
 
 ---@class LuaCircuitNetwork: any @A circuit network associated with a given entity, connector, and wire type.
-  ---@field circuit_connector_id defines__circuit_connector_id|number @RW; The circuit connector ID on the associated entity this network was gotten from.
+  ---@field circuit_connector_id defines__circuit_connector_id @RW; The circuit connector ID on the associated entity this network was gotten from.
   ---@field connected_circuit_count uint @RW; The number of circuits connected to this network.
   ---@field entity LuaEntity @RW; The entity this circuit network reference is associated with.
   ---@field network_id uint @RW; The circuit networks ID.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field signals Signal[] @RW nilable; The circuit network signals last tick. `nil` if there were no signals last tick.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
-  ---@field wire_type defines__wire_type|number @RW; The wire type this network is associated with.
+  ---@field wire_type defines__wire_type @RW; The wire type this network is associated with.
 LuaCircuitNetwork = {}
 
 ---@param signal SignalID @The signal to read.
@@ -1408,8 +1408,8 @@ function LuaContainerControlBehavior.help() end
   ---@field item_pickup_distance double @RW; The item pickup distance of this character or max double when not a character or player connected to a character.
   ---@field loot_pickup_distance double @RW; The loot pickup distance of this character or max double when not a character or player connected to a character.
   ---@field mining_state _table3 @RW; Current mining state.
-  ---@field opened LuaEntity | LuaItemStack | LuaEquipment | LuaEquipmentGrid | LuaPlayer | LuaGuiElement | LuaInventory | (defines__gui_type|number) @RW nilable; The GUI the player currently has open. This is the GUI that will asked to close (by firing the [on_gui_closed](on_gui_closed) event) when the `Esc` or `E` keys are pressed. If this attribute is not `nil`, and a new GUI is written to it, the existing one will be asked to close.
-  ---@field opened_gui_type defines__gui_type|number @RW nilable
+  ---@field opened LuaEntity | LuaItemStack | LuaEquipment | LuaEquipmentGrid | LuaPlayer | LuaGuiElement | LuaInventory | defines__gui_type @RW nilable; The GUI the player currently has open. This is the GUI that will asked to close (by firing the [on_gui_closed](on_gui_closed) event) when the `Esc` or `E` keys are pressed. If this attribute is not `nil`, and a new GUI is written to it, the existing one will be asked to close.
+  ---@field opened_gui_type defines__gui_type @RW nilable
   ---@field picking_state boolean @RW; Current item-picking state.
   ---@field position MapPosition @RW; The current position of the entity.
   ---@field reach_distance uint @RW; The reach distance of this character or max uint when not a character or player connected to a character.
@@ -1479,7 +1479,7 @@ function LuaControl.get_blueprint_entities() end
 function LuaControl.get_craftable_count(recipe) end
 
 --- Get an inventory belonging to this entity. This can be either the "main" inventory or some auxiliary one, like the module slots or logistic trash slots.
----@param inventory defines__inventory|number
+---@param inventory defines__inventory
 ---@return LuaInventory @The inventory or `nil` if none with the given index was found.
 function LuaControl.get_inventory(inventory) end
 
@@ -1581,12 +1581,12 @@ function LuaControl.update_selected_entity(position) end
 
 ---@class LuaControlBehavior: any @The control behavior for an entity. Inserters have logistic network and circuit network behavior logic, lamps have circuit logic and so on. This is an abstract base class that concrete control behaviors inherit.
   ---@field entity LuaEntity @RW; The entity this control behavior belongs to.
-  ---@field type defines__control_behavior__type|number @RW; The concrete type of this control behavior.
+  ---@field type defines__control_behavior__type @RW; The concrete type of this control behavior.
 LuaControlBehavior = {}
 
----@param wire defines__wire_type|number @Wire color of the network connected to this entity.
----@param circuit_connector (defines__circuit_connector_id|number)|nil @The connector to get circuit network for. Must be specified for entities with more than one circuit network connector.
----@overload fun(wire: defines__wire_type|number): LuaCircuitNetwork
+---@param wire defines__wire_type @Wire color of the network connected to this entity.
+---@param circuit_connector defines__circuit_connector_id|nil @The connector to get circuit network for. Must be specified for entities with more than one circuit network connector.
+---@overload fun(wire: defines__wire_type): LuaCircuitNetwork
 ---@return LuaCircuitNetwork @The circuit network or nil.
 function LuaControlBehavior.get_circuit_network(wire, circuit_connector) end
 
@@ -1717,7 +1717,7 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field bonus_progress double @RW; The current productivity bonus progress, as a number in range [0, 1].
   ---@field bounding_box BoundingBox @RW; [LuaEntityPrototype::collision_box](LuaEntityPrototype::collision_box) around entity's given position and respecting the current entity orientation.
   ---@field burner LuaBurner @RW nilable; The burner energy source for this entity, if any.
-  ---@field chain_signal_state defines__chain_signal_state|number @RW; The state of this chain signal.
+  ---@field chain_signal_state defines__chain_signal_state @RW; The state of this chain signal.
   ---@field character_corpse_death_cause LocalisedString @RW; The reason this character corpse character died. `""` if there is no reason.
   ---@field character_corpse_player_index uint @RW; The player index associated with this character corpse.
   ---@field character_corpse_tick_of_death uint @RW; The tick this character corpse died at.
@@ -1728,7 +1728,7 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field combat_robot_owner LuaEntity @RW nilable; The owner of this combat robot, if any.
   ---@field command Command @RW nilable; The command given to this unit, if any.
   ---@field connected_rail LuaEntity @RW nilable; The rail entity this train stop is connected to, if any.
-  ---@field connected_rail_direction defines__rail_direction|number @RW; Rail direction to which this train stop is binding. This returns a value even when no rails are present.
+  ---@field connected_rail_direction defines__rail_direction @RW; Rail direction to which this train stop is binding. This returns a value even when no rails are present.
   ---@field consumption_bonus double @RW; The consumption bonus of this entity.
   ---@field consumption_modifier float @RW; Multiplies the energy consumption.
   ---@field corpse_expires boolean @RW; Whether this corpse will ever fade away.
@@ -1737,7 +1737,7 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field crafting_speed double @RW; The current crafting speed, including speed bonuses from modules and beacons.
   ---@field damage_dealt double @RW; The damage dealt by this turret, artillery turret, or artillery wagon.
   ---@field destructible boolean @RW; If set to `false`, this entity can't be damaged and won't be attacked automatically. It can however still be mined.
-  ---@field direction defines__direction|number @RW; The current direction this entity is facing.
+  ---@field direction defines__direction @RW; The current direction this entity is facing.
   ---@field distraction_command Command @RW nilable; The distraction command given to this unit, if any.
   ---@field driver_is_gunner boolean @RW nilable; Whether the driver of this car or spidertron is the gunner. If `false`, the passenger is the gunner. `nil` if this is neither a car or a spidertron.
   ---@field drop_position MapPosition @RW; Position where the entity puts its stuff.
@@ -1827,14 +1827,14 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field request_from_buffers boolean @RW; Whether this requester chest is set to also request from buffer chests.
   ---@field request_slot_count uint @RW; The index of the configured request with the highest index for this entity. This means 0 if no requests are set and e.g. 20 if the 20th request slot is configured.
   ---@field rocket_parts uint @RW; Number of rocket parts in the silo.
-  ---@field rocket_silo_status defines__rocket_silo_status|number @RW; The status of this rocket silo entity.
+  ---@field rocket_silo_status defines__rocket_silo_status @RW; The status of this rocket silo entity.
   ---@field rotatable boolean @RW; When entity is not to be rotatable (inserter, transport belt etc), it can't be rotated by player using the R key.
   ---@field secondary_bounding_box BoundingBox @RW nilable; The secondary bounding box of this entity or `nil` if it doesn't have one. This only exists for curved rails, and is automatically determined by the game.
   ---@field secondary_selection_box BoundingBox @RW nilable; The secondary selection box of this entity or `nil` if it doesn't have one. This only exists for curved rails, and is automatically determined by the game.
   ---@field selected_gun_index uint @RW nilable; Index of the currently selected weapon slot of this character, car, or spidertron. `nil` if this entity doesn't have guns.
   ---@field selection_box BoundingBox @RW; [LuaEntityPrototype::selection_box](LuaEntityPrototype::selection_box) around entity's given position and respecting the current entity orientation.
   ---@field shooting_target LuaEntity @RW nilable; The shooting target for this turret, if any.
-  ---@field signal_state defines__signal_state|number @RW; The state of this rail signal.
+  ---@field signal_state defines__signal_state @RW; The state of this rail signal.
   ---@field spawner LuaEntity @RW nilable; The spawner associated with this unit entity, if any.
   ---@field speed float @RW nilable; The current speed if this is a car, rolling stock, projectile or spidertron, or the maximum speed if this is a unit. The speed is in tiles per tick. `nil` if this is not a car, rolling stock, unit, projectile or spidertron. Only the speed of units, cars, and projectiles are writable.
   ---@field speed_bonus double @RW; The speed bonus of this entity.
@@ -1842,7 +1842,7 @@ function LuaElectricEnergySourcePrototype.help() end
   ---@field splitter_input_priority string @RW; The input priority for this splitter. Either `"left"`, `"none"`, or `"right"`.
   ---@field splitter_output_priority string @RW; The output priority for this splitter. Either `"left"`, `"none"`, or `"right"`.
   ---@field stack LuaItemStack @RW
-  ---@field status defines__entity_status|number @RW nilable; The status of this entity, if any.
+  ---@field status defines__entity_status @RW nilable; The status of this entity, if any.
   ---@field sticked_to LuaEntity @RW; The entity this sticker is sticked to.
   ---@field stickers LuaEntity[] @RW nilable; The sticker entities attached to this entity, if any.
   ---@field storage_filter LuaItemPrototype @RW; The storage filter for this logistic storage container.
@@ -1945,7 +1945,7 @@ function LuaEntity.connect_linked_belts(neighbour) end
 function LuaEntity.connect_neighbour(target) end
 
 --- Connects the rolling stock in the given direction.
----@param direction defines__rail_direction|number
+---@param direction defines__rail_direction
 ---@return boolean @Whether any connection was made
 function LuaEntity.connect_rolling_stock(direction) end
 
@@ -1997,12 +1997,12 @@ function LuaEntity.disconnect_linked_belts() end
 --- - To remove all wires of a specific color, set `target` to [defines.wire_type.red](defines.wire_type.red) or [defines.wire_type.green](defines.wire_type.green).
 --- - To remove a specific copper cable between two electric poles, `target` must be a [LuaEntity](LuaEntity) that specifies the other pole: `pole1.disconnect_neighbour(pole2)`.
 --- - To remove a specific circuit wire, `target` must be a table of type [WireConnectionDefinition](WireConnectionDefinition).
----@param target ((defines__wire_type|number) | LuaEntity | WireConnectionDefinition)|nil @The target with which to cut a connection.
+---@param target (defines__wire_type | LuaEntity | WireConnectionDefinition)|nil @The target with which to cut a connection.
 ---@overload fun()
 function LuaEntity.disconnect_neighbour(target) end
 
 --- Tries to disconnect this rolling stock in the given direction.
----@param direction defines__rail_direction|number
+---@param direction defines__rail_direction
 ---@return boolean @If anything was disconnected
 function LuaEntity.disconnect_rolling_stock(direction) end
 
@@ -2022,16 +2022,16 @@ function LuaEntity.get_burnt_result_inventory() end
 ---@return LuaEntity[]
 function LuaEntity.get_child_signals() end
 
----@param wire defines__wire_type|number @Wire color of the network connected to this entity.
----@param circuit_connector (defines__circuit_connector_id|number)|nil @The connector to get circuit network for. Must be specified for entities with more than one circuit network connector.
----@overload fun(wire: defines__wire_type|number): LuaCircuitNetwork
+---@param wire defines__wire_type @Wire color of the network connected to this entity.
+---@param circuit_connector defines__circuit_connector_id|nil @The connector to get circuit network for. Must be specified for entities with more than one circuit network connector.
+---@overload fun(wire: defines__wire_type): LuaCircuitNetwork
 ---@return LuaCircuitNetwork @The circuit network or nil.
 function LuaEntity.get_circuit_network(wire, circuit_connector) end
 
----@param p {rail_direction: defines__rail_direction|number, rail_connection_direction: defines__rail_connection_direction|number}
----@param rail_direction defines__rail_direction|number
----@param rail_connection_direction defines__rail_connection_direction|number
----@return LuaEntity, defines__rail_direction|number, defines__rail_connection_direction|number @Rail connected in the specified manner to this one, `nil` if unsuccessful.; Rail direction of the returned rail which points to origin rail; Turn to be taken when going back from returned rail to origin rail
+---@param p {rail_direction: defines__rail_direction, rail_connection_direction: defines__rail_connection_direction}
+---@param rail_direction defines__rail_direction
+---@param rail_connection_direction defines__rail_connection_direction
+---@return LuaEntity, defines__rail_direction, defines__rail_connection_direction @Rail connected in the specified manner to this one, `nil` if unsuccessful.; Rail direction of the returned rail which points to origin rail; Turn to be taken when going back from returned rail to origin rail
 function LuaEntity.get_connected_rail(p) end
 
 --- Get the rails that this signal is connected to.
@@ -2039,8 +2039,8 @@ function LuaEntity.get_connected_rail(p) end
 function LuaEntity.get_connected_rails() end
 
 --- Gets rolling stock connected to the given end of this stock.
----@param direction defines__rail_direction|number
----@return LuaEntity, defines__rail_direction|number @The rolling stock connected at the given end, `nil` if none is connected there.; The rail direction of the connected rolling stock if any.
+---@param direction defines__rail_direction
+---@return LuaEntity, defines__rail_direction @The rolling stock connected at the given end, `nil` if none is connected there.; The rail direction of the connected rolling stock if any.
 function LuaEntity.get_connected_rolling_stock(direction) end
 
 --- Gets the control behavior of the entity (if any).
@@ -2096,7 +2096,7 @@ function LuaEntity.get_infinity_container_filter(index) end
 function LuaEntity.get_infinity_pipe_filter() end
 
 --- Gets all the `LuaLogisticPoint`s that this entity owns. Optionally returns only the point specified by the index parameter.
----@param index (defines__logistic_member_index|number)|nil @If provided, only returns the `LuaLogisticPoint` specified by this index.
+---@param index defines__logistic_member_index|nil @If provided, only returns the `LuaLogisticPoint` specified by this index.
 ---@overload fun(): LuaLogisticPoint | LuaLogisticPoint[]
 ---@return LuaLogisticPoint | LuaLogisticPoint[]
 function LuaEntity.get_logistic_point(index) end
@@ -2111,13 +2111,13 @@ function LuaEntity.get_max_transport_line_index() end
 
 --- Read a single signal from the combined circuit networks.
 ---@param signal SignalID @The signal to read.
----@param circuit_connector (defines__circuit_connector_id|number)|nil @The connector to get signals for. Must be specified for entities with more than one circuit network connector.
+---@param circuit_connector defines__circuit_connector_id|nil @The connector to get signals for. Must be specified for entities with more than one circuit network connector.
 ---@overload fun(signal: SignalID): int
 ---@return int @The current value of the signal.
 function LuaEntity.get_merged_signal(signal, circuit_connector) end
 
 --- The merged circuit network signals or `nil` if there are no signals.
----@param circuit_connector (defines__circuit_connector_id|number)|nil @The connector to get signals for. Must be specified for entities with more than one circuit network connector.
+---@param circuit_connector defines__circuit_connector_id|nil @The connector to get signals for. Must be specified for entities with more than one circuit network connector.
 ---@overload fun(): Signal[]
 ---@return Signal[] @The sum of signals on both the red and green networks, or `nil` if it doesn't have a circuit connector.
 function LuaEntity.get_merged_signals(circuit_connector) end
@@ -2151,12 +2151,12 @@ function LuaEntity.get_passenger() end
 function LuaEntity.get_radius() end
 
 --- Get the rail at the end of the rail segment this rail is in.
----@param direction defines__rail_direction|number
----@return LuaEntity, defines__rail_direction|number @The rail entity.; A rail direction pointing out of the rail segment from the end rail.
+---@param direction defines__rail_direction
+---@return LuaEntity, defines__rail_direction @The rail entity.; A rail direction pointing out of the rail segment from the end rail.
 function LuaEntity.get_rail_segment_end(direction) end
 
 --- Get the rail signal or train stop at the start/end of the rail segment this rail is in.
----@param direction defines__rail_direction|number @The direction of travel relative to this rail.
+---@param direction defines__rail_direction @The direction of travel relative to this rail.
 ---@param in_else_out boolean @If true, gets the entity at the entrance of the rail segment, otherwise gets the entity at the exit of the rail segment.
 ---@return LuaEntity @`nil` if the rail segment doesn't start/end with a signal nor a train stop.
 function LuaEntity.get_rail_segment_entity(direction, in_else_out) end
@@ -2170,7 +2170,7 @@ function LuaEntity.get_rail_segment_length() end
 function LuaEntity.get_rail_segment_overlaps() end
 
 --- Get all rails of a rail segment this rail is in
----@param direction defines__rail_direction|number @Selects end of this rail that points to a rail segment end from which to start returning rails
+---@param direction defines__rail_direction @Selects end of this rail that points to a rail segment end from which to start returning rails
 ---@return LuaEntity[] @Rails of this rail segment
 function LuaEntity.get_rail_segment_rails(direction) end
 
@@ -2201,7 +2201,7 @@ function LuaEntity.get_train_stop_trains() end
 function LuaEntity.get_transport_line(index) end
 
 --- Returns the new entity direction after upgrading.
----@return defines__direction|number @`nil` if this entity is not marked for upgrade.
+---@return defines__direction @`nil` if this entity is not marked for upgrade.
 function LuaEntity.get_upgrade_direction() end
 
 --- Returns the new entity prototype.
@@ -2299,11 +2299,11 @@ function LuaEntity.mine(p) end
 function LuaEntity.order_deconstruction(force, player) end
 
 --- Sets the entity to be upgraded by construction robots.
----@param p {force: ForceIdentification, target: EntityPrototypeIdentification, player: PlayerIdentification|nil, direction: (defines__direction|number)|nil}
+---@param p {force: ForceIdentification, target: EntityPrototypeIdentification, player: PlayerIdentification|nil, direction: defines__direction|nil}
 ---@param force ForceIdentification @The force whose robots are supposed to do the upgrade.
 ---@param target EntityPrototypeIdentification @The prototype of the entity to upgrade to.
 ---@param player PlayerIdentification|nil
----@param direction (defines__direction|number)|nil @The new direction if any.
+---@param direction defines__direction|nil @The new direction if any.
 ---@return boolean @Whether the entity was marked for upgrade.
 function LuaEntity.order_upgrade(p) end
 
@@ -2679,7 +2679,7 @@ function LuaEntity.update_connections() end
 LuaEntityPrototype = {}
 
 --- Gets the base size of the given inventory on this entity or `nil` if the given inventory doesn't exist.
----@param index defines__inventory|number
+---@param index defines__inventory
 ---@return uint
 function LuaEntityPrototype.get_inventory_size(index) end
 
@@ -2869,10 +2869,10 @@ function LuaFlowStatistics.clear() end
 --- Gets the flow count value for the given time frame. If `sample_index` is not provided, then the value returned is the average across the provided precision time period. These are the values shown in the bottom section of the statistics GUIs.
 --- Use `sample_index` to access the data used to generate the statistics graphs. Each precision level contains 300 samples of data so at a precision of 1 minute, each sample contains data averaged across 60s / 300 = 0.2s = 12 ticks.
 --- All return values are normalized to be per-tick for electric networks and per-minute for all other types.
----@param p {name: string, input: boolean, precision_index: defines__flow_precision_index|number, sample_index: uint16|nil, count: boolean|nil}
+---@param p {name: string, input: boolean, precision_index: defines__flow_precision_index, sample_index: uint16|nil, count: boolean|nil}
 ---@param name string @The prototype name.
 ---@param input boolean @Read the input values or the output values
----@param precision_index defines__flow_precision_index|number @The precision range to read.
+---@param precision_index defines__flow_precision_index @The precision range to read.
 ---@param sample_index uint16|nil @The sample index to read from within the precision range. If not provided, the entire precision range is read. Must be between 1 and 300 where 1 is the most recent sample and 300 is the oldest.
 ---@param count boolean|nil @If true, the count of items/fluids/entities is returned instead of the per-time-frame value.
 ---@return double
@@ -3384,7 +3384,7 @@ function LuaFuelCategoryPrototype.help() end
   ---@field damage_prototypes table<string, LuaDamagePrototype> @RW; A dictionary containing every LuaDamagePrototype indexed by `name`.
   ---@field decorative_prototypes table<string, LuaDecorativePrototype> @RW; A dictionary containing every LuaDecorativePrototype indexed by `name`.
   ---@field default_map_gen_settings MapGenSettings @RW; The default map gen settings for this save.
-  ---@field difficulty defines__difficulty|number @RW; Current scenario difficulty.
+  ---@field difficulty defines__difficulty @RW; Current scenario difficulty.
   ---@field difficulty_settings DifficultySettings @RW; The currently active set of difficulty settings. Even though this property is marked as read-only, the members of the dictionary that is returned can be modified mid-game. This is however not recommended as different difficulties can have differing technology and recipe trees, which can cause problems for players.
   ---@field draw_resource_selection boolean @RW; True by default. Can be used to disable the highlighting of resource patches when they are hovered on the map.
   ---@field enemy_has_vision_on_land_mines boolean @RW; Determines if enemy land mines are completely invisible or not.
@@ -3498,7 +3498,7 @@ function LuaGameScript.decode_string(string) end
 function LuaGameScript.delete_surface(surface) end
 
 --- Converts the given direction into the string version of the direction.
----@param direction defines__direction|number
+---@param direction defines__direction
 function LuaGameScript.direction_to_string(direction) end
 
 --- Disables replay saving for the current save file. Once done there's no way to re-enable replay saving for the save file without loading an old save.
@@ -4091,8 +4091,8 @@ LuaHeatEnergySourcePrototype = {}
 function LuaHeatEnergySourcePrototype.help() end
 
 ---@class LuaInserterControlBehavior: LuaGenericOnOffControlBehavior @Control behavior for inserters.
-  ---@field circuit_hand_read_mode defines__control_behavior__inserter__hand_read_mode|number @RW; The hand read mode for the inserter.
-  ---@field circuit_mode_of_operation defines__control_behavior__inserter__circuit_mode_of_operation|number @RW; The circuit mode of operations for the inserter.
+  ---@field circuit_hand_read_mode defines__control_behavior__inserter__hand_read_mode @RW; The hand read mode for the inserter.
+  ---@field circuit_mode_of_operation defines__control_behavior__inserter__circuit_mode_of_operation @RW; The circuit mode of operations for the inserter.
   ---@field circuit_read_hand_contents boolean @RW; `true` if the contents of the inserter hand should be sent to the circuit network
   ---@field circuit_set_stack_size boolean @RW; If the stack size of the inserter is set through the circuit network or not.
   ---@field circuit_stack_control_signal SignalID @RW; The signal used to set the stack size of the inserter.
@@ -4107,7 +4107,7 @@ function LuaInserterControlBehavior.help() end
 ---@class LuaInventory: any @A storage of item stacks.
   ---@field entity_owner LuaEntity @RW nilable; The entity that owns this inventory, if any.
   ---@field equipment_owner LuaEquipment @RW nilable; The equipment that owns this inventory, if any.
-  ---@field index defines__inventory|number @RW nilable; The inventory index this inventory uses, if any.
+  ---@field index defines__inventory @RW nilable; The inventory index this inventory uses, if any.
   ---@field mod_owner string @RW nilable; The mod that owns this inventory, if any.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field player_owner LuaPlayer @RW nilable; The player that owns this inventory, if any.
@@ -4334,7 +4334,7 @@ function LuaItemPrototype.help() end
   ---@field default_icons BlueprintItemIcon[] @RW; The default icons for a blueprint item.
   ---@field durability double @RW nilable; Durability of the contained item. Automatically capped at the item's maximum durability.
   ---@field entity_filter_count uint @RW; The number of entity filters this deconstruction item supports.
-  ---@field entity_filter_mode defines__deconstruction_item__entity_filter_mode|number @RW; The blacklist/whitelist entity filter mode for this deconstruction item.
+  ---@field entity_filter_mode defines__deconstruction_item__entity_filter_mode @RW; The blacklist/whitelist entity filter mode for this deconstruction item.
   ---@field entity_filters string[] @RW; The entity filters for this deconstruction item. The attribute is a sparse array with the keys representing the index of the filter. All strings in this array must be entity prototype names that don't have the `"not-deconstructable"` flag set and are either a `cliff` or marked as `minable`.
   ---@field extends_inventory boolean @RW; If this item extends the inventory it resides in (provides its contents for counts, crafting, insertion). Only callable on items with inventories.
   ---@field grid LuaEquipmentGrid @RW nilable; The equipment grid of this item, if any.
@@ -4362,9 +4362,9 @@ function LuaItemPrototype.help() end
   ---@field prototype LuaItemPrototype @RW; Prototype of the item held in this stack.
   ---@field tags Tags @RW
   ---@field tile_filter_count uint @RW; The number of tile filters this deconstruction item supports.
-  ---@field tile_filter_mode defines__deconstruction_item__tile_filter_mode|number @RW; The blacklist/whitelist tile filter mode for this deconstruction item.
+  ---@field tile_filter_mode defines__deconstruction_item__tile_filter_mode @RW; The blacklist/whitelist tile filter mode for this deconstruction item.
   ---@field tile_filters string[] @RW; The tile filters for this deconstruction item. The attribute is a sparse array with the keys representing the index of the filter. All strings in this array must be tile prototype names.
-  ---@field tile_selection_mode defines__deconstruction_item__tile_selection_mode|number @RW; The tile selection mode for this deconstruction item.
+  ---@field tile_selection_mode defines__deconstruction_item__tile_selection_mode @RW; The tile selection mode for this deconstruction item.
   ---@field trees_and_rocks_only boolean @RW; If this deconstruction item is set to allow trees and rocks only.
   ---@field type string @RW; Type of the item prototype.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
@@ -4379,12 +4379,12 @@ function LuaItemStack.add_ammo(amount) end
 ---@param amount double @Amount of durability to add.
 function LuaItemStack.add_durability(amount) end
 
----@param p {surface: SurfaceIdentification, force: ForceIdentification, position: MapPosition, force_build: boolean|nil, direction: (defines__direction|number)|nil, skip_fog_of_war: boolean|nil, by_player: PlayerIdentification|nil, raise_built: boolean|nil}
+---@param p {surface: SurfaceIdentification, force: ForceIdentification, position: MapPosition, force_build: boolean|nil, direction: defines__direction|nil, skip_fog_of_war: boolean|nil, by_player: PlayerIdentification|nil, raise_built: boolean|nil}
 ---@param surface SurfaceIdentification @Surface to build on
 ---@param force ForceIdentification @Force to use for the building
 ---@param position MapPosition @The position to build at
 ---@param force_build boolean|nil @When true, anything that can be built is else nothing is built if any one thing can't be built
----@param direction (defines__direction|number)|nil @The direction to use when building
+---@param direction defines__direction|nil @The direction to use when building
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
 ---@param by_player PlayerIdentification|nil @The player to use if any. If provided [defines.events.on_built_entity](defines.events.on_built_entity) will also be fired on successful entity creation.
 ---@param raise_built boolean|nil @If true; [defines.events.script_raised_built](defines.events.script_raised_built) will be fired on successful entity creation. Note: this is ignored if by_player is provided.
@@ -4486,7 +4486,7 @@ function LuaItemStack.get_blueprint_tiles() end
 function LuaItemStack.get_entity_filter(index) end
 
 --- Access the inner inventory of an item.
----@param inventory defines__inventory|number @Index of the inventory to access, which can only be [defines.inventory.item_main](defines.inventory.item_main).
+---@param inventory defines__inventory @Index of the inventory to access, which can only be [defines.inventory.item_main](defines.inventory.item_main).
 ---@return LuaInventory @`nil` if there is no inventory with the given index.
 function LuaItemStack.get_inventory(inventory) end
 
@@ -4646,7 +4646,7 @@ function LuaLogisticCell.is_in_logistic_range(position) end
 function LuaLogisticCell.is_neighbour_with(other) end
 
 ---@class LuaLogisticContainerControlBehavior: LuaControlBehavior @Control behavior for logistic chests.
-  ---@field circuit_mode_of_operation defines__control_behavior__logistic_container__circuit_mode_of_operation|number @RW; The circuit mode of operations for the logistic container.
+  ---@field circuit_mode_of_operation defines__control_behavior__logistic_container__circuit_mode_of_operation @RW; The circuit mode of operations for the logistic container.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaLogisticContainerControlBehavior = {}
@@ -4757,7 +4757,7 @@ function LuaLogisticNetwork.select_pickup_point(p) end
   ---@field force LuaForce @RW; The force of this logistic point.
   ---@field logistic_member_index uint @RW; The Logistic member index of this logistic point.
   ---@field logistic_network LuaLogisticNetwork @RW
-  ---@field mode defines__logistic_mode|number @RW; The logistic mode.
+  ---@field mode defines__logistic_mode @RW; The logistic mode.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field owner LuaEntity @RW; The [LuaEntity](LuaEntity) owner of this [LuaLogisticPoint](LuaLogisticPoint).
   ---@field targeted_items_deliver table<string, uint> @RW; Items targeted to be dropped off into this logistic point by robots. The attribute is a dictionary mapping the item prototype names to their item counts.
@@ -4773,7 +4773,7 @@ function LuaLogisticPoint.help() end
   ---@field circuit_enable_disable boolean @RW; `true` if this drill is enabled or disabled using the logistics or circuit condition.
   ---@field circuit_read_resources boolean @RW; `true` if this drill should send the resources in the field to the circuit network. Which resources depends on [LuaMiningDrillControlBehavior::resource_read_mode](LuaMiningDrillControlBehavior::resource_read_mode)
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
-  ---@field resource_read_mode defines__control_behavior__mining_drill__resource_read_mode|number @RW; If the mining drill should send just the resources in its area or the entire field it's on to the circuit network.
+  ---@field resource_read_mode defines__control_behavior__mining_drill__resource_read_mode @RW; If the mining drill should send just the resources in its area or the entire field it's on to the circuit network.
   ---@field resource_read_targets LuaEntity[] @RW; The resource entities that the mining drill will send information about to the circuit network or an empty array.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaMiningDrillControlBehavior = {}
@@ -4881,7 +4881,7 @@ LuaPermissionGroup = {}
 function LuaPermissionGroup.add_player(player) end
 
 --- Whether this group allows the given action.
----@param action defines__input_action|number @The action in question.
+---@param action defines__input_action @The action in question.
 ---@return boolean
 function LuaPermissionGroup.allows_action(action) end
 
@@ -4899,7 +4899,7 @@ function LuaPermissionGroup.help() end
 function LuaPermissionGroup.remove_player(player) end
 
 --- Sets whether this group allows the performance the given action.
----@param action defines__input_action|number @The action in question.
+---@param action defines__input_action @The action in question.
 ---@param allow_action boolean @Whether to allow the specified action.
 ---@return boolean @Whether the value was successfully applied.
 function LuaPermissionGroup.set_allows_action(action, allow_action) end
@@ -4934,7 +4934,7 @@ function LuaPermissionGroups.help() end
   ---@field chat_color Color @RW; The color used when this player talks in game.
   ---@field color Color @RW; The color associated with the player. This will be used to tint the player's character as well as their buildings and vehicles.
   ---@field connected boolean @RW; `true` if the player is currently connected to the game.
-  ---@field controller_type defines__controllers|number @RW
+  ---@field controller_type defines__controllers @RW
   ---@field cutscene_character LuaEntity @RW nilable; When in a cutscene; the character this player would be using once the cutscene is over, if any. Returns `nil` when the player is disconnected (see [LuaPlayer::connected](LuaPlayer::connected)).
   ---@field display_resolution DisplayResolution @RW; The display resolution for this player.
   ---@field display_scale double @RW; The display scale for this player.
@@ -4954,10 +4954,10 @@ function LuaPermissionGroups.help() end
   ---@field opened_self boolean @RW; `true` if the player opened itself. I.e. if they opened the character or god-controller GUI.
   ---@field permission_group LuaPermissionGroup @RW nilable; The permission group this player is part of, if any.
   ---@field remove_unfiltered_items boolean @RW; If items not included in this map editor infinity inventory filters should be removed.
-  ---@field render_mode defines__render_mode|number @RW; The render mode of the player, like map or zoom to world. The render mode can be set using [LuaPlayer::open_map](LuaPlayer::open_map), [LuaPlayer::zoom_to_world](LuaPlayer::zoom_to_world) and [LuaPlayer::close_map](LuaPlayer::close_map).
+  ---@field render_mode defines__render_mode @RW; The render mode of the player, like map or zoom to world. The render mode can be set using [LuaPlayer::open_map](LuaPlayer::open_map), [LuaPlayer::zoom_to_world](LuaPlayer::zoom_to_world) and [LuaPlayer::close_map](LuaPlayer::close_map).
   ---@field show_on_map boolean @RW; If `true`, circle and name of given player is rendered on the map/chart.
   ---@field spectator boolean @RW; If `true`, zoom-to-world noise effect will be disabled and environmental sounds will be based on zoom-to-world view instead of position of player's character.
-  ---@field stashed_controller_type defines__controllers|number @RW nilable; The stashed controller type, if any.
+  ---@field stashed_controller_type defines__controllers @RW nilable; The stashed controller type, if any.
   ---@field tag string @RW; The tag that is shown after the player in chat and on the map.
   ---@field ticks_to_respawn uint @RW nilable; The number of ticks until this player will respawn. `nil` if this player is not waiting to respawn. Set to `nil` to immediately respawn the player.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
@@ -4969,7 +4969,7 @@ function LuaPlayer.activate_paste() end
 
 --- Adds an alert to this player for the given entity of the given alert type.
 ---@param entity LuaEntity
----@param type defines__alert_type|number
+---@param type defines__alert_type
 function LuaPlayer.add_alert(entity, type) end
 
 --- Adds a custom alert to this player.
@@ -4992,18 +4992,18 @@ function LuaPlayer.add_to_clipboard(blueprint) end
 function LuaPlayer.associate_character(character) end
 
 --- Builds what ever is in the cursor on the surface the player is on.
----@param p {position: MapPosition, direction: (defines__direction|number)|nil, alt: boolean|nil, terrain_building_size: uint|nil, skip_fog_of_war: boolean|nil}
+---@param p {position: MapPosition, direction: defines__direction|nil, alt: boolean|nil, terrain_building_size: uint|nil, skip_fog_of_war: boolean|nil}
 ---@param position MapPosition @Where the entity would be placed
----@param direction (defines__direction|number)|nil @Direction the entity would be placed
+---@param direction defines__direction|nil @Direction the entity would be placed
 ---@param alt boolean|nil @If alt build should be used instead of normal build. Defaults to normal.
 ---@param terrain_building_size uint|nil @The size for building terrain if building terrain. Defaults to 2.
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
 function LuaPlayer.build_from_cursor(p) end
 
 --- Checks if this player can build what ever is in the cursor on the surface the player is on.
----@param p {position: MapPosition, direction: (defines__direction|number)|nil, alt: boolean|nil, terrain_building_size: uint|nil, skip_fog_of_war: boolean|nil}
+---@param p {position: MapPosition, direction: defines__direction|nil, alt: boolean|nil, terrain_building_size: uint|nil, skip_fog_of_war: boolean|nil}
 ---@param position MapPosition @Where the entity would be placed
----@param direction (defines__direction|number)|nil @Direction the entity would be placed
+---@param direction defines__direction|nil @Direction the entity would be placed
 ---@param alt boolean|nil @If alt build should be used instead of normal build. Defaults to normal.
 ---@param terrain_building_size uint|nil @The size for building terrain if building terrain. Defaults to 2.
 ---@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
@@ -5011,10 +5011,10 @@ function LuaPlayer.build_from_cursor(p) end
 function LuaPlayer.can_build_from_cursor(p) end
 
 --- Checks if this player can build the give entity at the given location on the surface the player is on.
----@param p {name: string, position: MapPosition, direction: (defines__direction|number)|nil}
+---@param p {name: string, position: MapPosition, direction: defines__direction|nil}
 ---@param name string @Name of the entity to check
 ---@param position MapPosition @Where the entity would be placed
----@param direction (defines__direction|number)|nil @Direction the entity would be placed
+---@param direction defines__direction|nil @Direction the entity would be placed
 ---@return boolean
 function LuaPlayer.can_place_entity(p) end
 
@@ -5059,7 +5059,7 @@ function LuaPlayer.create_character(character) end
 function LuaPlayer.create_local_flying_text(p) end
 
 --- Disables alerts for the given alert category.
----@param alert_type defines__alert_type|number
+---@param alert_type defines__alert_type
 ---@return boolean @Whether the alert type was disabled (false if it was already disabled).
 function LuaPlayer.disable_alert(alert_type) end
 
@@ -5080,7 +5080,7 @@ function LuaPlayer.disassociate_character(character) end
 function LuaPlayer.drag_wire(p) end
 
 --- Enables alerts for the given alert category.
----@param alert_type defines__alert_type|number
+---@param alert_type defines__alert_type
 ---@return boolean @Whether the alert type was enabled (false if it was already enabled).
 function LuaPlayer.enable_alert(alert_type) end
 
@@ -5099,13 +5099,13 @@ function LuaPlayer.exit_cutscene() end
 function LuaPlayer.get_active_quick_bar_page(index) end
 
 --- Get all alerts matching the given filters, or all alerts if no filters are given.
----@param p {entity: LuaEntity|nil, prototype: LuaEntityPrototype|nil, position: MapPosition|nil, type: (defines__alert_type|number)|nil, surface: SurfaceIdentification|nil}
+---@param p {entity: LuaEntity|nil, prototype: LuaEntityPrototype|nil, position: MapPosition|nil, type: defines__alert_type|nil, surface: SurfaceIdentification|nil}
 ---@param entity LuaEntity|nil
 ---@param prototype LuaEntityPrototype|nil
 ---@param position MapPosition|nil
----@param type (defines__alert_type|number)|nil
+---@param type defines__alert_type|nil
 ---@param surface SurfaceIdentification|nil
----@return table<uint, table<defines__alert_type|number, Alert[]>> @A mapping of surface index to an array of arrays of [alerts](Alert) indexed by the [alert type](defines.alert_type).
+---@return table<uint, table<defines__alert_type, Alert[]>> @A mapping of surface index to an array of arrays of [alerts](Alert) indexed by the [alert type](defines.alert_type).
 function LuaPlayer.get_alerts(p) end
 
 --- The characters associated with this player.
@@ -5131,12 +5131,12 @@ function LuaPlayer.get_quick_bar_slot(index) end
 function LuaPlayer.help() end
 
 --- If the given alert type is currently enabled.
----@param alert_type defines__alert_type|number
+---@param alert_type defines__alert_type
 ---@return boolean
 function LuaPlayer.is_alert_enabled(alert_type) end
 
 --- If the given alert type is currently muted.
----@param alert_type defines__alert_type|number
+---@param alert_type defines__alert_type
 ---@return boolean
 function LuaPlayer.is_alert_muted(alert_type) end
 
@@ -5161,7 +5161,7 @@ function LuaPlayer.log_active_entity_chunk_counts() end
 function LuaPlayer.log_active_entity_counts() end
 
 --- Mutes alerts for the given alert category.
----@param alert_type defines__alert_type|number
+---@param alert_type defines__alert_type
 ---@return boolean @Whether the alert type was muted (false if it was already muted).
 function LuaPlayer.mute_alert(alert_type) end
 
@@ -5202,11 +5202,11 @@ function LuaPlayer.print_lua_object_statistics() end
 function LuaPlayer.print_robot_jobs() end
 
 --- Removes all alerts matching the given filters or if an empty filters table is given all alerts are removed.
----@param p {entity: LuaEntity|nil, prototype: (LuaEntityPrototype | string)|nil, position: MapPosition|nil, type: (defines__alert_type|number)|nil, surface: SurfaceIdentification|nil, icon: SignalID|nil, message: LocalisedString|nil}
+---@param p {entity: LuaEntity|nil, prototype: (LuaEntityPrototype | string)|nil, position: MapPosition|nil, type: defines__alert_type|nil, surface: SurfaceIdentification|nil, icon: SignalID|nil, message: LocalisedString|nil}
 ---@param entity LuaEntity|nil
 ---@param prototype (LuaEntityPrototype | string)|nil
 ---@param position MapPosition|nil
----@param type (defines__alert_type|number)|nil
+---@param type defines__alert_type|nil
 ---@param surface SurfaceIdentification|nil
 ---@param icon SignalID|nil
 ---@param message LocalisedString|nil
@@ -5223,8 +5223,8 @@ function LuaPlayer.request_translation(localised_string) end
 function LuaPlayer.set_active_quick_bar_page(screen_index, page_index) end
 
 --- Set the controller type of the player.
----@param p {type: defines__controllers|number, character: LuaEntity|nil, waypoints: CutsceneWaypoint|nil, start_position: MapPosition|nil, start_zoom: double|nil, final_transition_time: uint|nil, chart_mode_cutoff: double|nil}
----@param type defines__controllers|number @Which controller to use.
+---@param p {type: defines__controllers, character: LuaEntity|nil, waypoints: CutsceneWaypoint|nil, start_position: MapPosition|nil, start_zoom: double|nil, final_transition_time: uint|nil, chart_mode_cutoff: double|nil}
+---@param type defines__controllers @Which controller to use.
 ---@param character LuaEntity|nil @Entity to control. Mandatory when `type` is [defines.controllers.character](defines.controllers.character), ignored otherwise.
 ---@param waypoints CutsceneWaypoint|nil @List of waypoints for the cutscene controller. This parameter is mandatory when `type` is [defines.controllers.cutscene](defines.controllers.cutscene).
 ---@param start_position MapPosition|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the cutscene will start at this position. If not given the start position will be the player position.
@@ -5279,7 +5279,7 @@ function LuaPlayer.toggle_map_editor() end
 function LuaPlayer.unlock_achievement(name) end
 
 --- Unmutes alerts for the given alert category.
----@param alert_type defines__alert_type|number
+---@param alert_type defines__alert_type
 ---@return boolean @Whether the alert type was unmuted (false if it was wasn't muted).
 function LuaPlayer.unmute_alert(alert_type) end
 
@@ -6267,7 +6267,7 @@ function LuaStorageTankControlBehavior.help() end
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field padding int | int[] @Sets top/right/bottom/left paddings to this value. An array with two values sets top/bottom padding to the first value and left/right padding to the second value. An array with four values sets top, right, bottom, left padding respectively.
   ---@field pie_progress_color Color @RW
-  ---@field rich_text_setting defines__rich_text_setting|number @RW; How this GUI element handles rich text.
+  ---@field rich_text_setting defines__rich_text_setting @RW; How this GUI element handles rich text.
   ---@field right_cell_padding int @RW; Space between the table cell contents right and border.
   ---@field right_margin int @RW
   ---@field right_padding int @RW
@@ -6348,21 +6348,21 @@ function LuaSurface.build_enemy_base(position, unit_count, force) end
 function LuaSurface.calculate_tile_properties(property_names, positions) end
 
 --- If there exists an entity at the given location that can be fast-replaced with the given entity parameters.
----@param p {name: string, position: MapPosition, direction: (defines__direction|number)|nil, force: ForceIdentification|nil}
+---@param p {name: string, position: MapPosition, direction: defines__direction|nil, force: ForceIdentification|nil}
 ---@param name string @Name of the entity to check
 ---@param position MapPosition @Where the entity would be placed
----@param direction (defines__direction|number)|nil @Direction the entity would be placed
+---@param direction defines__direction|nil @Direction the entity would be placed
 ---@param force ForceIdentification|nil @The force that would place the entity. If not specified, the enemy force is assumed.
 ---@return boolean
 function LuaSurface.can_fast_replace(p) end
 
 --- Check for collisions with terrain or other entities.
----@param p {name: string, position: MapPosition, direction: (defines__direction|number)|nil, force: ForceIdentification|nil, build_check_type: (defines__build_check_type|number)|nil, forced: boolean|nil, inner_name: string|nil}
+---@param p {name: string, position: MapPosition, direction: defines__direction|nil, force: ForceIdentification|nil, build_check_type: defines__build_check_type|nil, forced: boolean|nil, inner_name: string|nil}
 ---@param name string @Name of the entity prototype to check.
 ---@param position MapPosition @Where the entity would be placed.
----@param direction (defines__direction|number)|nil @Direction of the placed entity.
+---@param direction defines__direction|nil @Direction of the placed entity.
 ---@param force ForceIdentification|nil @The force that would place the entity. If not specified, the enemy force is assumed.
----@param build_check_type (defines__build_check_type|number)|nil @Which type of check should be carried out.
+---@param build_check_type defines__build_check_type|nil @Which type of check should be carried out.
 ---@param forced boolean|nil @If `true`, entities that can be marked for deconstruction are ignored. Only used if `build_check_type` is either `manual_ghost`, `script_ghost` or `blueprint_ghost`.
 ---@param inner_name string|nil @The prototype name of the entity contained in the ghost. Only used if `name` is `entity-ghost`.
 ---@return boolean
@@ -6438,7 +6438,7 @@ function LuaSurface.clone_entities(p) end
 
 --- Count entities of given type or name in a given area. Works just like [LuaSurface::find_entities_filtered](LuaSurface::find_entities_filtered), except this only returns the count. As it doesn't construct all the wrapper objects, this is more efficient if one is only interested in the number of entities.
 --- If no `area` or `position` are given, the entire surface is searched. If `position` is given, this returns the entities colliding with that position (i.e the given position is within the entity's collision box). If `position` and `radius` are given, this returns entities in the radius of the position. If `area` is specified, this returns entities colliding with that area.
----@param p {area: BoundingBox|nil, position: MapPosition|nil, radius: double|nil, name: (string | string[])|nil, type: (string | string[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil, limit: uint|nil, is_military_target: boolean|nil, invert: boolean|nil}
+---@param p {area: BoundingBox|nil, position: MapPosition|nil, radius: double|nil, name: (string | string[])|nil, type: (string | string[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, direction: (defines__direction | defines__direction[])|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil, limit: uint|nil, is_military_target: boolean|nil, invert: boolean|nil}
 ---@param area BoundingBox|nil
 ---@param position MapPosition|nil
 ---@param radius double|nil @If given with position, will count all entities within the radius of the position.
@@ -6446,7 +6446,7 @@ function LuaSurface.clone_entities(p) end
 ---@param type (string | string[])|nil
 ---@param ghost_name (string | string[])|nil
 ---@param ghost_type (string | string[])|nil
----@param direction ((defines__direction|number) | ((defines__direction|number)[]))|nil
+---@param direction (defines__direction | defines__direction[])|nil
 ---@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
 ---@param force (ForceIdentification | ForceIdentification[])|nil
 ---@param to_be_deconstructed boolean|nil
@@ -6481,10 +6481,10 @@ function LuaSurface.count_tiles_filtered(p) end
 function LuaSurface.create_decoratives(p) end
 
 --- Create an entity on this surface.
----@param p {name: string, position: MapPosition, direction: (defines__direction|number)|nil, force: ForceIdentification|nil, target: (LuaEntity | MapPosition)|nil, source: (LuaEntity | MapPosition)|nil, fast_replace: boolean|nil, player: PlayerIdentification|nil, spill: boolean|nil, raise_built: boolean|nil, create_build_effect_smoke: boolean|nil, spawn_decorations: boolean|nil, move_stuck_players: boolean|nil, item: LuaItemStack|nil}
+---@param p {name: string, position: MapPosition, direction: defines__direction|nil, force: ForceIdentification|nil, target: (LuaEntity | MapPosition)|nil, source: (LuaEntity | MapPosition)|nil, fast_replace: boolean|nil, player: PlayerIdentification|nil, spill: boolean|nil, raise_built: boolean|nil, create_build_effect_smoke: boolean|nil, spawn_decorations: boolean|nil, move_stuck_players: boolean|nil, item: LuaItemStack|nil}
 ---@param name string @The entity prototype name to create.
 ---@param position MapPosition @Where to create the entity.
----@param direction (defines__direction|number)|nil @Desired orientation of the entity after creation.
+---@param direction defines__direction|nil @Desired orientation of the entity after creation.
 ---@param force ForceIdentification|nil @Force of the entity, default is enemy.
 ---@param target (LuaEntity | MapPosition)|nil @Entity with health for the new entity to target.
 ---@param source (LuaEntity | MapPosition)|nil @Source entity. Used for beams and highlight-boxes.
@@ -6563,7 +6563,7 @@ function LuaSurface.edit_script_position(id, area) end
 ---@param prototype EntityPrototypeIdentification @The entity prototype to check
 ---@param position MapPosition @The position to check
 ---@param use_map_generation_bounding_box boolean @If the map generation bounding box should be used instead of the collision bounding box
----@param direction (defines__direction|number)|nil
+---@param direction defines__direction|nil
 ---@overload fun(prototype: EntityPrototypeIdentification, position: MapPosition, use_map_generation_bounding_box: boolean)
 function LuaSurface.entity_prototype_collides(prototype, position, use_map_generation_bounding_box, direction) end
 
@@ -6603,7 +6603,7 @@ function LuaSurface.find_entities(area) end
 --- - If `position` is given, this returns the entities colliding with that position (i.e the given position is within the entity's collision box).
 --- - If `position` and `radius` are given, this returns the entities within the radius of the position. Looks for the center of entities.
 --- - If `area` is specified, this returns the entities colliding with that area.
----@param p {area: BoundingBox|nil, position: MapPosition|nil, radius: double|nil, name: (string | string[])|nil, type: (string | string[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, direction: ((defines__direction|number) | ((defines__direction|number)[]))|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil, limit: uint|nil, is_military_target: boolean|nil, invert: boolean|nil}
+---@param p {area: BoundingBox|nil, position: MapPosition|nil, radius: double|nil, name: (string | string[])|nil, type: (string | string[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, direction: (defines__direction | defines__direction[])|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil, limit: uint|nil, is_military_target: boolean|nil, invert: boolean|nil}
 ---@param area BoundingBox|nil
 ---@param position MapPosition|nil @Has precedence over area field.
 ---@param radius double|nil
@@ -6611,7 +6611,7 @@ function LuaSurface.find_entities(area) end
 ---@param type (string | string[])|nil
 ---@param ghost_name (string | string[])|nil
 ---@param ghost_type (string | string[])|nil
----@param direction ((defines__direction|number) | ((defines__direction|number)[]))|nil
+---@param direction (defines__direction | defines__direction[])|nil
 ---@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
 ---@param force (ForceIdentification | ForceIdentification[])|nil
 ---@param to_be_deconstructed boolean|nil
@@ -6874,7 +6874,7 @@ function LuaSurface.request_to_generate_chunks(position, radius) end
 
 --- Set generated status of a chunk. Useful when copying chunks.
 ---@param position ChunkPosition @The chunk's position.
----@param status defines__chunk_generated_status|number @The chunk's new status.
+---@param status defines__chunk_generated_status @The chunk's new status.
 function LuaSurface.set_chunk_generated_status(position, status) end
 
 --- Set the hidden tile for the specified position. While during normal gameplay only [non-mineable](LuaTilePrototype::mineable_properties) tiles can become hidden, this method allows any kind of tile to be set as the hidden one.
@@ -7081,13 +7081,13 @@ function LuaTilePrototype.help() end
   ---@field path LuaRailPath @RW nilable; The path this train is using, if any.
   ---@field path_end_rail LuaEntity @RW nilable; The destination rail this train is currently pathing to, if any.
   ---@field path_end_stop LuaEntity @RW nilable; The destination train stop this train is currently pathing to, if any.
-  ---@field rail_direction_from_back_rail defines__rail_direction|number @RW
-  ---@field rail_direction_from_front_rail defines__rail_direction|number @RW
+  ---@field rail_direction_from_back_rail defines__rail_direction @RW
+  ---@field rail_direction_from_front_rail defines__rail_direction @RW
   ---@field riding_state RidingState @RW; The riding state of this train.
   ---@field schedule TrainSchedule @RW nilable; This train's current schedule, if any. Set to `nil` to clear.
   ---@field signal LuaEntity @RW nilable; The signal this train is arriving or waiting at, if any.
   ---@field speed double @RW; Current speed.
-  ---@field state defines__train_state|number @RW; This train's current state.
+  ---@field state defines__train_state @RW; This train's current state.
   ---@field station LuaEntity @RW nilable; The train stop this train is stopped at, if any.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
   ---@field weight double @RW; The weight of this train.
@@ -7178,7 +7178,7 @@ function LuaTrainStopControlBehavior.help() end
   ---@field enable_disable boolean @RW; If the belt will be enabled/disabled based off the circuit network.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field read_contents boolean @RW; If the belt will read the contents and send them to the circuit network.
-  ---@field read_contents_mode defines__control_behavior__transport_belt__content_read_mode|number @RW; The read mode for the belt.
+  ---@field read_contents_mode defines__control_behavior__transport_belt__content_read_mode @RW; The read mode for the belt.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaTransportBeltControlBehavior = {}
 
@@ -7277,7 +7277,7 @@ function LuaTrivialSmokePrototype.help() end
   ---@field members LuaEntity[] @RW; Members of this group.
   ---@field object_name string @RW; The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
   ---@field position MapPosition @RW; Group position. This can have different meanings depending on the group state. When the group is gathering, the position is the place of gathering. When the group is moving, the position is the expected position of its members along the path. When the group is attacking, it is the average position of its members.
-  ---@field state defines__group_state|number @RW; Whether this group is gathering, moving or attacking.
+  ---@field state defines__group_state @RW; Whether this group is gathering, moving or attacking.
   ---@field surface LuaSurface @RW; The surface of this unit group.
   ---@field valid boolean @RW; Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 LuaUnitGroup = {}
@@ -7353,14 +7353,14 @@ function LuaWallControlBehavior.help() end
 ---@class CustomInputEvent: EventData @Called when a [CustomInput](https://wiki.factorio.com/Prototype/CustomInput) is activated.
   ---@field cursor_position MapPosition @The mouse cursor position when the custom input was activated.
   ---@field input_name string @The prototype name of the custom input that was activated.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player that activated the custom input.
   ---@field selected_prototype SelectedPrototypeData @nilable; Information about the prototype that is selected when the custom input is used. Needs to be enabled on the custom input's prototype. `nil` if none is selected.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnAiCommandCompleted: EventData @Called when a unit/group completes a command.
-  ---@field name defines__events|number @Identifier of the event
-  ---@field result defines__behavior_result|number
+  ---@field name defines__events @Identifier of the event
+  ---@field result defines__behavior_result
   ---@field tick uint @Tick the event was generated.
   ---@field unit_number uint @unit_number/group_number of the unit/group which just completed a command.
   ---@field was_distracted boolean @Was this command generated by a distraction.
@@ -7374,14 +7374,14 @@ function LuaWallControlBehavior.help() end
   ---@field destination_area BoundingBox
   ---@field destination_force LuaForce @nilable
   ---@field destination_surface LuaSurface
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field source_area BoundingBox
   ---@field source_surface LuaSurface
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnBiterBaseBuilt: EventData @Called when a biter migration builds a base.
   ---@field entity LuaEntity @The entity that was built.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnBrushCloned: EventData @Called when a set of positions on the map is cloned.
@@ -7393,7 +7393,7 @@ function LuaWallControlBehavior.help() end
   ---@field destination_force LuaForce @nilable
   ---@field destination_offset TilePosition
   ---@field destination_surface LuaSurface
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field source_offset TilePosition
   ---@field source_positions TilePosition[]
   ---@field source_surface LuaSurface
@@ -7401,14 +7401,14 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnBuildBaseArrived: EventData @Called when a [defines.command.build_base](defines.command.build_base) command reaches its destination, and before building starts.
   ---@field group LuaUnitGroup @nilable; The unit group the command was assigned to.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
   ---@field unit LuaEntity @nilable; The unit the command was assigned to.
 
 ---@class OnBuiltEntity: EventData @Called when player builds something. Can be filtered using [LuaPlayerBuiltEntityEventFilter](LuaPlayerBuiltEntityEventFilter).
   ---@field created_entity LuaEntity
   ---@field item LuaItemPrototype @nilable; The item prototype used to build the entity. Note this won't exist in some situations (built from blueprint, undo, etc).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field stack LuaItemStack
   ---@field tags Tags @nilable; The tags associated with this entity if any.
@@ -7416,33 +7416,33 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnCancelledDeconstruction: EventData @Called when the deconstruction of an entity is canceled. Can be filtered using [LuaEntityDeconstructionCancelledEventFilter](LuaEntityDeconstructionCancelledEventFilter).
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnCancelledUpgrade: EventData @Called when the upgrade of an entity is canceled. Can be filtered using [LuaUpgradeCancelledEventFilter](LuaUpgradeCancelledEventFilter).
-  ---@field direction defines__direction|number @nilable
+  ---@field direction defines__direction @nilable
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable
   ---@field target LuaEntityPrototype
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnCharacterCorpseExpired: EventData @Called when a character corpse expires due to timeout or all of the items being removed from it.
   ---@field corpse LuaEntity @The corpse.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnChartTagAdded: EventData @Called when a chart tag is created.
   ---@field force LuaForce
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable
   ---@field tag LuaCustomChartTag
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnChartTagModified: EventData @Called when a chart tag is modified by a player.
   ---@field force LuaForce
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field old_icon SignalID @nilable
   ---@field old_player uint @nilable
   ---@field old_text string
@@ -7452,7 +7452,7 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnChartTagRemoved: EventData @Called just before a chart tag is deleted.
   ---@field force LuaForce
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable
   ---@field tag LuaCustomChartTag
   ---@field tick uint @Tick the event was generated.
@@ -7460,63 +7460,63 @@ function LuaWallControlBehavior.help() end
 ---@class OnChunkCharted: EventData @Called when a chunk is charted or re-charted.
   ---@field area BoundingBox @Area of the chunk.
   ---@field force LuaForce
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field position ChunkPosition
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnChunkDeleted: EventData @Called when one or more chunks are deleted using [LuaSurface::delete_chunk](LuaSurface::delete_chunk).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field positions ChunkPosition[] @The chunks deleted.
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnChunkGenerated: EventData @Called when a chunk is generated.
   ---@field area BoundingBox @Area of the chunk.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field position ChunkPosition @Position of the chunk.
   ---@field surface LuaSurface @The surface the chunk is on.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnCombatRobotExpired: EventData @Called when a combat robot expires through a lack of energy, or timeout.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field owner LuaEntity @nilable; The entity that owns the robot if any.
   ---@field robot LuaEntity
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnConsoleChat: EventData @Called when a message is sent to the in-game console, either by a player or through the server interface.
   ---@field message string @The chat message that was sent.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player doing the chatting, if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnConsoleCommand: EventData @Called when someone enters a command-like message regardless of it being a valid command.
   ---@field command string @The command as typed without the preceding forward slash ('/').
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field parameters string @The parameters provided if any.
   ---@field player_index uint @nilable; The player if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnCutsceneCancelled: EventData @Called when a cutscene is cancelled by the player or by script.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player the cutscene was shown to.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnCutsceneWaypointReached: EventData @Called when a cutscene is playing, each time it reaches a waypoint in that cutscene. This refers to an index in the table previously passed to set_controller which started the cutscene.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player index of the player viewing the cutscene.
   ---@field tick uint @Tick the event was generated.
   ---@field waypoint_index uint @The index of the waypoint we just completed.
 
 ---@class OnDifficultySettingsChanged: EventData @Called when the map difficulty settings are changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field old_recipe_difficulty uint
   ---@field old_technology_difficulty uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEntityCloned: EventData @Called when an entity is cloned. Can be filtered for the source entity using [LuaEntityClonedEventFilter](LuaEntityClonedEventFilter).
   ---@field destination LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field source LuaEntity
   ---@field tick uint @Tick the event was generated.
 
@@ -7527,12 +7527,12 @@ function LuaWallControlBehavior.help() end
   ---@field final_damage_amount float @The damage amount after resistances.
   ---@field final_health float @The health of the entity after the damage was applied.
   ---@field force LuaForce @nilable; The force that did the attacking if any.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field original_damage_amount float @The damage amount before resistances.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEntityDestroyed: EventData @Called after an entity is destroyed that has been registered with [LuaBootstrap::register_on_entity_destroyed](LuaBootstrap::register_on_entity_destroyed).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field registration_number uint64 @The number returned by [register_on_entity_destroyed](LuaBootstrap::register_on_entity_destroyed) to uniquely identify this entity during this event.
   ---@field tick uint @Tick the event was generated.
   ---@field unit_number uint @nilable; The [LuaEntity::unit_number](LuaEntity::unit_number) of the destroyed entity, if it had one.
@@ -7543,12 +7543,12 @@ function LuaWallControlBehavior.help() end
   ---@field entity LuaEntity @The entity that died.
   ---@field force LuaForce @nilable; The force that did the killing if any.
   ---@field loot LuaInventory @The loot generated by this entity if any.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEntityLogisticSlotChanged: EventData @Called when one of an entity's personal logistic slots changes.
   ---@field entity LuaEntity @The entity for whom a logistic slot was changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player who changed the slot, or `nil` if changed by script.
   ---@field slot_index uint @The slot index that was changed.
   ---@field tick uint @Tick the event was generated.
@@ -7556,90 +7556,90 @@ function LuaWallControlBehavior.help() end
 ---@class OnEntityRenamed: EventData @Called after an entity has been renamed either by the player or through script.
   ---@field by_script boolean
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field old_name string
   ---@field player_index uint @nilable; If by_script is true this will not be included.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEntitySettingsPasted: EventData @Called after entity copy-paste is done.
   ---@field destination LuaEntity @The destination entity settings were copied to.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field source LuaEntity @The source entity settings were copied from.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEntitySpawned: EventData @Called when an entity is spawned by a EnemySpawner
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field spawner LuaEntity
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEquipmentInserted: EventData @Called after equipment is inserted into an equipment grid.
   ---@field equipment LuaEquipment @The equipment inserted.
   ---@field grid LuaEquipmentGrid @The equipment grid inserted into.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnEquipmentRemoved: EventData @Called after equipment is removed from an equipment grid.
   ---@field count uint @The count of equipment removed.
   ---@field equipment string @The equipment removed.
   ---@field grid LuaEquipmentGrid @The equipment grid removed from.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnForceCeaseFireChanged: EventData @Called when the a forces cease fire values change.
   ---@field added boolean @If the other force was added or removed.
   ---@field force LuaForce @The force who's cease fire changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field other_force LuaForce @Which force was added or removed.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnForceCreated: EventData @Called when a new force is created using `game.create_force()`
   ---@field force LuaForce @The newly created force.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnForceFriendsChanged: EventData @Called when the a forces friends change.
   ---@field added boolean @If the other force was added or removed.
   ---@field force LuaForce @The force who's friends changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field other_force LuaForce @Which force was added or removed.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnForceReset: EventData @Called when [LuaForce::reset](LuaForce::reset) is finished.
   ---@field force LuaForce
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnForcesMerged: EventData @Called after two forces have been merged using `game.merge_forces()`.
   ---@field destination LuaForce @The force entities where reassigned to.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field source_index uint @The index of the destroyed force.
   ---@field source_name string @The force destroyed.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnForcesMerging: EventData @Called when two forces are about to be merged using `game.merge_forces()`.
   ---@field destination LuaForce @The force to reassign entities to.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field source LuaForce @The force to be destroyed
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGameCreatedFromScenario: EventData @Called when a game is created from a scenario. This is fired for every mod, even when the scenario's save data already includes it. In those cases however, [LuaBootstrap::on_init](LuaBootstrap::on_init) is not fired.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiCheckedStateChanged: EventData @Called when [LuaGuiElement](LuaGuiElement) checked state is changed (related to checkboxes and radio buttons).
   ---@field element LuaGuiElement @The element whose checked state changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the change.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiClick: EventData @Called when [LuaGuiElement](LuaGuiElement) is clicked.
   ---@field alt boolean @If alt was pressed.
-  ---@field button defines__mouse_button_type|number @The mouse button used if any.
+  ---@field button defines__mouse_button_type @The mouse button used if any.
   ---@field control boolean @If control was pressed.
   ---@field element LuaGuiElement @The clicked element.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the clicking.
   ---@field shift boolean @If shift was pressed.
   ---@field tick uint @Tick the event was generated.
@@ -7648,10 +7648,10 @@ function LuaWallControlBehavior.help() end
   ---@field element LuaGuiElement @nilable; The custom GUI element that was open
   ---@field entity LuaEntity @nilable; The entity that was open
   ---@field equipment LuaEquipment @nilable; The equipment that was open
-  ---@field gui_type defines__gui_type|number @The GUI type that was open.
+  ---@field gui_type defines__gui_type @The GUI type that was open.
   ---@field inventory LuaInventory @nilable; The script inventory that was open
   ---@field item LuaItemStack @nilable; The item that was open
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field other_player LuaPlayer @nilable; The other player that was open
   ---@field player_index uint @The player.
   ---@field technology LuaTechnology @nilable; The technology that was automatically selected when opening the research GUI
@@ -7662,20 +7662,20 @@ function LuaWallControlBehavior.help() end
   ---@field alt boolean @If alt was pressed.
   ---@field control boolean @If control was pressed.
   ---@field element LuaGuiElement @The confirmed element.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the confirming.
   ---@field shift boolean @If shift was pressed.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiElemChanged: EventData @Called when [LuaGuiElement](LuaGuiElement) element value is changed (related to choose element buttons).
   ---@field element LuaGuiElement @The element whose element value changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the change.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiLocationChanged: EventData @Called when [LuaGuiElement](LuaGuiElement) element location is changed (related to frames in `player.gui.screen`).
   ---@field element LuaGuiElement @The element whose location changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the change.
   ---@field tick uint @Tick the event was generated.
 
@@ -7683,66 +7683,66 @@ function LuaWallControlBehavior.help() end
   ---@field element LuaGuiElement @nilable; The custom GUI element that was opened
   ---@field entity LuaEntity @nilable; The entity that was opened
   ---@field equipment LuaEquipment @nilable; The equipment that was opened
-  ---@field gui_type defines__gui_type|number @The GUI type that was opened.
+  ---@field gui_type defines__gui_type @The GUI type that was opened.
   ---@field inventory LuaInventory @nilable; The script inventory that was opened
   ---@field item LuaItemStack @nilable; The item that was opened
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field other_player LuaPlayer @nilable; The other player that was opened
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiSelectedTabChanged: EventData @Called when [LuaGuiElement](LuaGuiElement) selected tab is changed (related to tabbed-panes).
   ---@field element LuaGuiElement @The tabbed pane whose selected tab changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the change.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiSelectionStateChanged: EventData @Called when [LuaGuiElement](LuaGuiElement) selection state is changed (related to drop-downs and listboxes).
   ---@field element LuaGuiElement @The element whose selection state changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the change.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiSwitchStateChanged: EventData @Called when [LuaGuiElement](LuaGuiElement) switch state is changed (related to switches).
   ---@field element LuaGuiElement @The switch whose switch state changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the change.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiTextChanged: EventData @Called when [LuaGuiElement](LuaGuiElement) text is changed by the player.
   ---@field element LuaGuiElement @The edited element.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the edit.
   ---@field text string @The new text in the element.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnGuiValueChanged: EventData @Called when [LuaGuiElement](LuaGuiElement) slider value is changed (related to the slider element).
   ---@field element LuaGuiElement @The element whose value changed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the change.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnLandMineArmed: EventData @Called when a land mine is armed.
   ---@field mine LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnLuaShortcut: EventData @Called when a custom Lua shortcut is pressed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field prototype_name string @Shortcut prototype name of the shortcut that was clicked.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnMarkedForDeconstruction: EventData @Called when an entity is marked for deconstruction with the Deconstruction planner or via script. Can be filtered using [LuaEntityMarkedForDeconstructionEventFilter](LuaEntityMarkedForDeconstructionEventFilter).
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnMarkedForUpgrade: EventData @Called when an entity is marked for upgrade with the Upgrade planner or via script. Can be filtered using [LuaEntityMarkedForUpgradeEventFilter](LuaEntityMarkedForUpgradeEventFilter).
-  ---@field direction defines__direction|number @nilable; The new direction (if any)
+  ---@field direction defines__direction @nilable; The new direction (if any)
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable
   ---@field target LuaEntityPrototype
   ---@field tick uint @Tick the event was generated.
@@ -7750,34 +7750,34 @@ function LuaWallControlBehavior.help() end
 ---@class OnMarketItemPurchased: EventData @Called after a player purchases some offer from a `market` entity.
   ---@field count uint @The amount of offers purchased.
   ---@field market LuaEntity @The market entity.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field offer_index uint @The index of the offer purchased.
   ---@field player_index uint @The player who did the purchasing.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnModItemOpened: EventData @Called when the player uses the 'Open item GUI' control on an item defined with the 'mod-openable' flag
   ---@field item LuaItemPrototype @The item clicked on.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPermissionGroupAdded: EventData @Called directly after a permission group is added.
   ---@field group LuaPermissionGroup @The group added.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player that added the group.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPermissionGroupDeleted: EventData @Called directly after a permission group is deleted.
   ---@field group_name string @The group that was deleted.
   ---@field id uint @The group id that was deleted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the deletion.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPermissionGroupEdited: EventData @Called directly after a permission group is edited in some way.
-  ---@field action defines__input_action|number @The action when the `type` is "add-permission" or "remove-permission".
+  ---@field action defines__input_action @The action when the `type` is "add-permission" or "remove-permission".
   ---@field group LuaPermissionGroup @The group being edited.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field new_name string @The new group name when the `type` is "rename".
   ---@field old_name string @The old group name when the `type` is "rename".
   ---@field other_player_index uint @The other player when the `type` is "add-player" or "remove-player".
@@ -7786,13 +7786,13 @@ function LuaWallControlBehavior.help() end
   ---@field type string @The edit type: "add-permission", "remove-permission", "enable-all", "disable-all", "add-player", "remove-player", "rename".
 
 ---@class OnPermissionStringImported: EventData @Called directly after a permission string is imported.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player that imported the string.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPickedUpItem: EventData @Called when a player picks up an item.
   ---@field item_stack SimpleItemStack
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
@@ -7800,25 +7800,25 @@ function LuaWallControlBehavior.help() end
   ---@field area BoundingBox @The area selected.
   ---@field entities LuaEntity[] @The entities selected.
   ---@field item string @The item used to select the area.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the selection.
   ---@field surface LuaSurface @The surface selected.
   ---@field tick uint @Tick the event was generated.
   ---@field tiles LuaTile[] @The tiles selected.
 
 ---@class OnPlayerAmmoInventoryChanged: EventData @Called after a players ammo inventory changed in some way.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerArmorInventoryChanged: EventData @Called after a players armor inventory changed in some way.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerBanned: EventData @Called when a player is banned.
   ---@field by_player uint @nilable; The player that did the banning if any.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player banned.
   ---@field player_name string @The banned player name.
   ---@field reason string @nilable; The reason given if any.
@@ -7826,7 +7826,7 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnPlayerBuiltTile: EventData @Called after a player builds tiles.
   ---@field item LuaItemPrototype @nilable; The item type used to build the tiles
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field stack LuaItemStack @nilable; The stack used to build the tiles (may be empty if all of the items where used to build the tiles).
   ---@field surface_index uint @The surface the tile(s) were built on.
@@ -7837,70 +7837,70 @@ function LuaWallControlBehavior.help() end
 ---@class OnPlayerCancelledCrafting: EventData @Called when a player cancels crafting.
   ---@field cancel_count uint @The number of crafts that have been cancelled.
   ---@field items LuaInventory @The crafting items returned to the player's inventory.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player that did the crafting.
   ---@field recipe LuaRecipe @The recipe that has been cancelled.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerChangedForce: EventData @Called after a player changes forces.
   ---@field force LuaForce @The old force.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who changed forces.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerChangedPosition: EventData @Called when the tile position a player is located at changes.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerChangedSurface: EventData @Called after a player changes surfaces.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who changed surfaces.
   ---@field surface_index uint @The surface index the player was on.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerCheatModeDisabled: EventData @Called when cheat mode is disabled on a player.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerCheatModeEnabled: EventData @Called when cheat mode is enabled on a player.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerClickedGpsTag: EventData @Called when a player clicks a gps tag
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @Index of the player
   ---@field position MapPosition @Map position contained in gps tag
   ---@field surface string @Surface name contained in gps tag, even when such surface does not exists
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerConfiguredBlueprint: EventData @Called when a player clicks the "confirm" button in the configure Blueprint GUI.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerConfiguredSpiderRemote: EventData @Called when a player configures spidertron remote to be connected with a given spidertron
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player that configured the remote.
   ---@field tick uint @Tick the event was generated.
   ---@field vehicle LuaEntity @Spider vehicle to which remote was connected to.
 
 ---@class OnPlayerCraftedItem: EventData @Called when the player finishes crafting an item. This event fires just before the results are inserted into the player's inventory, not when the crafting is queued (see [on_pre_player_crafted_item](on_pre_player_crafted_item)).
   ---@field item_stack LuaItemStack @The item that has been crafted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the crafting.
   ---@field recipe LuaRecipe @The recipe used to craft this item.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerCreated: EventData @Called after the player was created.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerCursorStackChanged: EventData @Called after a players cursorstack changed in some way.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
@@ -7908,50 +7908,50 @@ function LuaWallControlBehavior.help() end
   ---@field alt boolean @If normal selection or alt selection was used.
   ---@field area BoundingBox @The area selected.
   ---@field item string @The item used to select the area.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the selection.
   ---@field surface LuaSurface @The surface selected.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerDemoted: EventData @Called when a player is demoted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerDied: EventData @Called after a player dies.
   ---@field cause LuaEntity @nilable
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerDisplayResolutionChanged: EventData @Called when the display resolution changes for a given player.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field old_resolution DisplayResolution @The old display resolution
   ---@field player_index uint @The player
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerDisplayScaleChanged: EventData @Called when the display scale changes for a given player.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field old_scale double @The old display scale
   ---@field player_index uint @The player
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerDrivingChangedState: EventData @Called when the player's driving state has changed, this means a player has either entered or left a vehicle.
   ---@field entity LuaEntity @nilable; The vehicle if any.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerDroppedItem: EventData @Called when a player drops an item on the ground.
   ---@field entity LuaEntity @The item-on-ground entity.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerFastTransferred: EventData @Called when a player fast-transfers something to or from an entity.
   ---@field entity LuaEntity @The entity transferred from or to.
   ---@field from_player boolean @Whether the transfer was from player to entity. If `false`, the transfer was from entity to player.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player transferred from or to.
   ---@field tick uint @Tick the event was generated.
 
@@ -7959,67 +7959,67 @@ function LuaWallControlBehavior.help() end
   ---@field amount double @Amount of fluid that was removed
   ---@field entity LuaEntity @Entity from which flush was performed
   ---@field fluid string @Name of a fluid that was flushed
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field only_this_entity boolean @True if flush was requested only on this entity
   ---@field player_index uint @Index of the player
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerGunInventoryChanged: EventData @Called after a players gun inventory changed in some way.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerJoinedGame: EventData @Called after a player joins the game. This is not called when loading a save file in singleplayer, as the player doesn't actually leave the game, and the save is just on pause until they rejoin.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerKicked: EventData @Called when a player is kicked.
   ---@field by_player uint @nilable; The player that did the kicking if any.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player kicked.
   ---@field reason string @nilable; The reason given if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerLeftGame: EventData @Called after a player leaves the game. This is not called when closing a save file in singleplayer, as the player doesn't actually leave the game, and the save is just on pause until they rejoin.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
-  ---@field reason defines__disconnect_reason|number
+  ---@field reason defines__disconnect_reason
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerMainInventoryChanged: EventData @Called after a players main inventory changed in some way.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerMinedEntity: EventData @Called after the results of an entity being mined are collected just before the entity is destroyed. After this event any items in the buffer will be transferred into the player as if they came from mining the entity. Can be filtered using [LuaPlayerMinedEntityEventFilter](LuaPlayerMinedEntityEventFilter).
   ---@field buffer LuaInventory @The temporary inventory that holds the result of mining the entity.
   ---@field entity LuaEntity @The entity that has been mined.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The index of the player doing the mining.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerMinedItem: EventData @Called when the player mines something.
   ---@field item_stack SimpleItemStack @The item given to the player
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerMinedTile: EventData @Called after a player mines tiles.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field surface_index uint @The surface the tile(s) were mined from.
   ---@field tick uint @Tick the event was generated.
   ---@field tiles OldTileAndPosition[] @The position data.
 
 ---@class OnPlayerMuted: EventData @Called when a player is muted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerPipette: EventData @Called when a player invokes the "smart pipette" over an entity.
   ---@field item LuaItemPrototype @The item put in the cursor
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player
   ---@field tick uint @Tick the event was generated.
   ---@field used_cheat_mode boolean @If cheat mode was used to give a free stack of the item.
@@ -8027,17 +8027,17 @@ function LuaWallControlBehavior.help() end
 ---@class OnPlayerPlacedEquipment: EventData @Called after the player puts equipment in an equipment grid
   ---@field equipment LuaEquipment @The equipment put in the equipment grid.
   ---@field grid LuaEquipmentGrid @The equipment grid the equipment was put in.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerPromoted: EventData @Called when a player is promoted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerRemoved: EventData @Called when a player is removed (deleted) from the game. Not to be confused with the player logging of this is different in that the player is deleted as if he never existed in the save file.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player index that was removed
   ---@field tick uint @Tick the event was generated.
 
@@ -8045,18 +8045,18 @@ function LuaWallControlBehavior.help() end
   ---@field count uint @The count of equipment removed.
   ---@field equipment string @The equipment removed.
   ---@field grid LuaEquipmentGrid @The equipment grid removed from.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerRepairedEntity: EventData @Called when a player repairs an entity. Can be filtered using [LuaPlayerRepairedEntityEventFilter](LuaPlayerRepairedEntityEventFilter).
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerRespawned: EventData @Called after a player respawns.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field player_port LuaEntity @nilable; The player port used to respawn if one was used.
   ---@field tick uint @Tick the event was generated.
@@ -8065,7 +8065,7 @@ function LuaWallControlBehavior.help() end
   ---@field area BoundingBox @The area selected.
   ---@field entities LuaEntity[] @The entities selected.
   ---@field item string @The item used to select the area.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the selection.
   ---@field surface LuaSurface @The surface selected.
   ---@field tick uint @Tick the event was generated.
@@ -8073,23 +8073,23 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnPlayerRotatedEntity: EventData @Called when the player rotates an entity. This event is only fired when the entity actually changes its orientation -- pressing the rotate key on an entity that can't be rotated won't fire this event.
   ---@field entity LuaEntity @The rotated entity.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
-  ---@field previous_direction defines__direction|number @The previous direction
+  ---@field previous_direction defines__direction @The previous direction
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerSelectedArea: EventData @Called after a player selects an area with a selection-tool item.
   ---@field area BoundingBox @The area selected.
   ---@field entities LuaEntity[] @The entities selected.
   ---@field item string @The item used to select the area.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the selection.
   ---@field surface LuaSurface @The surface selected.
   ---@field tick uint @Tick the event was generated.
   ---@field tiles LuaTile[] @The tiles selected.
 
 ---@class OnPlayerSetQuickBarSlot: EventData @Called when a player sets a quickbar slot to anything (new value, or set to empty).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
@@ -8098,49 +8098,49 @@ function LuaWallControlBehavior.help() end
   ---@field area BoundingBox @The area selected.
   ---@field item string @The item used to select the area.
   ---@field mapping table<uint, LuaEntity> @The blueprint entity index to source entity mapping. Note: if any mod changes the blueprint this will be incorrect.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the selection.
   ---@field surface LuaSurface @The surface selected.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerToggledAltMode: EventData @Called when a player toggles alt mode, also known as "show entity info".
   ---@field alt_mode boolean @The new alt mode value. This value is a shortcut for accessing [GameViewSettings::show_entity_info](GameViewSettings::show_entity_info) on the player.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerToggledMapEditor: EventData @Called when a player toggles the map editor on or off.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerTrashInventoryChanged: EventData @Called after a players trash inventory changed in some way.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerUnbanned: EventData @Called when a player is un-banned.
   ---@field by_player uint @nilable; The player that did the un-banning if any.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player un-banned.
   ---@field player_name string @The player name un-banned.
   ---@field reason string @nilable; The reason the player was banned if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerUnmuted: EventData @Called when a player is unmuted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerUsedCapsule: EventData @Called when a player uses a capsule that results in some game action.
   ---@field item LuaItemPrototype @The capsule item used.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player.
   ---@field position MapPosition @The position the capsule was used.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPlayerUsedSpiderRemote: EventData @Called when a player uses spidertron remote to send a spidertron to a given position
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player that used the remote.
   ---@field position MapPosition @Goal position to which spidertron was sent to.
   ---@field success boolean @If the use was successful. It may fail when spidertron has different driver or when player is on different surface.
@@ -8152,7 +8152,7 @@ function LuaWallControlBehavior.help() end
   ---@field damage_type LuaDamagePrototype @nilable; The damage type if any.
   ---@field force LuaForce @nilable; The force that did the killing if any.
   ---@field ghost LuaEntity @nilable; The ghost created by the entity dying if any.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field position MapPosition @Position where the entity died.
   ---@field prototype LuaEntityPrototype @The entity prototype of the entity that died.
   ---@field surface_index uint @The surface the entity was on.
@@ -8161,55 +8161,55 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnPreBuild: EventData @Called when players uses an item to build something. Called before [on_built_entity](on_built_entity).
   ---@field created_by_moving boolean @Item was placed while moving.
-  ---@field direction defines__direction|number @The direction the item was facing when placed.
+  ---@field direction defines__direction @The direction the item was facing when placed.
   ---@field flip_horizontal boolean @If building this blueprint was flipped horizontally.
   ---@field flip_vertical boolean @If building this blueprint was flipped vertically.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player who did the placing.
   ---@field position MapPosition @Where the item was placed.
   ---@field shift_build boolean @Item was placed using shift building.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreChunkDeleted: EventData @Called before one or more chunks are deleted using [LuaSurface::delete_chunk](LuaSurface::delete_chunk).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field positions ChunkPosition[] @The chunks to be deleted.
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreEntitySettingsPasted: EventData @Called before entity copy-paste is done.
   ---@field destination LuaEntity @The destination entity settings will be copied to.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field source LuaEntity @The source entity settings will be copied from.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreGhostDeconstructed: EventData @Called before a ghost entity is destroyed as a result of being marked for deconstruction. Can be filtered using [LuaPreGhostDeconstructedEventFilter](LuaPreGhostDeconstructedEventFilter).
   ---@field ghost LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player that did the deconstruction if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreGhostUpgraded: EventData @Called before a ghost entity is upgraded. Can be filtered using [LuaPreGhostUpgradedEventFilter](LuaPreGhostUpgradedEventFilter).
   ---@field ghost LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player that did the upgrade if any.
   ---@field target LuaEntityPrototype
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPrePermissionGroupDeleted: EventData @Called directly before a permission group is deleted.
   ---@field group LuaPermissionGroup @The group to be deleted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the deletion.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPrePermissionStringImported: EventData @Called directly before a permission string is imported.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player importing the string.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPrePlayerCraftedItem: EventData @Called when a player queues something to be crafted.
   ---@field items LuaInventory @The items removed from the players inventory to do the crafting.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player doing the crafting.
   ---@field queued_count uint @The number of times the recipe is being queued.
   ---@field recipe LuaRecipe @The recipe being queued.
@@ -8217,90 +8217,90 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnPrePlayerDied: EventData @Called before a players dies.
   ---@field cause LuaEntity @nilable
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPrePlayerLeftGame: EventData @Called before a player leaves the game.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
-  ---@field reason defines__disconnect_reason|number
+  ---@field reason defines__disconnect_reason
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPrePlayerMinedItem: EventData @Called when the player finishes mining an entity, before the entity is removed from map. Can be filtered using [LuaPrePlayerMinedEntityEventFilter](LuaPrePlayerMinedEntityEventFilter).
   ---@field entity LuaEntity @The entity being mined
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPrePlayerRemoved: EventData @Called before a player is removed (deleted) from the game. Not to be confused with the player logging of this is different in that the player is deleted as if he never existed in the save file.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player index that will be removed
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPrePlayerToggledMapEditor: EventData @Called before a player toggles the map editor on or off.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreRobotExplodedCliff: EventData @Called directly before a robot explodes cliffs.
   ---@field cliff LuaEntity
   ---@field item LuaItemPrototype @The cliff explosive used.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreScriptInventoryResized: EventData @Called just before a script inventory is resized.
   ---@field inventory LuaInventory
   ---@field mod string @The mod that did the resizing. This will be `"core"` if done by console command or scenario script.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field new_size uint @The new inventory size.
   ---@field old_size uint @The old inventory size.
   ---@field player_index uint @nilable; If done by console command; the player who ran the command.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreSurfaceCleared: EventData @Called just before a surface is cleared (all entities removed and all chunks deleted).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnPreSurfaceDeleted: EventData @Called just before a surface is deleted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnResearchCancelled: EventData @Called when research is cancelled.
   ---@field force LuaForce @The force whose research was cancelled.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field research table<string, uint> @A mapping of technology name to how many times it was cancelled.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnResearchFinished: EventData @Called when a research finishes.
   ---@field by_script boolean @If the technology was researched by script.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field research LuaTechnology @The researched technology
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnResearchReversed: EventData @Called when a research is reversed (unresearched).
   ---@field by_script boolean @If the technology was un-researched by script.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field research LuaTechnology @The technology un-researched
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnResearchStarted: EventData @Called when a technology research starts.
   ---@field last_research LuaTechnology @nilable
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field research LuaTechnology @The technology being researched
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnResourceDepleted: EventData @Called when a resource entity reaches 0 or its minimum yield for infinite resources.
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRobotBuiltEntity: EventData @Called when a construction robot builds an entity. Can be filtered using [LuaRobotBuiltEntityEventFilter](LuaRobotBuiltEntityEventFilter).
   ---@field created_entity LuaEntity @The entity built.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity @The robot that did the building.
   ---@field stack LuaItemStack @The item used to do the building.
   ---@field tags Tags @nilable; The tags associated with this entity if any.
@@ -8308,7 +8308,7 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnRobotBuiltTile: EventData @Called after a robot builds tiles.
   ---@field item LuaItemPrototype @The item type used to build the tiles.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity @The robot.
   ---@field stack LuaItemStack @The stack used to build the tiles (may be empty if all of the items where used to build the tiles).
   ---@field surface_index uint @The surface the tile(s) are build on.
@@ -8318,25 +8318,25 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnRobotExplodedCliff: EventData @Called directly after a robot explodes cliffs.
   ---@field item LuaItemPrototype @The cliff explosive used.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRobotMined: EventData @Called when a robot mines an entity.
   ---@field item_stack SimpleItemStack @The entity the robot just picked up.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity @The robot that did the mining.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRobotMinedEntity: EventData @Called after the results of an entity being mined are collected just before the entity is destroyed. After this event any items in the buffer will be transferred into the robot as if they came from mining the entity. Can be filtered using [LuaRobotMinedEntityEventFilter](LuaRobotMinedEntityEventFilter).
   ---@field buffer LuaInventory @The temporary inventory that holds the result of mining the entity.
   ---@field entity LuaEntity @The entity that has been mined.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity @The robot doing the mining.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRobotMinedTile: EventData @Called after a robot mines tiles.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity @The robot.
   ---@field surface_index uint @The surface the tile(s) were mined on.
   ---@field tick uint @Tick the event was generated.
@@ -8344,26 +8344,26 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnRobotPreMined: EventData @Called before a robot mines an entity. Can be filtered using [LuaPreRobotMinedEntityEventFilter](LuaPreRobotMinedEntityEventFilter).
   ---@field entity LuaEntity @The entity which is about to be mined.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity @The robot that's about to do the mining.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRocketLaunchOrdered: EventData @Called when a rocket silo is ordered to be launched.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player that is riding the rocket, if any.
   ---@field rocket LuaEntity
   ---@field rocket_silo LuaEntity
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRocketLaunched: EventData @Called when the rocket is launched.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player that is riding the rocket, if any.
   ---@field rocket LuaEntity
   ---@field rocket_silo LuaEntity @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnRuntimeModSettingChanged: EventData @Called when a runtime mod setting is changed by a player.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; If the `setting_type` is `"global"` and it was changed through the mod settings GUI, this is the index of the player that changed the global setting. If the `setting_type` is `"runtime-per-user"` and it changed a current setting of the player, this is the index of the player whose setting was changed. In all other cases, this is `nil`.
   ---@field setting string @The prototype name of the setting that was changed.
   ---@field setting_type string @Either "runtime-per-user" or "runtime-global".
@@ -8372,7 +8372,7 @@ function LuaWallControlBehavior.help() end
 ---@class OnScriptInventoryResized: EventData @Called just after a script inventory is resized.
   ---@field inventory LuaInventory
   ---@field mod string @The mod that did the resizing. This will be `"core"` if done by console command or scenario script.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field new_size uint @The new inventory size.
   ---@field old_size uint @The old inventory size.
   ---@field overflow_inventory LuaInventory @Any items which didn't fit into the new inventory size.
@@ -8381,14 +8381,14 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnScriptPathRequestFinished: EventData @Called when a [LuaSurface::request_path](LuaSurface::request_path) call completes.
   ---@field id uint @Handle to associate the callback with a particular call to [LuaSurface::request_path](LuaSurface::request_path).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field path PathfinderWaypoint[] @nilable; The actual path that the pathfinder has determined. `nil` if pathfinding failed.
   ---@field tick uint @Tick the event was generated.
   ---@field try_again_later boolean @Indicates that the pathfinder failed because it is too busy, and that you can retry later.
 
 ---@class OnScriptTriggerEffect: EventData @Called when a script trigger effect is triggered.
   ---@field effect_id string @The effect_id specified in the trigger effect.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field source_entity LuaEntity @nilable
   ---@field source_position MapPosition @nilable
   ---@field surface_index uint @The surface the effect happened on.
@@ -8399,52 +8399,52 @@ function LuaWallControlBehavior.help() end
 ---@class OnSectorScanned: EventData @Called when an entity of type `radar` finishes scanning a sector. Can be filtered for the radar using [LuaSectorScannedEventFilter](LuaSectorScannedEventFilter).
   ---@field area BoundingBox @Area of the scanned chunk.
   ---@field chunk_position ChunkPosition @The chunk scanned.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field radar LuaEntity @The radar that did the scanning.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnSelectedEntityChanged: EventData @Called after the selected entity changes for a given player.
   ---@field last_entity LuaEntity @nilable; The last selected entity if it still exists and there was one.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player whose selected entity changed.
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnSpiderCommandCompleted: EventData @Called when a spider finishes moving to its autopilot position.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
   ---@field vehicle LuaEntity @Spider vehicle which was requested to move.
 
 ---@class OnStringTranslated: EventData @Called when a translation request generated through [LuaPlayer::request_translation](LuaPlayer::request_translation) is translated.
   ---@field localised_string LocalisedString @The localised string being translated.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @The player whose locale was used for the translation.
   ---@field result string @The translated `localised_string`.
   ---@field tick uint @Tick the event was generated.
   ---@field translated boolean @Whether the requested localised string was valid and could be translated.
 
 ---@class OnSurfaceCleared: EventData @Called just after a surface is cleared (all entities removed and all chunks deleted).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnSurfaceCreated: EventData @Called when a surface is created.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnSurfaceDeleted: EventData @Called after a surface is deleted.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnSurfaceImported: EventData @Called after a surface is imported.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field original_name string @The original surface name.
   ---@field surface_index uint
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnSurfaceRenamed: EventData @Called when a surface is renamed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field new_name string
   ---@field old_name string
   ---@field surface_index uint
@@ -8452,89 +8452,89 @@ function LuaWallControlBehavior.help() end
 
 ---@class OnTechnologyEffectsReset: EventData @Called when [LuaForce::reset_technology_effects](LuaForce::reset_technology_effects) is finished.
   ---@field force LuaForce
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnTick: EventData @It is fired once every tick. Since this event is fired every tick, its handler shouldn't include performance heavy code.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnTrainChangedState: EventData @Called when a train changes state (started to stopped and vice versa)
-  ---@field name defines__events|number @Identifier of the event
-  ---@field old_state defines__train_state|number
+  ---@field name defines__events @Identifier of the event
+  ---@field old_state defines__train_state
   ---@field tick uint @Tick the event was generated.
   ---@field train LuaTrain
 
 ---@class OnTrainCreated: EventData @Called when a new train is created either through disconnecting/connecting an existing one or building a new one.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field old_train_id_1 uint @nilable; The first old train id when splitting/merging trains.
   ---@field old_train_id_2 uint @nilable; The second old train id when splitting/merging trains.
   ---@field tick uint @Tick the event was generated.
   ---@field train LuaTrain
 
 ---@class OnTrainScheduleChanged: EventData @Called when a trains schedule is changed either by the player or through script.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field player_index uint @nilable; The player who made the change if any.
   ---@field tick uint @Tick the event was generated.
   ---@field train LuaTrain
 
 ---@class OnTriggerCreatedEntity: EventData @Called when an entity with a trigger prototype (such as capsules) create an entity AND that trigger prototype defined `trigger_created_entity="true"`.
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field source LuaEntity @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnTriggerFiredArtillery: EventData @Called when an entity with a trigger prototype (such as capsules) fire an artillery projectile AND that trigger prototype defined `trigger_fired_artillery="true"`.
   ---@field entity LuaEntity
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field source LuaEntity @nilable
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnUnitAddedToGroup: EventData @Called when a unit is added to a unit group.
   ---@field group LuaUnitGroup
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
   ---@field unit LuaEntity
 
 ---@class OnUnitGroupCreated: EventData @Called when a new unit group is created, before any members are added to it.
   ---@field group LuaUnitGroup
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnUnitGroupFinishedGathering: EventData @Called when a unit group finishes gathering and starts executing its command.
   ---@field group LuaUnitGroup
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class OnUnitRemovedFromGroup: EventData @Called when a unit is removed from a unit group.
   ---@field group LuaUnitGroup
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
   ---@field unit LuaEntity
 
 ---@class OnWorkerRobotExpired: EventData @Called when a worker (construction or logistic) robot expires through a lack of energy.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field robot LuaEntity
   ---@field tick uint @Tick the event was generated.
 
 ---@class ScriptRaisedBuilt: EventData @A static event mods can use to tell other mods they built something by script. This event is only raised if a mod does so with [LuaBootstrap::raise_event](LuaBootstrap::raise_event) or [LuaBootstrap::raise_script_built](LuaBootstrap::raise_script_built), or when `raise_built` is passed to [LuaSurface::create_entity](LuaSurface::create_entity). Can be filtered using [LuaScriptRaisedBuiltEventFilter](LuaScriptRaisedBuiltEventFilter).
   ---@field entity LuaEntity @The entity that has been built.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class ScriptRaisedDestroy: EventData @A static event mods can use to tell other mods they destroyed something by script. This event is only raised if a mod does so with [LuaBootstrap::raise_event](LuaBootstrap::raise_event) or [LuaBootstrap::raise_script_destroy](LuaBootstrap::raise_script_destroy), or when `raise_destroy` is passed to [LuaEntity::destroy](LuaEntity::destroy). Can be filtered using [LuaScriptRaisedDestroyEventFilter](LuaScriptRaisedDestroyEventFilter).
   ---@field entity LuaEntity @The entity that was destroyed.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tick uint @Tick the event was generated.
 
 ---@class ScriptRaisedRevive: EventData @A static event mods can use to tell other mods they revived something by script. This event is only raised if a mod does so with [LuaBootstrap::raise_event](LuaBootstrap::raise_event) or [LuaBootstrap::raise_script_revive](LuaBootstrap::raise_script_revive), or when `raise_revive` is passed to [LuaEntity::revive](LuaEntity::revive). Can be filtered using [LuaScriptRaisedReviveEventFilter](LuaScriptRaisedReviveEventFilter).
   ---@field entity LuaEntity @The entity that was revived.
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field tags Tags @nilable; The tags associated with this entity, if any.
   ---@field tick uint @Tick the event was generated.
 
 ---@class ScriptRaisedSetTiles: EventData @A static event mods can use to tell other mods they changed tiles on a surface by script. This event is only raised if a mod does so with [LuaBootstrap::raise_event](LuaBootstrap::raise_event) or [LuaBootstrap::raise_script_set_tiles](LuaBootstrap::raise_script_set_tiles), or when `raise_event` is passed to [LuaSurface::set_tiles](LuaSurface::set_tiles).
-  ---@field name defines__events|number @Identifier of the event
+  ---@field name defines__events @Identifier of the event
   ---@field surface_index uint @The surface whose tiles were changed.
   ---@field tick uint @Tick the event was generated.
   ---@field tiles Tile[] @The tiles that were changed.
@@ -8744,7 +8744,7 @@ settings = settings
   ---@field entity_number uint @The entity's unique identifier in the blueprint.
   ---@field name string @The prototype name of the entity.
   ---@field position MapPosition @The position of the entity.
-  ---@field direction defines__direction|number @nilable; The direction the entity is facing. Only present for entities that can face in different directions and when the entity is not facing north.
+  ---@field direction defines__direction @nilable; The direction the entity is facing. Only present for entities that can face in different directions and when the entity is not facing north.
   ---@field tags Tags @nilable; The entity tags of the entity, if there are any. Only relevant for entity ghosts.
   ---@field items table<string, uint> @nilable; The items that the entity will request when revived, if there are any. It's a mapping of prototype names to amounts. Only relevant for entity ghosts.
   ---@field connections BlueprintCircuitConnection @nilable; The circuit network connections of the entity, if there are any. Only relevant for entities that support circuit connections.
@@ -8804,10 +8804,10 @@ settings = settings
   ---@field fulfilled boolean @nilable; Whether the condition is currently fulfilled
 
 ---@shape CircuitConnectionDefinition
-  ---@field wire defines__wire_type|number @Wire color, either [defines.wire_type.red](defines.wire_type.red) or [defines.wire_type.green](defines.wire_type.green).
+  ---@field wire defines__wire_type @Wire color, either [defines.wire_type.red](defines.wire_type.red) or [defines.wire_type.green](defines.wire_type.green).
   ---@field target_entity LuaEntity
-  ---@field source_circuit_id defines__circuit_connector_id|number
-  ---@field target_circuit_id defines__circuit_connector_id|number
+  ---@field source_circuit_id defines__circuit_connector_id
+  ---@field target_circuit_id defines__circuit_connector_id
 
 ---@shape CircularParticleCreationSpecification
   ---@field name string @Name of the [LuaEntityPrototype](LuaEntityPrototype)
@@ -8861,32 +8861,32 @@ settings = settings
   ---@field [4] float @nilable
 
 ---@shape Command
-  ---@field type defines__command|number @Type of command. The remaining fields depend on the value of this field.
+  ---@field type defines__command @Type of command. The remaining fields depend on the value of this field.
   ---@field target LuaEntity @defines.command.attack
-  ---@field distraction defines__distraction|number @nilable; defines.command.attack; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction @nilable; defines.command.attack; Defaults to `defines.distraction.by_enemy`.
   ---@field destination MapPosition @nilable; defines.command.go_to_location; The position to path to. Either this or `destination_entity` need to be specified. If both are, `destination_entity` is used.
   ---@field destination_entity LuaEntity @nilable; defines.command.go_to_location; The entity to path to. Either this or `destination` need to be specified. If both are, `destination_entity` is used.
-  ---@field distraction defines__distraction|number @nilable; defines.command.go_to_location; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction @nilable; defines.command.go_to_location; Defaults to `defines.distraction.by_enemy`.
   ---@field pathfind_flags PathfinderFlags @nilable; defines.command.go_to_location; Flags that affect pathfinder behavior.
   ---@field radius double @nilable; defines.command.go_to_location; How close the pathfinder needs to get to its destination (in tiles). Defaults to `3`.
-  ---@field structure_type defines__compound_command|number @defines.command.compound; How the commands should be chained together.
+  ---@field structure_type defines__compound_command @defines.command.compound; How the commands should be chained together.
   ---@field commands Command[] @defines.command.compound; The sub-commands.
   ---@field group LuaUnitGroup @defines.command.group; The group whose command to follow.
-  ---@field distraction defines__distraction|number @nilable; defines.command.group; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction @nilable; defines.command.group; Defaults to `defines.distraction.by_enemy`.
   ---@field use_group_distraction boolean @nilable; defines.command.group; Whether the unit will use the group distraction or the commands distraction. Defaults to true.
   ---@field destination MapPosition @defines.command.attack_area; Center of the attack area.
   ---@field radius double @defines.command.attack_area; Radius of the attack area.
-  ---@field distraction defines__distraction|number @nilable; defines.command.attack_area; Defaults to `defines.distraction.by_enemy`.
-  ---@field distraction defines__distraction|number @nilable; defines.command.wander; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction @nilable; defines.command.attack_area; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction @nilable; defines.command.wander; Defaults to `defines.distraction.by_enemy`.
   ---@field radius double @nilable; defines.command.wander; Defaults to 10. Does not apply when `wander_in_group` is `true`.
   ---@field wander_in_group boolean @nilable; defines.command.wander; When commanding a group, defines how the group will wander. When `true`, the units in the group will wander around inside the group's radius, just like gathering biters. When `false`, the units will wander as a group, ie they will all walk together in the same random direction. Default is true for groups. Passing true for a single unit is an error.
   ---@field ticks_to_wait uint @nilable; defines.command.wander; Ticks to wander before successfully completing the command. Default is max uint, which means wander forever.
-  ---@field distraction defines__distraction|number @nilable; defines.command.stop; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction @nilable; defines.command.stop; Defaults to `defines.distraction.by_enemy`.
   ---@field ticks_to_wait uint @nilable; defines.command.stop; Ticks to wander before successfully completing the command. Default is max uint, which means stop forever.
   ---@field from LuaEntity @defines.command.flee; The entity to flee from
-  ---@field distraction defines__distraction|number @nilable; defines.command.flee; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction @nilable; defines.command.flee; Defaults to `defines.distraction.by_enemy`.
   ---@field destination MapPosition @defines.command.build_base; Where to build the base.
-  ---@field distraction defines__distraction|number @nilable; defines.command.build_base; Defaults to `defines.distraction.by_enemy`.
+  ---@field distraction defines__distraction @nilable; defines.command.build_base; Defaults to `defines.distraction.by_enemy`.
   ---@field ignore_planner boolean @nilable; defines.command.build_base; Whether the units should ignore expansion candidate chunks. When `false`, they will obey and not build a base in a non-candidate chunk. Defaults to `false`.
 
 ---@shape ConfigurationChangedData
@@ -8946,8 +8946,8 @@ settings = settings
   ---@field amount uint
 
 ---@shape DifficultySettings
-  ---@field recipe_difficulty defines__difficulty_settings__recipe_difficulty|number
-  ---@field technology_difficulty defines__difficulty_settings__technology_difficulty|number
+  ---@field recipe_difficulty defines__difficulty_settings__recipe_difficulty
+  ---@field technology_difficulty defines__difficulty_settings__technology_difficulty
   ---@field technology_price_multiplier double @A value in range [0.001, 1000].
   ---@field research_queue_setting string @Either `"after-victory"`, `"always"` or `"never"`. Changing this to `"always"` or `"after-victory"` does not automatically unlock the research queue. See [LuaForce](LuaForce) for that.
 
@@ -9012,7 +9012,7 @@ settings = settings
   ---@field type string | string[] @type; The prototype type, or a list of acceptable types.
 
 ---@shape EventData
-  ---@field name defines__events|number @The identifier of the event this handler was registered to.
+  ---@field name defines__events @The identifier of the event this handler was registered to.
   ---@field tick uint @The tick during which the event happened.
   ---@field mod_name string @nilable; The name of the mod that raised the event if it was raised using [LuaBootstrap::raise_event](LuaBootstrap::raise_event).
 
@@ -9070,8 +9070,8 @@ settings = settings
   ---@field show_shortcut_bar boolean @RW; Shows or hides the shortcut bar.
 
 ---@shape GuiAnchor
-  ---@field gui defines__relative_gui_type|number
-  ---@field position defines__relative_gui_position|number
+  ---@field gui defines__relative_gui_type
+  ---@field position defines__relative_gui_position
   ---@field type string @nilable; If provided, only anchors the GUI element when the opened things type matches the type.
   ---@field name string @nilable; If provided, only anchors the GUI element when the opened thing matches the name. `name` takes precedence over `names`.
   ---@field names string[] @nilable; If provided, only anchors the GUI element when the opened thing matches one of the names. When reading an anchor, `names` is always populated.
@@ -9081,7 +9081,7 @@ settings = settings
   ---@field entity LuaEntity @entity
   ---@field position MapPosition @position
   ---@field crafting_queueindex uint @crafting_queue; Index in the crafting queue to point to.
-  ---@field inventory_index defines__inventory|number @item_stack; Which inventory the stack is in.
+  ---@field inventory_index defines__inventory @item_stack; Which inventory the stack is in.
   ---@field item_stack_index uint @item_stack; Which stack to point to.
   ---@field source string @item_stack; Must be either `"player"`, `"target"`, `"player-quickbar"` or `"player-equipment-bar"`.
 
@@ -9095,7 +9095,7 @@ settings = settings
 
 ---@shape HeatConnection
   ---@field position Vector
-  ---@field direction defines__direction|number
+  ---@field direction defines__direction
 
 ---@shape HeatSetting
   ---@field temperature double @nilable; The target temperature. Defaults to the minimum temperature of the heat buffer.
@@ -9166,7 +9166,7 @@ settings = settings
   ---@field tags string[] @nilable; Tags of the items with tags in the stack.
 
 ---@shape ItemStackLocation
-  ---@field inventory defines__inventory|number
+  ---@field inventory defines__inventory
   ---@field slot uint
 
 ---@shape LogisticFilter
@@ -9601,8 +9601,8 @@ settings = settings
   ---@field percent float @Percentual damage decrease
 
 ---@shape RidingState
-  ---@field acceleration defines__riding__acceleration|number
-  ---@field direction defines__riding__direction|number
+  ---@field acceleration defines__riding__acceleration
+  ---@field direction defines__riding__direction
 
 ---@shape ScriptArea
   ---@field area BoundingBox
@@ -9737,7 +9737,7 @@ settings = settings
 ---@shape TrainScheduleRecord
   ---@field station string @nilable; Name of the station.
   ---@field rail LuaEntity @nilable; Rail to path to. Ignored if `station` is present.
-  ---@field rail_direction defines__rail_direction|number @nilable; When a train is allowed to reach rail target from any direction it will be `nil`. If rail has to be reached from specific direction, this value allows to choose the direction. This value corresponds to [LuaEntity::connected_rail_direction](LuaEntity::connected_rail_direction) of a TrainStop.
+  ---@field rail_direction defines__rail_direction @nilable; When a train is allowed to reach rail target from any direction it will be `nil`. If rail has to be reached from specific direction, this value allows to choose the direction. This value corresponds to [LuaEntity::connected_rail_direction](LuaEntity::connected_rail_direction) of a TrainStop.
   ---@field wait_conditions WaitCondition[] @nilable
   ---@field temporary boolean @nilable; Only present when the station is temporary, the value is then always `true`.
 
@@ -9804,12 +9804,12 @@ settings = settings
   ---@field condition CircuitCondition @nilable; Only present when `type` is `"item_count"`, `"circuit"` or `"fluid_count"`.
 
 ---@shape WireConnectionDefinition
-  ---@field wire defines__wire_type|number @Wire color, either [defines.wire_type.red](defines.wire_type.red) or [defines.wire_type.green](defines.wire_type.green).
+  ---@field wire defines__wire_type @Wire color, either [defines.wire_type.red](defines.wire_type.red) or [defines.wire_type.green](defines.wire_type.green).
   ---@field target_entity LuaEntity @The entity to (dis)connect the source entity with.
-  ---@field source_circuit_id defines__circuit_connector_id|number @nilable; Mandatory if the source entity has more than one circuit connection using circuit wire.
-  ---@field target_circuit_id defines__circuit_connector_id|number @nilable; Mandatory if the target entity has more than one circuit connection using circuit wire.
-  ---@field source_wire_id defines__circuit_connector_id|number @nilable; Mandatory if the source entity has more than one wire connection using copper wire.
-  ---@field target_wire_id defines__circuit_connector_id|number @nilable; Mandatory if the target entity has more than one wire connection using copper wire.
+  ---@field source_circuit_id defines__circuit_connector_id @nilable; Mandatory if the source entity has more than one circuit connection using circuit wire.
+  ---@field target_circuit_id defines__circuit_connector_id @nilable; Mandatory if the target entity has more than one circuit connection using circuit wire.
+  ---@field source_wire_id defines__circuit_connector_id @nilable; Mandatory if the source entity has more than one wire connection using copper wire.
+  ---@field target_wire_id defines__circuit_connector_id @nilable; Mandatory if the target entity has more than one wire connection using copper wire.
 
 ---@shape _table1
   ---@field is_simulation boolean @nilable; Is this level a simulation? (The main menu and 'Tips and tricks' use simulations)
@@ -9837,12 +9837,12 @@ settings = settings
   ---@field position MapPosition @The position being repaired
 
 ---@shape _table5
-  ---@field state defines__shooting|number @The current state
+  ---@field state defines__shooting @The current state
   ---@field position MapPosition @The position being shot at
 
 ---@shape _table6
   ---@field walking boolean @If `false`, the player is currently not walking; otherwise it's going somewhere
-  ---@field direction defines__direction|number @Direction where the player is walking
+  ---@field direction defines__direction @Direction where the player is walking
 
 ---@shape _table7
   ---@field red LuaEntity[] @Entities connected via the red wire.

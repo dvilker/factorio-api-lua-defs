@@ -302,7 +302,7 @@ function typeDefEx(type, typeNameHint, optional, brackets) {
 
 function typeDef(type, typeNameHint, lazy) {
     if (typeof type === "string") {
-        return definesTypes.hasOwnProperty(type) ? definesTypes[type] + "|number" : type
+        return definesTypes.hasOwnProperty(type) ? definesTypes[type] : type
     }
     switch (type.complex_type) {
         case 'type': {
