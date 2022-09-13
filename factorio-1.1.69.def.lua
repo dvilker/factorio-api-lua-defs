@@ -1178,13 +1178,17 @@ function LuaBootstrap.on_load(f) end
 ---@param f (fun(p0: NthTickEventData)) | nil @The handler to run. Passing `nil` will unregister it for the provided nth-tick(s).
 function LuaBootstrap.on_nth_tick(tick, f) end
 
----@param p {entity: LuaEntity}
----@param entity LuaEntity @The entity that was built.
+---@shape LuaBootstrap_raise_biter_base_built_params
+   ---@field entity LuaEntity @The entity that was built.
+
+---@param p LuaBootstrap_raise_biter_base_built_params
 function LuaBootstrap.raise_biter_base_built(p) end
 
----@param p {player_index: uint, message: string}
----@param player_index uint @The player doing the chatting.
----@param message string @The chat message to send.
+---@shape LuaBootstrap_raise_console_chat_params
+   ---@field player_index uint @The player doing the chatting.
+   ---@field message string @The chat message to send.
+
+---@param p LuaBootstrap_raise_console_chat_params
 function LuaBootstrap.raise_console_chat(p) end
 
 --- Raise an event. Only events generated with [LuaBootstrap::generate_event_name](LuaBootstrap::generate_event_name) and the following can be raised:
@@ -1201,41 +1205,55 @@ function LuaBootstrap.raise_console_chat(p) end
 ---@param data table @Table with extra data that will be passed to the event handler. Any invalid LuaObjects will silently stop the event from being raised.
 function LuaBootstrap.raise_event(event, data) end
 
----@param p {player_index: uint, market: LuaEntity, offer_index: uint, count: uint}
----@param player_index uint @The player who did the purchasing.
----@param market LuaEntity @The market entity.
----@param offer_index uint @The index of the offer purchased.
----@param count uint @The amount of offers purchased.
+---@shape LuaBootstrap_raise_market_item_purchased_params
+   ---@field player_index uint @The player who did the purchasing.
+   ---@field market LuaEntity @The market entity.
+   ---@field offer_index uint @The index of the offer purchased.
+   ---@field count uint @The amount of offers purchased.
+
+---@param p LuaBootstrap_raise_market_item_purchased_params
 function LuaBootstrap.raise_market_item_purchased(p) end
 
----@param p {item_stack: LuaItemStack, player_index: uint, recipe: LuaRecipe}
----@param item_stack LuaItemStack @The item that has been crafted.
----@param player_index uint @The player doing the crafting.
----@param recipe LuaRecipe @The recipe used to craft this item.
+---@shape LuaBootstrap_raise_player_crafted_item_params
+   ---@field item_stack LuaItemStack @The item that has been crafted.
+   ---@field player_index uint @The player doing the crafting.
+   ---@field recipe LuaRecipe @The recipe used to craft this item.
+
+---@param p LuaBootstrap_raise_player_crafted_item_params
 function LuaBootstrap.raise_player_crafted_item(p) end
 
----@param p {player_index: uint, entity: LuaEntity, from_player: boolean}
----@param player_index uint @The player transferred from or to.
----@param entity LuaEntity @The entity transferred from or to.
----@param from_player boolean @Whether the transfer was from player to entity. If `false`, the transfer was from entity to player.
+---@shape LuaBootstrap_raise_player_fast_transferred_params
+   ---@field player_index uint @The player transferred from or to.
+   ---@field entity LuaEntity @The entity transferred from or to.
+   ---@field from_player boolean @Whether the transfer was from player to entity. If `false`, the transfer was from entity to player.
+
+---@param p LuaBootstrap_raise_player_fast_transferred_params
 function LuaBootstrap.raise_player_fast_transferred(p) end
 
----@param p {entity: LuaEntity}
----@param entity LuaEntity @The entity that has been built.
+---@shape LuaBootstrap_raise_script_built_params
+   ---@field entity LuaEntity @The entity that has been built.
+
+---@param p LuaBootstrap_raise_script_built_params
 function LuaBootstrap.raise_script_built(p) end
 
----@param p {entity: LuaEntity}
----@param entity LuaEntity @The entity that was destroyed.
+---@shape LuaBootstrap_raise_script_destroy_params
+   ---@field entity LuaEntity @The entity that was destroyed.
+
+---@param p LuaBootstrap_raise_script_destroy_params
 function LuaBootstrap.raise_script_destroy(p) end
 
----@param p {entity: LuaEntity, tags: Tags|nil}
----@param entity LuaEntity @The entity that was revived.
----@param tags Tags|nil @The tags associated with this entity, if any.
+---@shape LuaBootstrap_raise_script_revive_params
+   ---@field entity LuaEntity @The entity that was revived.
+   ---@field tags Tags|nil @The tags associated with this entity, if any.
+
+---@param p LuaBootstrap_raise_script_revive_params
 function LuaBootstrap.raise_script_revive(p) end
 
----@param p {surface_index: uint, tiles: Tile[]}
----@param surface_index uint @The surface whose tiles have been changed.
----@param tiles Tile[] @The tiles that have been changed.
+---@shape LuaBootstrap_raise_script_set_tiles_params
+   ---@field surface_index uint @The surface whose tiles have been changed.
+   ---@field tiles Tile[] @The tiles that have been changed.
+
+---@param p LuaBootstrap_raise_script_set_tiles_params
 function LuaBootstrap.raise_script_set_tiles(p) end
 
 --- Register a metatable to have linkage recorded and restored when saving/loading. The metatable itself will not be saved. Instead, only the linkage to a registered metatable is saved, and the metatable registered under that name will be used when loading the table.
@@ -1424,11 +1442,13 @@ function LuaContainerControlBehavior.help() end
   ---@field walking_state _table6 @RW; Current walking state.
 LuaControl = {}
 
+---@shape LuaControl_begin_crafting_params
+   ---@field count uint @The count to craft.
+   ---@field recipe string | LuaRecipe @The recipe to craft.
+   ---@field silent boolean|nil @If false and the recipe can't be crafted the requested number of times printing the failure is skipped.
+
 --- Begins crafting the given count of the given recipe.
----@param p {count: uint, recipe: string | LuaRecipe, silent: boolean|nil}
----@param count uint @The count to craft.
----@param recipe string | LuaRecipe @The recipe to craft.
----@param silent boolean|nil @If false and the recipe can't be crafted the requested number of times printing the failure is skipped.
+---@param p LuaControl_begin_crafting_params
 ---@return uint @The count that was actually started crafting.
 function LuaControl.begin_crafting(p) end
 
@@ -1442,10 +1462,12 @@ function LuaControl.can_insert(items) end
 ---@return boolean
 function LuaControl.can_reach_entity(entity) end
 
+---@shape LuaControl_cancel_crafting_params
+   ---@field index uint @The crafting queue index.
+   ---@field count uint @The count to cancel crafting.
+
 --- Cancels crafting the given count of the given crafting queue index.
----@param p {index: uint, count: uint}
----@param index uint @The crafting queue index.
----@param count uint @The count to cancel crafting.
+---@param p LuaControl_cancel_crafting_params
 function LuaControl.cancel_crafting(p) end
 
 --- Removes the arrow created by `set_gui_arrow`.
@@ -1551,9 +1573,11 @@ function LuaControl.open_technology_gui(technology) end
 ---@return uint @The number of items that were actually removed.
 function LuaControl.remove_item(items) end
 
+---@shape LuaControl_set_gui_arrow_params
+   ---@field type string @Where to point to. This field determines what other fields are mandatory. May be `"nowhere"`, `"goal"`, `"entity_info"`, `"active_window"`, `"entity"`, `"position"`, `"crafting_queue"`, or `"item_stack"`.
+
 --- Create an arrow which points at this entity. This is used in the tutorial. For examples, see `control.lua` in the campaign missions.
----@param p {type: string}
----@param type string @Where to point to. This field determines what other fields are mandatory. May be `"nowhere"`, `"goal"`, `"entity_info"`, `"active_window"`, `"entity"`, `"position"`, `"crafting_queue"`, or `"item_stack"`.
+---@param p LuaControl_set_gui_arrow_params
 function LuaControl.set_gui_arrow(p) end
 
 --- Sets a personal logistic request and auto-trash slot to the given value.
@@ -1923,12 +1947,14 @@ function LuaEntity.clear_market_items() end
 ---@param slot uint @The slot index.
 function LuaEntity.clear_request_slot(slot) end
 
+---@shape LuaEntity_clone_params
+   ---@field position MapPosition @The destination position
+   ---@field surface LuaSurface|nil @The destination surface
+   ---@field force ForceIdentification|nil
+   ---@field create_build_effect_smoke boolean|nil @If false, the building effect smoke will not be shown around the new entity.
+
 --- Clones this entity.
----@param p {position: MapPosition, surface: LuaSurface|nil, force: ForceIdentification|nil, create_build_effect_smoke: boolean|nil}
----@param position MapPosition @The destination position
----@param surface LuaSurface|nil @The destination surface
----@param force ForceIdentification|nil
----@param create_build_effect_smoke boolean|nil @If false, the building effect smoke will not be shown around the new entity.
+---@param p LuaEntity_clone_params
 ---@return LuaEntity @The cloned entity or `nil` if this entity can't be cloned/can't be cloned to the given location.
 function LuaEntity.clone(p) end
 
@@ -1972,10 +1998,12 @@ function LuaEntity.damage(damage, force, type, dealer) end
 --- Depletes and destroys this resource entity.
 function LuaEntity.deplete() end
 
+---@shape LuaEntity_destroy_params
+   ---@field do_cliff_correction boolean|nil @Whether neighbouring cliffs should be corrected. Defaults to `false`.
+   ---@field raise_destroy boolean|nil @If `true`, [script_raised_destroy](script_raised_destroy) will be called. Defaults to `false`.
+
 --- Destroys the entity.
----@param p {do_cliff_correction: boolean|nil, raise_destroy: boolean|nil}
----@param do_cliff_correction boolean|nil @Whether neighbouring cliffs should be corrected. Defaults to `false`.
----@param raise_destroy boolean|nil @If `true`, [script_raised_destroy](script_raised_destroy) will be called. Defaults to `false`.
+---@param p LuaEntity_destroy_params
 ---@return boolean @Returns `false` if the entity was valid and destruction failed, `true` in all other cases.
 ---@overload fun(): boolean
 function LuaEntity.destroy(p) end
@@ -2028,9 +2056,11 @@ function LuaEntity.get_child_signals() end
 ---@return LuaCircuitNetwork @The circuit network or nil.
 function LuaEntity.get_circuit_network(wire, circuit_connector) end
 
----@param p {rail_direction: defines__rail_direction, rail_connection_direction: defines__rail_connection_direction}
----@param rail_direction defines__rail_direction
----@param rail_connection_direction defines__rail_connection_direction
+---@shape LuaEntity_get_connected_rail_params
+   ---@field rail_direction defines__rail_direction
+   ---@field rail_connection_direction defines__rail_connection_direction
+
+---@param p LuaEntity_get_connected_rail_params
 ---@return LuaEntity, defines__rail_direction, defines__rail_connection_direction @Rail connected in the specified manner to this one, `nil` if unsuccessful.; Rail direction of the returned rail which points to origin rail; Turn to be taken when going back from returned rail to origin rail
 function LuaEntity.get_connected_rail(p) end
 
@@ -2281,12 +2311,14 @@ function LuaEntity.is_registered_for_upgrade() end
 ---@return boolean @`true` if the rocket was successfully launched. Return value of `false` means the silo is not ready for launch.
 function LuaEntity.launch_rocket() end
 
+---@shape LuaEntity_mine_params
+   ---@field inventory LuaInventory|nil @If provided the item(s) will be transferred into this inventory. If provided, this must be an inventory created with [LuaGameScript::create_inventory](LuaGameScript::create_inventory) or be a basic inventory owned by some entity.
+   ---@field force boolean|nil @If true, when the item(s) don't fit into the given inventory the entity is force mined. If false, the mining operation fails when there isn't enough room to transfer all of the items into the inventory. Defaults to false. This is ignored and acts as `true` if no inventory is provided.
+   ---@field raise_destroyed boolean|nil @If true, [script_raised_destroy](script_raised_destroy) will be raised. Defaults to `true`.
+   ---@field ignore_minable boolean|nil @If true, the minable state of the entity is ignored. Defaults to `false`. If false, an entity that isn't minable (set as not-minable in the prototype or isn't minable for other reasons) will fail to be mined.
+
 --- Mines this entity.
----@param p {inventory: LuaInventory|nil, force: boolean|nil, raise_destroyed: boolean|nil, ignore_minable: boolean|nil}
----@param inventory LuaInventory|nil @If provided the item(s) will be transferred into this inventory. If provided, this must be an inventory created with [LuaGameScript::create_inventory](LuaGameScript::create_inventory) or be a basic inventory owned by some entity.
----@param force boolean|nil @If true, when the item(s) don't fit into the given inventory the entity is force mined. If false, the mining operation fails when there isn't enough room to transfer all of the items into the inventory. Defaults to false. This is ignored and acts as `true` if no inventory is provided.
----@param raise_destroyed boolean|nil @If true, [script_raised_destroy](script_raised_destroy) will be raised. Defaults to `true`.
----@param ignore_minable boolean|nil @If true, the minable state of the entity is ignored. Defaults to `false`. If false, an entity that isn't minable (set as not-minable in the prototype or isn't minable for other reasons) will fail to be mined.
+---@param p LuaEntity_mine_params
 ---@return boolean @Whether mining succeeded.
 ---@overload fun(): boolean
 function LuaEntity.mine(p) end
@@ -2298,12 +2330,14 @@ function LuaEntity.mine(p) end
 ---@return boolean @if the entity was marked for deconstruction.
 function LuaEntity.order_deconstruction(force, player) end
 
+---@shape LuaEntity_order_upgrade_params
+   ---@field force ForceIdentification @The force whose robots are supposed to do the upgrade.
+   ---@field target EntityPrototypeIdentification @The prototype of the entity to upgrade to.
+   ---@field player PlayerIdentification|nil
+   ---@field direction defines__direction|nil @The new direction if any.
+
 --- Sets the entity to be upgraded by construction robots.
----@param p {force: ForceIdentification, target: EntityPrototypeIdentification, player: PlayerIdentification|nil, direction: defines__direction|nil}
----@param force ForceIdentification @The force whose robots are supposed to do the upgrade.
----@param target EntityPrototypeIdentification @The prototype of the entity to upgrade to.
----@param player PlayerIdentification|nil
----@param direction defines__direction|nil @The new direction if any.
+---@param p LuaEntity_order_upgrade_params
 ---@return boolean @Whether the entity was marked for upgrade.
 function LuaEntity.order_upgrade(p) end
 
@@ -2316,13 +2350,15 @@ function LuaEntity.play_note(instrument, note) end
 --- Release the unit from the spawner which spawned it. This allows the spawner to continue spawning additional units.
 function LuaEntity.release_from_spawner() end
 
+---@shape LuaEntity_remove_fluid_params
+   ---@field name string @Fluid prototype name.
+   ---@field amount double @Amount to remove
+   ---@field minimum_temperature double|nil
+   ---@field maximum_temperature double|nil
+   ---@field temperature double|nil
+
 --- Remove fluid from this entity.
----@param p {name: string, amount: double, minimum_temperature: double|nil, maximum_temperature: double|nil, temperature: double|nil}
----@param name string @Fluid prototype name.
----@param amount double @Amount to remove
----@param minimum_temperature double|nil
----@param maximum_temperature double|nil
----@param temperature double|nil
+---@param p LuaEntity_remove_fluid_params
 ---@return double @Amount of fluid actually removed.
 function LuaEntity.remove_fluid(p) end
 
@@ -2339,21 +2375,25 @@ function LuaEntity.request_to_close(force) end
 ---@overload fun(force: ForceIdentification)
 function LuaEntity.request_to_open(force, extra_time) end
 
+---@shape LuaEntity_revive_params
+   ---@field return_item_request_proxy boolean|nil @If `true` the function will return item request proxy as the third return value.
+   ---@field raise_revive boolean|nil @If true, and an entity ghost; [script_raised_revive](script_raised_revive) will be called. Else if true, and a tile ghost; [script_raised_set_tiles](script_raised_set_tiles) will be called.
+
 --- Revive a ghost. I.e. turn it from a ghost to a real entity or tile.
----@param p {return_item_request_proxy: boolean|nil, raise_revive: boolean|nil}
----@param return_item_request_proxy boolean|nil @If `true` the function will return item request proxy as the third return value.
----@param raise_revive boolean|nil @If true, and an entity ghost; [script_raised_revive](script_raised_revive) will be called. Else if true, and a tile ghost; [script_raised_set_tiles](script_raised_set_tiles) will be called.
+---@param p LuaEntity_revive_params
 ---@return table<string, uint>, LuaEntity, LuaEntity @Any items the new real entity collided with or `nil` if the ghost could not be revived.; The revived entity if an entity ghost was successfully revived.; The item request proxy if it was requested with `return_item_request_proxy`.
 ---@overload fun(): table<string, uint>, LuaEntity, LuaEntity
 function LuaEntity.revive(p) end
 
+---@shape LuaEntity_rotate_params
+   ---@field reverse boolean|nil @If `true`, rotate the entity in the counter-clockwise direction.
+   ---@field by_player PlayerIdentification|nil @If not specified, the [on_player_rotated_entity](on_player_rotated_entity) event will not be fired.
+   ---@field spill_items boolean|nil @If the player is not given should extra items be spilled or returned as a second return value from this.
+   ---@field enable_looted boolean|nil @When true, each spilled item will be flagged with the [LuaEntity::to_be_looted](LuaEntity::to_be_looted) flag.
+   ---@field force (LuaForce | string)|nil @When provided the spilled items will be marked for deconstruction by this force.
+
 --- Rotates this entity as if the player rotated it.
----@param p {reverse: boolean|nil, by_player: PlayerIdentification|nil, spill_items: boolean|nil, enable_looted: boolean|nil, force: (LuaForce | string)|nil}
----@param reverse boolean|nil @If `true`, rotate the entity in the counter-clockwise direction.
----@param by_player PlayerIdentification|nil @If not specified, the [on_player_rotated_entity](on_player_rotated_entity) event will not be fired.
----@param spill_items boolean|nil @If the player is not given should extra items be spilled or returned as a second return value from this.
----@param enable_looted boolean|nil @When true, each spilled item will be flagged with the [LuaEntity::to_be_looted](LuaEntity::to_be_looted) flag.
----@param force (LuaForce | string)|nil @When provided the spilled items will be marked for deconstruction by this force.
+---@param p LuaEntity_rotate_params
 ---@return boolean, table<string, uint> @Whether the rotation was successful.; Count of spilled items indexed by their prototype names if `spill_items` was `true`.
 ---@overload fun(): boolean, table<string, uint>
 function LuaEntity.rotate(p) end
@@ -2411,10 +2451,12 @@ function LuaEntity.set_recipe(recipe) end
 ---@return boolean @Whether the slot was set.
 function LuaEntity.set_request_slot(request, slot) end
 
+---@shape LuaEntity_silent_revive_params
+   ---@field return_item_request_proxy boolean|nil @If `true` the function will return item request proxy as the third parameter.
+   ---@field raise_revive boolean|nil @If true, and an entity ghost; [script_raised_revive](script_raised_revive) will be called. Else if true, and a tile ghost; [script_raised_set_tiles](script_raised_set_tiles) will be called.
+
 --- Revives a ghost silently.
----@param p {return_item_request_proxy: boolean|nil, raise_revive: boolean|nil}
----@param return_item_request_proxy boolean|nil @If `true` the function will return item request proxy as the third parameter.
----@param raise_revive boolean|nil @If true, and an entity ghost; [script_raised_revive](script_raised_revive) will be called. Else if true, and a tile ghost; [script_raised_set_tiles](script_raised_set_tiles) will be called.
+---@param p LuaEntity_silent_revive_params
 ---@return table<string, uint>, LuaEntity, LuaEntity @Any items the new real entity collided with or `nil` if the ghost could not be revived.; The revived entity if an entity ghost was successfully revived.; The item request proxy if it was requested with `return_item_request_proxy`.
 ---@overload fun(): table<string, uint>, LuaEntity, LuaEntity
 function LuaEntity.silent_revive(p) end
@@ -2469,7 +2511,7 @@ function LuaEntity.update_connections() end
   ---@field attack_parameters AttackParameters @RW nilable; The attack parameters for this entity, if any.
   ---@field attack_result TriggerItem[] @RW nilable; The attack result of this entity, if any.
   ---@field automated_ammo_count uint @RW nilable; The amount of ammo that inserters automatically insert into this ammo-turret or artillery-turret.
-  ---@field automatic_weapon_cycling boolean @RW nilable; Whether this spider vehicle prototoype automatically cycles weapons.
+  ---@field automatic_weapon_cycling boolean @RW nilable; Whether this spider vehicle prototype automatically cycles weapons.
   ---@field autoplace_specification AutoplaceSpecification @RW nilable; Autoplace specification for this entity prototype, if any.
   ---@field base_productivity double @RW nilable; The base productivity of this crafting machine, lab, or mining drill.
   ---@field belt_distance double @RW nilable
@@ -2668,6 +2710,7 @@ function LuaEntity.update_connections() end
   ---@field tile_width uint @RW; Specifies the tiling size of the entity, is used to decide, if the center should be in the center of the tile (odd tile size dimension) or on the tile border (even tile size dimension)
   ---@field time_to_live uint @RW; The time to live for this prototype or `0` if prototype doesn't have time_to_live or time_before_removed.
   ---@field timeout uint @RW nilable; The time it takes this land mine to arm.
+  ---@field torso_bob_speed double @RW nilable; The torso bob speed of this spider vehicle prototype.
   ---@field torso_rotation_speed double @RW nilable; The torso rotation speed of this spider vehicle prototype.
   ---@field tree_color_count uint8 @RW nilable; If it is a tree, return the number of colors it supports.
   ---@field trigger_collision_mask CollisionMaskWithFlags @RW nilable; The collision mask entities must collide with to make this landmine blow up.
@@ -2747,10 +2790,12 @@ function LuaEquipmentCategoryPrototype.help() end
   ---@field width uint @RW; Width of the equipment grid.
 LuaEquipmentGrid = {}
 
+---@shape LuaEquipmentGrid_can_move_params
+   ---@field equipment LuaEquipment @The equipment to move
+   ---@field position EquipmentPosition @Where to put it
+
 --- Check whether moving an equipment would succeed.
----@param p {equipment: LuaEquipment, position: EquipmentPosition}
----@param equipment LuaEquipment @The equipment to move
----@param position EquipmentPosition @Where to put it
+---@param p LuaEquipmentGrid_can_move_params
 ---@return boolean
 function LuaEquipmentGrid.can_move(p) end
 
@@ -2783,26 +2828,32 @@ function LuaEquipmentGrid.get_contents() end
 ---@return string
 function LuaEquipmentGrid.help() end
 
+---@shape LuaEquipmentGrid_move_params
+   ---@field equipment LuaEquipment @The equipment to move
+   ---@field position EquipmentPosition @Where to put it
+
 --- Move an equipment within this grid.
----@param p {equipment: LuaEquipment, position: EquipmentPosition}
----@param equipment LuaEquipment @The equipment to move
----@param position EquipmentPosition @Where to put it
+---@param p LuaEquipmentGrid_move_params
 ---@return boolean @`true` if the equipment was successfully moved.
 function LuaEquipmentGrid.move(p) end
 
+---@shape LuaEquipmentGrid_put_params
+   ---@field name string @Equipment prototype name
+   ---@field position EquipmentPosition|nil @Grid position to put the equipment in.
+   ---@field by_player PlayerIdentification|nil @If provided the action is done 'as' this player and [on_player_placed_equipment](on_player_placed_equipment) is triggered.
+
 --- Insert an equipment into the grid.
----@param p {name: string, position: EquipmentPosition|nil, by_player: PlayerIdentification|nil}
----@param name string @Equipment prototype name
----@param position EquipmentPosition|nil @Grid position to put the equipment in.
----@param by_player PlayerIdentification|nil @If provided the action is done 'as' this player and [on_player_placed_equipment](on_player_placed_equipment) is triggered.
+---@param p LuaEquipmentGrid_put_params
 ---@return LuaEquipment @The newly-added equipment, or `nil` if the equipment could not be added.
 function LuaEquipmentGrid.put(p) end
 
+---@shape LuaEquipmentGrid_take_params
+   ---@field position EquipmentPosition|nil @Take the equipment that contains this position in the grid.
+   ---@field equipment LuaEquipment|nil @Take this exact equipment.
+   ---@field by_player PlayerIdentification|nil @If provided the action is done 'as' this player and [on_player_removed_equipment](on_player_removed_equipment) is triggered.
+
 --- Remove an equipment from the grid.
----@param p {position: EquipmentPosition|nil, equipment: LuaEquipment|nil, by_player: PlayerIdentification|nil}
----@param position EquipmentPosition|nil @Take the equipment that contains this position in the grid.
----@param equipment LuaEquipment|nil @Take this exact equipment.
----@param by_player PlayerIdentification|nil @If provided the action is done 'as' this player and [on_player_removed_equipment](on_player_removed_equipment) is triggered.
+---@param p LuaEquipmentGrid_take_params
 ---@return SimpleItemStack @The removed equipment, or `nil` if no equipment was removed.
 function LuaEquipmentGrid.take(p) end
 
@@ -2869,15 +2920,17 @@ LuaFlowStatistics = {}
 --- Reset all the statistics data to 0.
 function LuaFlowStatistics.clear() end
 
+---@shape LuaFlowStatistics_get_flow_count_params
+   ---@field name string @The prototype name.
+   ---@field input boolean @Read the input values or the output values
+   ---@field precision_index defines__flow_precision_index @The precision range to read.
+   ---@field sample_index uint16|nil @The sample index to read from within the precision range. If not provided, the entire precision range is read. Must be between 1 and 300 where 1 is the most recent sample and 300 is the oldest.
+   ---@field count boolean|nil @If true, the count of items/fluids/entities is returned instead of the per-time-frame value.
+
 --- Gets the flow count value for the given time frame. If `sample_index` is not provided, then the value returned is the average across the provided precision time period. These are the values shown in the bottom section of the statistics GUIs.
 --- Use `sample_index` to access the data used to generate the statistics graphs. Each precision level contains 300 samples of data so at a precision of 1 minute, each sample contains data averaged across 60s / 300 = 0.2s = 12 ticks.
 --- All return values are normalized to be per-tick for electric networks and per-minute for all other types.
----@param p {name: string, input: boolean, precision_index: defines__flow_precision_index, sample_index: uint16|nil, count: boolean|nil}
----@param name string @The prototype name.
----@param input boolean @Read the input values or the output values
----@param precision_index defines__flow_precision_index @The precision range to read.
----@param sample_index uint16|nil @The sample index to read from within the precision range. If not provided, the entire precision range is read. Must be between 1 and 300 where 1 is the most recent sample and 300 is the oldest.
----@param count boolean|nil @If true, the count of items/fluids/entities is returned instead of the per-time-frame value.
+---@param p LuaFlowStatistics_get_flow_count_params
 ---@return double
 function LuaFlowStatistics.get_flow_count(p) end
 
@@ -3230,10 +3283,12 @@ function LuaForce.get_saved_technology_progress(technology) end
 ---@return MapPosition
 function LuaForce.get_spawn_position(surface) end
 
+---@shape LuaForce_get_train_stops_params
+   ---@field name (string | string[])|nil
+   ---@field surface SurfaceIdentification|nil
+
 --- Gets train stops matching the given filters.
----@param p {name: (string | string[])|nil, surface: SurfaceIdentification|nil}
----@param name (string | string[])|nil
----@param surface SurfaceIdentification|nil
+---@param p LuaForce_get_train_stops_params
 ---@return LuaEntity[]
 ---@overload fun(): LuaEntity[]
 function LuaForce.get_train_stops(p) end
@@ -3280,12 +3335,14 @@ function LuaForce.is_pathfinder_busy() end
 --- Kill all units and flush the pathfinder.
 function LuaForce.kill_all_units() end
 
+---@shape LuaForce_play_sound_params
+   ---@field path SoundPath @The sound to play.
+   ---@field position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
+   ---@field volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
+   ---@field override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
+
 --- Play a sound for every player in this force.
----@param p {path: SoundPath, position: MapPosition|nil, volume_modifier: double|nil, override_sound_type: SoundType|nil}
----@param path SoundPath @The sound to play.
----@param position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
----@param volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
----@param override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
+---@param p LuaForce_play_sound_params
 function LuaForce.play_sound(p) end
 
 --- Print text to the chat console of all players on this force.
@@ -3605,11 +3662,13 @@ function LuaGameScript.get_script_inventories(mod) end
 ---@return LuaSurface
 function LuaGameScript.get_surface(surface) end
 
+---@shape LuaGameScript_get_train_stops_params
+   ---@field name (string | string[])|nil
+   ---@field surface SurfaceIdentification|nil
+   ---@field force ForceIdentification|nil
+
 --- Gets train stops matching the given filters.
----@param p {name: (string | string[])|nil, surface: SurfaceIdentification|nil, force: ForceIdentification|nil}
----@param name (string | string[])|nil
----@param surface SurfaceIdentification|nil
----@param force ForceIdentification|nil
+---@param p LuaGameScript_get_train_stops_params
 ---@return LuaEntity[]
 ---@overload fun(): LuaEntity[]
 function LuaGameScript.get_train_stops(p) end
@@ -3657,12 +3716,14 @@ function LuaGameScript.mute_player(player) end
 ---@return MapExchangeStringData
 function LuaGameScript.parse_map_exchange_string(map_exchange_string) end
 
+---@shape LuaGameScript_play_sound_params
+   ---@field path SoundPath @The sound to play.
+   ---@field position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
+   ---@field volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
+   ---@field override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
+
 --- Play a sound for every player in the game.
----@param p {path: SoundPath, position: MapPosition|nil, volume_modifier: double|nil, override_sound_type: SoundType|nil}
----@param path SoundPath @The sound to play.
----@param position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
----@param volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
----@param override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
+---@param p LuaGameScript_play_sound_params
 function LuaGameScript.play_sound(p) end
 
 --- Print text to the chat console all players.
@@ -3708,25 +3769,29 @@ function LuaGameScript.save_atlas() end
 ---@overload fun()
 function LuaGameScript.server_save(name) end
 
+---@shape LuaGameScript_set_game_state_params
+   ---@field game_finished boolean
+   ---@field player_won boolean
+   ---@field next_level string
+   ---@field can_continue boolean
+   ---@field victorious_force ForceIdentification
+
 --- Set scenario state.
----@param p {game_finished: boolean, player_won: boolean, next_level: string, can_continue: boolean, victorious_force: ForceIdentification}
----@param game_finished boolean
----@param player_won boolean
----@param next_level string
----@param can_continue boolean
----@param victorious_force ForceIdentification
+---@param p LuaGameScript_set_game_state_params
 function LuaGameScript.set_game_state(p) end
 
 --- Forces the screenshot saving system to wait until all queued screenshots have been written to disk.
 function LuaGameScript.set_wait_for_screenshots_to_finish() end
 
+---@shape LuaGameScript_show_message_dialog_params
+   ---@field text LocalisedString @What the dialog should say
+   ---@field image string|nil @Path to an image to show on the dialog
+   ---@field point_to GuiArrowSpecification|nil @If specified, dialog will show an arrow pointing to this place. When not specified, the arrow will point to the player's position. (Use `point_to={type="nowhere"}` to remove the arrow entirely.) The dialog itself will be placed near the arrow's target.
+   ---@field style string|nil @The gui style to use for this speech bubble. Must be of type speech_bubble.
+   ---@field wrapper_frame_style string|nil @Must be of type flow_style.
+
 --- Show an in-game message dialog.
----@param p {text: LocalisedString, image: string|nil, point_to: GuiArrowSpecification|nil, style: string|nil, wrapper_frame_style: string|nil}
----@param text LocalisedString @What the dialog should say
----@param image string|nil @Path to an image to show on the dialog
----@param point_to GuiArrowSpecification|nil @If specified, dialog will show an arrow pointing to this place. When not specified, the arrow will point to the player's position. (Use `point_to={type="nowhere"}` to remove the arrow entirely.) The dialog itself will be placed near the arrow's target.
----@param style string|nil @The gui style to use for this speech bubble. Must be of type speech_bubble.
----@param wrapper_frame_style string|nil @Must be of type flow_style.
+---@param p LuaGameScript_show_message_dialog_params
 function LuaGameScript.show_message_dialog(p) end
 
 --- Convert a table to a JSON string
@@ -3734,34 +3799,38 @@ function LuaGameScript.show_message_dialog(p) end
 ---@return string
 function LuaGameScript.table_to_json(data) end
 
+---@shape LuaGameScript_take_screenshot_params
+   ---@field player PlayerIdentification|nil @The player to focus on. Defaults to the local player.
+   ---@field by_player PlayerIdentification|nil @If defined, the screenshot will only be taken for this player.
+   ---@field surface SurfaceIdentification|nil @If defined, the screenshot will be taken on this surface.
+   ---@field position MapPosition|nil @If defined, the screenshot will be centered on this position. Otherwise, the screenshot will center on `player`.
+   ---@field resolution TilePosition|nil @The maximum allowed resolution is 16384x16384 (8192x8192 when `anti_alias` is `true`), but the maximum recommended resolution is 4096x4096 (resp. 2048x2048).
+   ---@field zoom double|nil @The map zoom to take the screenshot at. Defaults to `1`.
+   ---@field path string|nil @The name of the image file. It should include a file extension indicating the desired format. Supports `.png`, `.jpg` /`.jpeg`, `.tga` and `.bmp`. Providing a directory path (ex. `"save/here/screenshot.png"`) will create the necessary folder structure in `script-output`. Defaults to `"screenshot.png"`.
+   ---@field show_gui boolean|nil @Whether to include GUIs in the screenshot or not. Defaults to `false`.
+   ---@field show_entity_info boolean|nil @Whether to include entity info ("Alt mode") or not. Defaults to `false`.
+   ---@field show_cursor_building_preview boolean|nil @When `true` and when `player` is specified, the building preview for the item in the player's cursor will also be rendered. Defaults to `false`.
+   ---@field anti_alias boolean|nil @Whether to render in double resolution and downscale the result (including GUI). Defaults to `false`.
+   ---@field quality int|nil @The `.jpg` render quality as a percentage (from 0% to 100% inclusive), if used. A lower value means a more compressed image. Defaults to `80`.
+   ---@field allow_in_replay boolean|nil @Whether to save the screenshot even during replay playback. Defaults to `false`.
+   ---@field daytime double|nil @Overrides the current surface daytime for the duration of screenshot rendering.
+   ---@field water_tick uint|nil @Overrides the tick of water animation, if animated water is enabled.
+   ---@field force_render boolean|nil @Screenshot requests are processed in between game update and render. The game may skip rendering (ie. drop frames) if the previous frame has not finished rendering or the game simulation starts to fall below 60 updates per second. If `force_render` is set to `true`, the game won't drop frames and process the screenshot request at the end of the update in which the request was created. This is not honored on multiplayer clients that are catching up to server. Defaults to `false`.
+
 --- Take a screenshot of the game and save it to the `script-output` folder, located in the game's [user data directory](https://wiki.factorio.com/User_data_directory). The name of the image file can be specified via the `path` parameter.
----@param p {player: PlayerIdentification|nil, by_player: PlayerIdentification|nil, surface: SurfaceIdentification|nil, position: MapPosition|nil, resolution: TilePosition|nil, zoom: double|nil, path: string|nil, show_gui: boolean|nil, show_entity_info: boolean|nil, show_cursor_building_preview: boolean|nil, anti_alias: boolean|nil, quality: int|nil, allow_in_replay: boolean|nil, daytime: double|nil, water_tick: uint|nil, force_render: boolean|nil}
----@param player PlayerIdentification|nil @The player to focus on. Defaults to the local player.
----@param by_player PlayerIdentification|nil @If defined, the screenshot will only be taken for this player.
----@param surface SurfaceIdentification|nil @If defined, the screenshot will be taken on this surface.
----@param position MapPosition|nil @If defined, the screenshot will be centered on this position. Otherwise, the screenshot will center on `player`.
----@param resolution TilePosition|nil @The maximum allowed resolution is 16384x16384 (8192x8192 when `anti_alias` is `true`), but the maximum recommended resolution is 4096x4096 (resp. 2048x2048).
----@param zoom double|nil @The map zoom to take the screenshot at. Defaults to `1`.
----@param path string|nil @The name of the image file. It should include a file extension indicating the desired format. Supports `.png`, `.jpg` /`.jpeg`, `.tga` and `.bmp`. Providing a directory path (ex. `"save/here/screenshot.png"`) will create the necessary folder structure in `script-output`. Defaults to `"screenshot.png"`.
----@param show_gui boolean|nil @Whether to include GUIs in the screenshot or not. Defaults to `false`.
----@param show_entity_info boolean|nil @Whether to include entity info ("Alt mode") or not. Defaults to `false`.
----@param show_cursor_building_preview boolean|nil @When `true` and when `player` is specified, the building preview for the item in the player's cursor will also be rendered. Defaults to `false`.
----@param anti_alias boolean|nil @Whether to render in double resolution and downscale the result (including GUI). Defaults to `false`.
----@param quality int|nil @The `.jpg` render quality as a percentage (from 0% to 100% inclusive), if used. A lower value means a more compressed image. Defaults to `80`.
----@param allow_in_replay boolean|nil @Whether to save the screenshot even during replay playback. Defaults to `false`.
----@param daytime double|nil @Overrides the current surface daytime for the duration of screenshot rendering.
----@param water_tick uint|nil @Overrides the tick of water animation, if animated water is enabled.
----@param force_render boolean|nil @Screenshot requests are processed in between game update and render. The game may skip rendering (ie. drop frames) if the previous frame has not finished rendering or the game simulation starts to fall below 60 updates per second. If `force_render` is set to `true`, the game won't drop frames and process the screenshot request at the end of the update in which the request was created. This is not honored on multiplayer clients that are catching up to server. Defaults to `false`.
+---@param p LuaGameScript_take_screenshot_params
 function LuaGameScript.take_screenshot(p) end
 
+---@shape LuaGameScript_take_technology_screenshot_params
+   ---@field force ForceIdentification|nil @The force whose technology to screenshot. If not given, the `"player`" force is used.
+   ---@field path string|nil @The name of the image file. It should include a file extension indicating the desired format. Supports `.png`, `.jpg` /`.jpeg`, `.tga` and `.bmp`. Providing a directory path (ex. `"save/here/screenshot.png"`) will create the necessary folder structure in `script-output`. Defaults to `"technology-screenshot.png"`.
+   ---@field by_player PlayerIdentification|nil @If given, the screenshot will only be taken for this player.
+   ---@field selected_technology TechnologyIdentification|nil @The technology to highlight.
+   ---@field skip_disabled boolean|nil @If `true`, disabled technologies will be skipped. Their successors will be attached to the disabled technology's parents. Defaults to `false`.
+   ---@field quality int|nil @The `.jpg` render quality as a percentage (from 0% to 100% inclusive), if used. A lower value means a more compressed image. Defaults to `80`.
+
 --- Take a screenshot of the technology screen and save it to the `script-output` folder, located in the game's [user data directory](https://wiki.factorio.com/User_data_directory). The name of the image file can be specified via the `path` parameter.
----@param p {force: ForceIdentification|nil, path: string|nil, by_player: PlayerIdentification|nil, selected_technology: TechnologyIdentification|nil, skip_disabled: boolean|nil, quality: int|nil}
----@param force ForceIdentification|nil @The force whose technology to screenshot. If not given, the `"player`" force is used.
----@param path string|nil @The name of the image file. It should include a file extension indicating the desired format. Supports `.png`, `.jpg` /`.jpeg`, `.tga` and `.bmp`. Providing a directory path (ex. `"save/here/screenshot.png"`) will create the necessary folder structure in `script-output`. Defaults to `"technology-screenshot.png"`.
----@param by_player PlayerIdentification|nil @If given, the screenshot will only be taken for this player.
----@param selected_technology TechnologyIdentification|nil @The technology to highlight.
----@param skip_disabled boolean|nil @If `true`, disabled technologies will be skipped. Their successors will be attached to the disabled technology's parents. Defaults to `false`.
----@param quality int|nil @The `.jpg` render quality as a percentage (from 0% to 100% inclusive), if used. A lower value means a more compressed image. Defaults to `80`.
+---@param p LuaGameScript_take_technology_screenshot_params
 function LuaGameScript.take_technology_screenshot(p) end
 
 --- Unbans the given player from this multiplayer game. Does nothing if this is a single player game of if the player running this isn't an admin.
@@ -3906,19 +3975,21 @@ function LuaGui.is_valid_sprite_path(sprite_path) end
   ---@field zoom double @RW; The zoom this camera or minimap is using. This value must be positive.
 LuaGuiElement = {}
 
+---@shape LuaGuiElement_add_params
+   ---@field type string @The kind of element to add. Has to be one of the GUI element types listed at the top of this page.
+   ---@field name string|nil @Name of the child element. It must be unique within the parent element.
+   ---@field caption LocalisedString|nil @Text displayed on the child element. For frames, this is their title. For other elements, like buttons or labels, this is the content. Whilst this attribute may be used on all elements, it doesn't make sense for tables and flows as they won't display it.
+   ---@field tooltip LocalisedString|nil @Tooltip of the child element.
+   ---@field enabled boolean|nil @Whether the child element is enabled. Defaults to `true`.
+   ---@field visible boolean|nil @Whether the child element is visible. Defaults to `true`.
+   ---@field ignored_by_interaction boolean|nil @Whether the child element is ignored by interaction. Defaults to `false`.
+   ---@field style string|nil @Style of the child element.
+   ---@field tags Tags|nil @[Tags](Tags) associated with the child element.
+   ---@field index uint|nil @Location in its parent that the child element should slot into. By default, the child will be appended onto the end.
+   ---@field anchor GuiAnchor|nil @Where to position the child element when in the `relative` element.
+
 --- Add a new child element to this GuiElement.
----@param p {type: string, name: string|nil, caption: LocalisedString|nil, tooltip: LocalisedString|nil, enabled: boolean|nil, visible: boolean|nil, ignored_by_interaction: boolean|nil, style: string|nil, tags: Tags|nil, index: uint|nil, anchor: GuiAnchor|nil}
----@param type string @The kind of element to add. Has to be one of the GUI element types listed at the top of this page.
----@param name string|nil @Name of the child element. It must be unique within the parent element.
----@param caption LocalisedString|nil @Text displayed on the child element. For frames, this is their title. For other elements, like buttons or labels, this is the content. Whilst this attribute may be used on all elements, it doesn't make sense for tables and flows as they won't display it.
----@param tooltip LocalisedString|nil @Tooltip of the child element.
----@param enabled boolean|nil @Whether the child element is enabled. Defaults to `true`.
----@param visible boolean|nil @Whether the child element is visible. Defaults to `true`.
----@param ignored_by_interaction boolean|nil @Whether the child element is ignored by interaction. Defaults to `false`.
----@param style string|nil @Style of the child element.
----@param tags Tags|nil @[Tags](Tags) associated with the child element.
----@param index uint|nil @Location in its parent that the child element should slot into. By default, the child will be appended onto the end.
----@param anchor GuiAnchor|nil @Where to position the child element when in the `relative` element.
+---@param p LuaGuiElement_add_params
 ---@return LuaGuiElement @The GUI element that was added.
 function LuaGuiElement.add(p) end
 
@@ -4382,15 +4453,17 @@ function LuaItemStack.add_ammo(amount) end
 ---@param amount double @Amount of durability to add.
 function LuaItemStack.add_durability(amount) end
 
----@param p {surface: SurfaceIdentification, force: ForceIdentification, position: MapPosition, force_build: boolean|nil, direction: defines__direction|nil, skip_fog_of_war: boolean|nil, by_player: PlayerIdentification|nil, raise_built: boolean|nil}
----@param surface SurfaceIdentification @Surface to build on
----@param force ForceIdentification @Force to use for the building
----@param position MapPosition @The position to build at
----@param force_build boolean|nil @When true, anything that can be built is else nothing is built if any one thing can't be built
----@param direction defines__direction|nil @The direction to use when building
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@param by_player PlayerIdentification|nil @The player to use if any. If provided [defines.events.on_built_entity](defines.events.on_built_entity) will also be fired on successful entity creation.
----@param raise_built boolean|nil @If true; [defines.events.script_raised_built](defines.events.script_raised_built) will be fired on successful entity creation. Note: this is ignored if by_player is provided.
+---@shape LuaItemStack_build_blueprint_params
+   ---@field surface SurfaceIdentification @Surface to build on
+   ---@field force ForceIdentification @Force to use for the building
+   ---@field position MapPosition @The position to build at
+   ---@field force_build boolean|nil @When true, anything that can be built is else nothing is built if any one thing can't be built
+   ---@field direction defines__direction|nil @The direction to use when building
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+   ---@field by_player PlayerIdentification|nil @The player to use if any. If provided [defines.events.on_built_entity](defines.events.on_built_entity) will also be fired on successful entity creation.
+   ---@field raise_built boolean|nil @If true; [defines.events.script_raised_built](defines.events.script_raised_built) will be fired on successful entity creation. Note: this is ignored if by_player is provided.
+
+---@param p LuaItemStack_build_blueprint_params
 ---@return LuaEntity[] @Array of created ghosts
 function LuaItemStack.build_blueprint(p) end
 
@@ -4400,13 +4473,15 @@ function LuaItemStack.build_blueprint(p) end
 ---@return boolean
 function LuaItemStack.can_set_stack(stack) end
 
+---@shape LuaItemStack_cancel_deconstruct_area_params
+   ---@field surface SurfaceIdentification @Surface to cancel deconstruct on
+   ---@field force ForceIdentification @Force to use for canceling deconstruction
+   ---@field area BoundingBox @The area to deconstruct
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+   ---@field by_player PlayerIdentification|nil @The player to use if any.
+
 --- Cancel deconstruct the given area with this deconstruction item.
----@param p {surface: SurfaceIdentification, force: ForceIdentification, area: BoundingBox, skip_fog_of_war: boolean|nil, by_player: PlayerIdentification|nil}
----@param surface SurfaceIdentification @Surface to cancel deconstruct on
----@param force ForceIdentification @Force to use for canceling deconstruction
----@param area BoundingBox @The area to deconstruct
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@param by_player PlayerIdentification|nil @The player to use if any.
+---@param p LuaItemStack_cancel_deconstruct_area_params
 function LuaItemStack.cancel_deconstruct_area(p) end
 
 --- Clear this item stack.
@@ -4421,17 +4496,19 @@ function LuaItemStack.clear_deconstruction_item() end
 --- Clears all settings/filters on this upgrade item resetting it to default values.
 function LuaItemStack.clear_upgrade_item() end
 
+---@shape LuaItemStack_create_blueprint_params
+   ---@field surface SurfaceIdentification @Surface to create from
+   ---@field force ForceIdentification @Force to use for the creation
+   ---@field area BoundingBox @The bounding box
+   ---@field always_include_tiles boolean|nil @When true, blueprintable tiles are always included in the blueprint. When false they're only included if no entities exist in the setup area.
+   ---@field include_entities boolean|nil @When true, entities are included in the blueprint. Defaults to true.
+   ---@field include_modules boolean|nil @When true, modules are included in the blueprint. Defaults to true.
+   ---@field include_station_names boolean|nil @When true, station names are included in the blueprint. Defaults to false.
+   ---@field include_trains boolean|nil @When true, trains are included in the blueprint. Defaults to false.
+   ---@field include_fuel boolean|nil @When true, train fuel is included in the blueprint, Defaults to true.
+
 --- Sets up this blueprint using the found blueprintable entities/tiles on the surface.
----@param p {surface: SurfaceIdentification, force: ForceIdentification, area: BoundingBox, always_include_tiles: boolean|nil, include_entities: boolean|nil, include_modules: boolean|nil, include_station_names: boolean|nil, include_trains: boolean|nil, include_fuel: boolean|nil}
----@param surface SurfaceIdentification @Surface to create from
----@param force ForceIdentification @Force to use for the creation
----@param area BoundingBox @The bounding box
----@param always_include_tiles boolean|nil @When true, blueprintable tiles are always included in the blueprint. When false they're only included if no entities exist in the setup area.
----@param include_entities boolean|nil @When true, entities are included in the blueprint. Defaults to true.
----@param include_modules boolean|nil @When true, modules are included in the blueprint. Defaults to true.
----@param include_station_names boolean|nil @When true, station names are included in the blueprint. Defaults to false.
----@param include_trains boolean|nil @When true, trains are included in the blueprint. Defaults to false.
----@param include_fuel boolean|nil @When true, train fuel is included in the blueprint, Defaults to true.
+---@param p LuaItemStack_create_blueprint_params
 ---@return table<uint, LuaEntity> @The blueprint entity index to source entity mapping.
 function LuaItemStack.create_blueprint(p) end
 
@@ -4439,13 +4516,15 @@ function LuaItemStack.create_blueprint(p) end
 ---@return LuaEquipmentGrid
 function LuaItemStack.create_grid() end
 
+---@shape LuaItemStack_deconstruct_area_params
+   ---@field surface SurfaceIdentification @Surface to deconstruct on
+   ---@field force ForceIdentification @Force to use for the deconstruction
+   ---@field area BoundingBox @The area to deconstruct
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+   ---@field by_player PlayerIdentification|nil @The player to use if any.
+
 --- Deconstruct the given area with this deconstruction item.
----@param p {surface: SurfaceIdentification, force: ForceIdentification, area: BoundingBox, skip_fog_of_war: boolean|nil, by_player: PlayerIdentification|nil}
----@param surface SurfaceIdentification @Surface to deconstruct on
----@param force ForceIdentification @Force to use for the deconstruction
----@param area BoundingBox @The area to deconstruct
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@param by_player PlayerIdentification|nil @The player to use if any.
+---@param p LuaItemStack_deconstruct_area_params
 function LuaItemStack.deconstruct_area(p) end
 
 --- Remove ammo from this ammo item.
@@ -4738,19 +4817,23 @@ function LuaLogisticNetwork.insert(item, members) end
 ---@return uint @Number of items removed.
 function LuaLogisticNetwork.remove_item(item, members) end
 
+---@shape LuaLogisticNetwork_select_drop_point_params
+   ---@field stack ItemStackIdentification @Name of the item to select.
+   ---@field members string|nil @When given, it will find from only the specific type of member. Must be `"storage"`, `"storage-empty"`, `"storage-empty-slot"` or `"requester"`. If not specified, selects with normal priorities.
+
 --- Find a logistic point to drop the specific item stack.
----@param p {stack: ItemStackIdentification, members: string|nil}
----@param stack ItemStackIdentification @Name of the item to select.
----@param members string|nil @When given, it will find from only the specific type of member. Must be `"storage"`, `"storage-empty"`, `"storage-empty-slot"` or `"requester"`. If not specified, selects with normal priorities.
+---@param p LuaLogisticNetwork_select_drop_point_params
 ---@return LuaLogisticPoint @`nil` if no point was found.
 function LuaLogisticNetwork.select_drop_point(p) end
 
+---@shape LuaLogisticNetwork_select_pickup_point_params
+   ---@field name string @Name of the item to select.
+   ---@field position MapPosition|nil @When given, it will find the storage 'best' storage point from this position.
+   ---@field include_buffers boolean|nil @Whether to consider buffer chests or not. Defaults to false. Only considered if selecting with position.
+   ---@field members string|nil @When given, it will find from only the specific type of member. Must be `"storage"`, `"passive-provider"`, `"buffer"` or `"active-provider"`. If not specified, selects with normal priorities. Not considered if position is specified.
+
 --- Find the 'best' logistic point with this item ID and from the given position or from given chest type.
----@param p {name: string, position: MapPosition|nil, include_buffers: boolean|nil, members: string|nil}
----@param name string @Name of the item to select.
----@param position MapPosition|nil @When given, it will find the storage 'best' storage point from this position.
----@param include_buffers boolean|nil @Whether to consider buffer chests or not. Defaults to false. Only considered if selecting with position.
----@param members string|nil @When given, it will find from only the specific type of member. Must be `"storage"`, `"passive-provider"`, `"buffer"` or `"active-provider"`. If not specified, selects with normal priorities. Not considered if position is specified.
+---@param p LuaLogisticNetwork_select_pickup_point_params
 ---@return LuaLogisticPoint @`nil` if no point was found.
 function LuaLogisticNetwork.select_pickup_point(p) end
 
@@ -4994,30 +5077,36 @@ function LuaPlayer.add_to_clipboard(blueprint) end
 ---@param character LuaEntity @The character entity.
 function LuaPlayer.associate_character(character) end
 
+---@shape LuaPlayer_build_from_cursor_params
+   ---@field position MapPosition @Where the entity would be placed
+   ---@field direction defines__direction|nil @Direction the entity would be placed
+   ---@field alt boolean|nil @If alt build should be used instead of normal build. Defaults to normal.
+   ---@field terrain_building_size uint|nil @The size for building terrain if building terrain. Defaults to 2.
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+
 --- Builds what ever is in the cursor on the surface the player is on.
----@param p {position: MapPosition, direction: defines__direction|nil, alt: boolean|nil, terrain_building_size: uint|nil, skip_fog_of_war: boolean|nil}
----@param position MapPosition @Where the entity would be placed
----@param direction defines__direction|nil @Direction the entity would be placed
----@param alt boolean|nil @If alt build should be used instead of normal build. Defaults to normal.
----@param terrain_building_size uint|nil @The size for building terrain if building terrain. Defaults to 2.
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+---@param p LuaPlayer_build_from_cursor_params
 function LuaPlayer.build_from_cursor(p) end
 
+---@shape LuaPlayer_can_build_from_cursor_params
+   ---@field position MapPosition @Where the entity would be placed
+   ---@field direction defines__direction|nil @Direction the entity would be placed
+   ---@field alt boolean|nil @If alt build should be used instead of normal build. Defaults to normal.
+   ---@field terrain_building_size uint|nil @The size for building terrain if building terrain. Defaults to 2.
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+
 --- Checks if this player can build what ever is in the cursor on the surface the player is on.
----@param p {position: MapPosition, direction: defines__direction|nil, alt: boolean|nil, terrain_building_size: uint|nil, skip_fog_of_war: boolean|nil}
----@param position MapPosition @Where the entity would be placed
----@param direction defines__direction|nil @Direction the entity would be placed
----@param alt boolean|nil @If alt build should be used instead of normal build. Defaults to normal.
----@param terrain_building_size uint|nil @The size for building terrain if building terrain. Defaults to 2.
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+---@param p LuaPlayer_can_build_from_cursor_params
 ---@return boolean
 function LuaPlayer.can_build_from_cursor(p) end
 
+---@shape LuaPlayer_can_place_entity_params
+   ---@field name string @Name of the entity to check
+   ---@field position MapPosition @Where the entity would be placed
+   ---@field direction defines__direction|nil @Direction the entity would be placed
+
 --- Checks if this player can build the give entity at the given location on the surface the player is on.
----@param p {name: string, position: MapPosition, direction: defines__direction|nil}
----@param name string @Name of the entity to check
----@param position MapPosition @Where the entity would be placed
----@param direction defines__direction|nil @Direction the entity would be placed
+---@param p LuaPlayer_can_place_entity_params
 ---@return boolean
 function LuaPlayer.can_place_entity(p) end
 
@@ -5037,12 +5126,14 @@ function LuaPlayer.clear_selection() end
 --- Queues request to switch to the normal game view from the map or zoom to world view. Render mode change requests are processed before rendering of the next frame.
 function LuaPlayer.close_map() end
 
+---@shape LuaPlayer_connect_to_server_params
+   ---@field address string @The server (address:port) if port is not given the default Factorio port is used.
+   ---@field name LocalisedString|nil @The name of the server.
+   ---@field description LocalisedString|nil
+   ---@field password string|nil @The password if different from the one used to join this game. Note, if the current password is not empty but the one required to join the new server is an empty string should be given for this field.
+
 --- Asks the player if they would like to connect to the given server.
----@param p {address: string, name: LocalisedString|nil, description: LocalisedString|nil, password: string|nil}
----@param address string @The server (address:port) if port is not given the default Factorio port is used.
----@param name LocalisedString|nil @The name of the server.
----@param description LocalisedString|nil
----@param password string|nil @The password if different from the one used to join this game. Note, if the current password is not empty but the one required to join the new server is an empty string should be given for this field.
+---@param p LuaPlayer_connect_to_server_params
 function LuaPlayer.connect_to_server(p) end
 
 --- Creates and attaches a character entity to this player.
@@ -5051,14 +5142,16 @@ function LuaPlayer.connect_to_server(p) end
 ---@return boolean @Whether the character was created.
 function LuaPlayer.create_character(character) end
 
+---@shape LuaPlayer_create_local_flying_text_params
+   ---@field text LocalisedString @The flying text to show.
+   ---@field position MapPosition|nil @The location on the map at which to show the flying text.
+   ---@field create_at_cursor boolean|nil @If `true`, the flying text is created at the player's cursor. Defaults to `false`.
+   ---@field color Color|nil @The color of the flying text. Defaults to white text.
+   ---@field time_to_live uint|nil @The amount of ticks that the flying text will be shown for. Defaults to `80`.
+   ---@field speed double|nil @The speed at which the text rises upwards in tiles/second. Can't be a negative value.
+
 --- Spawn flying text that is only visible to this player. Either `position` or `create_at_cursor` are required. When `create_at_cursor` is `true`, all parameters other than `text` are ignored.
----@param p {text: LocalisedString, position: MapPosition|nil, create_at_cursor: boolean|nil, color: Color|nil, time_to_live: uint|nil, speed: double|nil}
----@param text LocalisedString @The flying text to show.
----@param position MapPosition|nil @The location on the map at which to show the flying text.
----@param create_at_cursor boolean|nil @If `true`, the flying text is created at the player's cursor. Defaults to `false`.
----@param color Color|nil @The color of the flying text. Defaults to white text.
----@param time_to_live uint|nil @The amount of ticks that the flying text will be shown for. Defaults to `80`.
----@param speed double|nil @The speed at which the text rises upwards in tiles/second. Can't be a negative value.
+---@param p LuaPlayer_create_local_flying_text_params
 function LuaPlayer.create_local_flying_text(p) end
 
 --- Disables alerts for the given alert category.
@@ -5076,9 +5169,11 @@ function LuaPlayer.disable_recipe_subgroups() end
 ---@param character LuaEntity @The character entity
 function LuaPlayer.disassociate_character(character) end
 
+---@shape LuaPlayer_drag_wire_params
+   ---@field position MapPosition @Position at which cursor was clicked. Used only to decide which side of arithmetic combinator, decider combinator or power switch is to be connected. Entity itself to be connected is based on the player's selected entity.
+
 --- Start/end wire dragging at the specified location, wire type is based on the cursor contents
----@param p {position: MapPosition}
----@param position MapPosition @Position at which cursor was clicked. Used only to decide which side of arithmetic combinator, decider combinator or power switch is to be connected. Entity itself to be connected is based on the player's selected entity.
+---@param p LuaPlayer_drag_wire_params
 ---@return boolean @`true` if the action did something
 function LuaPlayer.drag_wire(p) end
 
@@ -5101,13 +5196,15 @@ function LuaPlayer.exit_cutscene() end
 ---@return uint8
 function LuaPlayer.get_active_quick_bar_page(index) end
 
+---@shape LuaPlayer_get_alerts_params
+   ---@field entity LuaEntity|nil
+   ---@field prototype LuaEntityPrototype|nil
+   ---@field position MapPosition|nil
+   ---@field type defines__alert_type|nil
+   ---@field surface SurfaceIdentification|nil
+
 --- Get all alerts matching the given filters, or all alerts if no filters are given.
----@param p {entity: LuaEntity|nil, prototype: LuaEntityPrototype|nil, position: MapPosition|nil, type: defines__alert_type|nil, surface: SurfaceIdentification|nil}
----@param entity LuaEntity|nil
----@param prototype LuaEntityPrototype|nil
----@param position MapPosition|nil
----@param type defines__alert_type|nil
----@param surface SurfaceIdentification|nil
+---@param p LuaPlayer_get_alerts_params
 ---@return table<uint, table<defines__alert_type, Alert[]>> @A mapping of surface index to an array of arrays of [alerts](Alert) indexed by the [alert type](defines.alert_type).
 function LuaPlayer.get_alerts(p) end
 
@@ -5179,12 +5276,14 @@ function LuaPlayer.open_map(position, scale) end
 ---@return boolean @Whether the smart pipette found something to place.
 function LuaPlayer.pipette_entity(entity) end
 
+---@shape LuaPlayer_play_sound_params
+   ---@field path SoundPath @The sound to play.
+   ---@field position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of the player.
+   ---@field volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
+   ---@field override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
+
 --- Play a sound for this player.
----@param p {path: SoundPath, position: MapPosition|nil, volume_modifier: double|nil, override_sound_type: SoundType|nil}
----@param path SoundPath @The sound to play.
----@param position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of the player.
----@param volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
----@param override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
+---@param p LuaPlayer_play_sound_params
 function LuaPlayer.play_sound(p) end
 
 --- Print text to the chat console.
@@ -5204,15 +5303,17 @@ function LuaPlayer.print_lua_object_statistics() end
 --- Print construction robot job counts to the players console.
 function LuaPlayer.print_robot_jobs() end
 
+---@shape LuaPlayer_remove_alert_params
+   ---@field entity LuaEntity|nil
+   ---@field prototype (LuaEntityPrototype | string)|nil
+   ---@field position MapPosition|nil
+   ---@field type defines__alert_type|nil
+   ---@field surface SurfaceIdentification|nil
+   ---@field icon SignalID|nil
+   ---@field message LocalisedString|nil
+
 --- Removes all alerts matching the given filters or if an empty filters table is given all alerts are removed.
----@param p {entity: LuaEntity|nil, prototype: (LuaEntityPrototype | string)|nil, position: MapPosition|nil, type: defines__alert_type|nil, surface: SurfaceIdentification|nil, icon: SignalID|nil, message: LocalisedString|nil}
----@param entity LuaEntity|nil
----@param prototype (LuaEntityPrototype | string)|nil
----@param position MapPosition|nil
----@param type defines__alert_type|nil
----@param surface SurfaceIdentification|nil
----@param icon SignalID|nil
----@param message LocalisedString|nil
+---@param p LuaPlayer_remove_alert_params
 function LuaPlayer.remove_alert(p) end
 
 --- Requests a translation for the given localised string. If the request is successful the [on_string_translated](on_string_translated) event will be fired at a later time with the results.
@@ -5225,15 +5326,17 @@ function LuaPlayer.request_translation(localised_string) end
 ---@param page_index uint @The new quick bar page.
 function LuaPlayer.set_active_quick_bar_page(screen_index, page_index) end
 
+---@shape LuaPlayer_set_controller_params
+   ---@field type defines__controllers @Which controller to use.
+   ---@field character LuaEntity|nil @Entity to control. Mandatory when `type` is [defines.controllers.character](defines.controllers.character), ignored otherwise.
+   ---@field waypoints CutsceneWaypoint|nil @List of waypoints for the cutscene controller. This parameter is mandatory when `type` is [defines.controllers.cutscene](defines.controllers.cutscene).
+   ---@field start_position MapPosition|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the cutscene will start at this position. If not given the start position will be the player position.
+   ---@field start_zoom double|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the cutscene will start at this zoom level. If not given the start zoom will be the players zoom.
+   ---@field final_transition_time uint|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), it is the time in ticks it will take for the camera to pan from the final waypoint back to the starting position. If not given the camera will not pan back to the start position/zoom.
+   ---@field chart_mode_cutoff double|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the game will switch to chart-mode (map zoomed out) rendering when the zoom level is less than this value.
+
 --- Set the controller type of the player.
----@param p {type: defines__controllers, character: LuaEntity|nil, waypoints: CutsceneWaypoint|nil, start_position: MapPosition|nil, start_zoom: double|nil, final_transition_time: uint|nil, chart_mode_cutoff: double|nil}
----@param type defines__controllers @Which controller to use.
----@param character LuaEntity|nil @Entity to control. Mandatory when `type` is [defines.controllers.character](defines.controllers.character), ignored otherwise.
----@param waypoints CutsceneWaypoint|nil @List of waypoints for the cutscene controller. This parameter is mandatory when `type` is [defines.controllers.cutscene](defines.controllers.cutscene).
----@param start_position MapPosition|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the cutscene will start at this position. If not given the start position will be the player position.
----@param start_zoom double|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the cutscene will start at this zoom level. If not given the start zoom will be the players zoom.
----@param final_transition_time uint|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), it is the time in ticks it will take for the camera to pan from the final waypoint back to the starting position. If not given the camera will not pan back to the start position/zoom.
----@param chart_mode_cutoff double|nil @If specified and `type` is [defines.controllers.cutscene](defines.controllers.cutscene), the game will switch to chart-mode (map zoomed out) rendering when the zoom level is less than this value.
+---@param p LuaPlayer_set_controller_params
 function LuaPlayer.set_controller(p) end
 
 --- Setup the screen to be shown when the game is finished.
@@ -5510,186 +5613,204 @@ function LuaRendering.clear(mod_name) end
 ---@param id uint64
 function LuaRendering.destroy(id) end
 
+---@shape LuaRendering_draw_animation_params
+   ---@field animation string @Name of an [animation prototype](https://wiki.factorio.com/Prototype/Animation).
+   ---@field orientation RealOrientation|nil @The orientation of the animation. Default is 0.
+   ---@field x_scale double|nil @Horizontal scale of the animation. Default is 1.
+   ---@field y_scale double|nil @Vertical scale of the animation. Default is 1.
+   ---@field tint Color|nil
+   ---@field render_layer RenderLayer|nil
+   ---@field animation_speed double|nil @How many frames the animation goes forward per tick. Default is 1.
+   ---@field animation_offset double|nil @Offset of the animation in frames. Default is 0.
+   ---@field orientation_target (MapPosition | LuaEntity)|nil @If given, the animation rotates so that it faces this target. Note that `orientation` is still applied to the animation.
+   ---@field orientation_target_offset Vector|nil @Only used if `orientation_target` is a LuaEntity.
+   ---@field oriented_offset Vector|nil @Offsets the center of the animation if `orientation_target` is given. This offset will rotate together with the animation.
+   ---@field target MapPosition | LuaEntity @Center of the animation.
+   ---@field target_offset Vector|nil @Only used if `target` is a LuaEntity.
+   ---@field surface SurfaceIdentification
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create an animation.
----@param p {animation: string, orientation: RealOrientation|nil, x_scale: double|nil, y_scale: double|nil, tint: Color|nil, render_layer: RenderLayer|nil, animation_speed: double|nil, animation_offset: double|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, target: MapPosition | LuaEntity, target_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, only_in_alt_mode: boolean|nil}
----@param animation string @Name of an [animation prototype](https://wiki.factorio.com/Prototype/Animation).
----@param orientation RealOrientation|nil @The orientation of the animation. Default is 0.
----@param x_scale double|nil @Horizontal scale of the animation. Default is 1.
----@param y_scale double|nil @Vertical scale of the animation. Default is 1.
----@param tint Color|nil
----@param render_layer RenderLayer|nil
----@param animation_speed double|nil @How many frames the animation goes forward per tick. Default is 1.
----@param animation_offset double|nil @Offset of the animation in frames. Default is 0.
----@param orientation_target (MapPosition | LuaEntity)|nil @If given, the animation rotates so that it faces this target. Note that `orientation` is still applied to the animation.
----@param orientation_target_offset Vector|nil @Only used if `orientation_target` is a LuaEntity.
----@param oriented_offset Vector|nil @Offsets the center of the animation if `orientation_target` is given. This offset will rotate together with the animation.
----@param target MapPosition | LuaEntity @Center of the animation.
----@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
----@param surface SurfaceIdentification
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_animation_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_animation(p) end
 
+---@shape LuaRendering_draw_arc_params
+   ---@field color Color
+   ---@field max_radius double @The radius of the outer edge of the arc, in tiles.
+   ---@field min_radius double @The radius of the inner edge of the arc, in tiles.
+   ---@field start_angle float @Where the arc starts, in radian.
+   ---@field angle float @The angle of the arc, in radian.
+   ---@field target MapPosition | LuaEntity
+   ---@field target_offset Vector|nil @Only used if `target` is a LuaEntity.
+   ---@field surface SurfaceIdentification
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create an arc.
----@param p {color: Color, max_radius: double, min_radius: double, start_angle: float, angle: float, target: MapPosition | LuaEntity, target_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, draw_on_ground: boolean|nil, only_in_alt_mode: boolean|nil}
----@param color Color
----@param max_radius double @The radius of the outer edge of the arc, in tiles.
----@param min_radius double @The radius of the inner edge of the arc, in tiles.
----@param start_angle float @Where the arc starts, in radian.
----@param angle float @The angle of the arc, in radian.
----@param target MapPosition | LuaEntity
----@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
----@param surface SurfaceIdentification
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_arc_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_arc(p) end
 
+---@shape LuaRendering_draw_circle_params
+   ---@field color Color
+   ---@field radius double @In tiles.
+   ---@field width float|nil @Width of the outline, used only if filled = false. Value is in pixels (32 per tile).
+   ---@field filled boolean @If the circle should be filled.
+   ---@field target MapPosition | LuaEntity
+   ---@field target_offset Vector|nil @Only used if `target` is a LuaEntity.
+   ---@field surface SurfaceIdentification
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create a circle.
----@param p {color: Color, radius: double, width: float|nil, filled: boolean, target: MapPosition | LuaEntity, target_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, draw_on_ground: boolean|nil, only_in_alt_mode: boolean|nil}
----@param color Color
----@param radius double @In tiles.
----@param width float|nil @Width of the outline, used only if filled = false. Value is in pixels (32 per tile).
----@param filled boolean @If the circle should be filled.
----@param target MapPosition | LuaEntity
----@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
----@param surface SurfaceIdentification
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_circle_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_circle(p) end
 
+---@shape LuaRendering_draw_light_params
+   ---@field sprite SpritePath
+   ---@field orientation RealOrientation|nil @The orientation of the light. Default is 0.
+   ---@field scale float|nil @Default is 1.
+   ---@field intensity float|nil @Default is 1.
+   ---@field minimum_darkness float|nil @The minimum darkness at which this light is rendered. Default is 0.
+   ---@field oriented boolean|nil @If this light has the same orientation as the entity target, default is false. Note that `orientation` is still applied to the sprite.
+   ---@field color Color|nil @Defaults to white (no tint).
+   ---@field target MapPosition | LuaEntity @Center of the light.
+   ---@field target_offset Vector|nil @Only used if `target` is a LuaEntity.
+   ---@field surface SurfaceIdentification
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create a light.
----@param p {sprite: SpritePath, orientation: RealOrientation|nil, scale: float|nil, intensity: float|nil, minimum_darkness: float|nil, oriented: boolean|nil, color: Color|nil, target: MapPosition | LuaEntity, target_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, only_in_alt_mode: boolean|nil}
----@param sprite SpritePath
----@param orientation RealOrientation|nil @The orientation of the light. Default is 0.
----@param scale float|nil @Default is 1.
----@param intensity float|nil @Default is 1.
----@param minimum_darkness float|nil @The minimum darkness at which this light is rendered. Default is 0.
----@param oriented boolean|nil @If this light has the same orientation as the entity target, default is false. Note that `orientation` is still applied to the sprite.
----@param color Color|nil @Defaults to white (no tint).
----@param target MapPosition | LuaEntity @Center of the light.
----@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
----@param surface SurfaceIdentification
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_light_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_light(p) end
 
+---@shape LuaRendering_draw_line_params
+   ---@field color Color
+   ---@field width float @In pixels (32 per tile).
+   ---@field gap_length double|nil @Length of the gaps that this line has, in tiles. Default is 0.
+   ---@field dash_length double|nil @Length of the dashes that this line has. Used only if gap_length > 0. Default is 0.
+   ---@field from MapPosition | LuaEntity
+   ---@field from_offset Vector|nil @Only used if `from` is a LuaEntity.
+   ---@field to MapPosition | LuaEntity
+   ---@field to_offset Vector|nil @Only used if `to` is a LuaEntity.
+   ---@field surface SurfaceIdentification
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create a line.
----@param p {color: Color, width: float, gap_length: double|nil, dash_length: double|nil, from: MapPosition | LuaEntity, from_offset: Vector|nil, to: MapPosition | LuaEntity, to_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, draw_on_ground: boolean|nil, only_in_alt_mode: boolean|nil}
----@param color Color
----@param width float @In pixels (32 per tile).
----@param gap_length double|nil @Length of the gaps that this line has, in tiles. Default is 0.
----@param dash_length double|nil @Length of the dashes that this line has. Used only if gap_length > 0. Default is 0.
----@param from MapPosition | LuaEntity
----@param from_offset Vector|nil @Only used if `from` is a LuaEntity.
----@param to MapPosition | LuaEntity
----@param to_offset Vector|nil @Only used if `to` is a LuaEntity.
----@param surface SurfaceIdentification
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_line_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_line(p) end
 
+---@shape LuaRendering_draw_polygon_params
+   ---@field color Color
+   ---@field vertices ScriptRenderVertexTarget[]
+   ---@field target (MapPosition | LuaEntity)|nil @Acts like an offset applied to all vertices that are not set to an entity.
+   ---@field target_offset Vector|nil @Only used if `target` is a LuaEntity.
+   ---@field orientation RealOrientation|nil @The orientation applied to all vertices. Default is 0.
+   ---@field orientation_target (MapPosition | LuaEntity)|nil @If given, the vertices (that are not set to an entity) rotate so that it faces this target. Note that `orientation` is still applied.
+   ---@field orientation_target_offset Vector|nil @Only used if `orientation_target` is a LuaEntity.
+   ---@field surface SurfaceIdentification
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create a triangle mesh defined by a triangle strip.
----@param p {color: Color, vertices: ScriptRenderVertexTarget[], target: (MapPosition | LuaEntity)|nil, target_offset: Vector|nil, orientation: RealOrientation|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, draw_on_ground: boolean|nil, only_in_alt_mode: boolean|nil}
----@param color Color
----@param vertices ScriptRenderVertexTarget[]
----@param target (MapPosition | LuaEntity)|nil @Acts like an offset applied to all vertices that are not set to an entity.
----@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
----@param orientation RealOrientation|nil @The orientation applied to all vertices. Default is 0.
----@param orientation_target (MapPosition | LuaEntity)|nil @If given, the vertices (that are not set to an entity) rotate so that it faces this target. Note that `orientation` is still applied.
----@param orientation_target_offset Vector|nil @Only used if `orientation_target` is a LuaEntity.
----@param surface SurfaceIdentification
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_polygon_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_polygon(p) end
 
+---@shape LuaRendering_draw_rectangle_params
+   ---@field color Color
+   ---@field width float|nil @Width of the outline, used only if filled = false. Value is in pixels (32 per tile).
+   ---@field filled boolean @If the rectangle should be filled.
+   ---@field left_top MapPosition | LuaEntity
+   ---@field left_top_offset Vector|nil @Only used if `left_top` is a LuaEntity.
+   ---@field right_bottom MapPosition | LuaEntity
+   ---@field right_bottom_offset Vector|nil @Only used if `right_bottom` is a LuaEntity.
+   ---@field surface SurfaceIdentification
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create a rectangle.
----@param p {color: Color, width: float|nil, filled: boolean, left_top: MapPosition | LuaEntity, left_top_offset: Vector|nil, right_bottom: MapPosition | LuaEntity, right_bottom_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, draw_on_ground: boolean|nil, only_in_alt_mode: boolean|nil}
----@param color Color
----@param width float|nil @Width of the outline, used only if filled = false. Value is in pixels (32 per tile).
----@param filled boolean @If the rectangle should be filled.
----@param left_top MapPosition | LuaEntity
----@param left_top_offset Vector|nil @Only used if `left_top` is a LuaEntity.
----@param right_bottom MapPosition | LuaEntity
----@param right_bottom_offset Vector|nil @Only used if `right_bottom` is a LuaEntity.
----@param surface SurfaceIdentification
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_rectangle_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_rectangle(p) end
 
+---@shape LuaRendering_draw_sprite_params
+   ---@field sprite SpritePath
+   ---@field orientation RealOrientation|nil @The orientation of the sprite. Default is 0.
+   ---@field x_scale double|nil @Horizontal scale of the sprite. Default is 1.
+   ---@field y_scale double|nil @Vertical scale of the sprite. Default is 1.
+   ---@field tint Color|nil
+   ---@field render_layer RenderLayer|nil
+   ---@field orientation_target (MapPosition | LuaEntity)|nil @If given, the sprite rotates so that it faces this target. Note that `orientation` is still applied to the sprite.
+   ---@field orientation_target_offset Vector|nil @Only used if `orientation_target` is a LuaEntity.
+   ---@field oriented_offset Vector|nil @Offsets the center of the sprite if `orientation_target` is given. This offset will rotate together with the sprite.
+   ---@field target MapPosition | LuaEntity @Center of the sprite.
+   ---@field target_offset Vector|nil @Only used if `target` is a LuaEntity.
+   ---@field surface SurfaceIdentification
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create a sprite.
----@param p {sprite: SpritePath, orientation: RealOrientation|nil, x_scale: double|nil, y_scale: double|nil, tint: Color|nil, render_layer: RenderLayer|nil, orientation_target: (MapPosition | LuaEntity)|nil, orientation_target_offset: Vector|nil, oriented_offset: Vector|nil, target: MapPosition | LuaEntity, target_offset: Vector|nil, surface: SurfaceIdentification, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, only_in_alt_mode: boolean|nil}
----@param sprite SpritePath
----@param orientation RealOrientation|nil @The orientation of the sprite. Default is 0.
----@param x_scale double|nil @Horizontal scale of the sprite. Default is 1.
----@param y_scale double|nil @Vertical scale of the sprite. Default is 1.
----@param tint Color|nil
----@param render_layer RenderLayer|nil
----@param orientation_target (MapPosition | LuaEntity)|nil @If given, the sprite rotates so that it faces this target. Note that `orientation` is still applied to the sprite.
----@param orientation_target_offset Vector|nil @Only used if `orientation_target` is a LuaEntity.
----@param oriented_offset Vector|nil @Offsets the center of the sprite if `orientation_target` is given. This offset will rotate together with the sprite.
----@param target MapPosition | LuaEntity @Center of the sprite.
----@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
----@param surface SurfaceIdentification
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_sprite_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_sprite(p) end
 
+---@shape LuaRendering_draw_text_params
+   ---@field text LocalisedString @The text to display.
+   ---@field surface SurfaceIdentification
+   ---@field target MapPosition | LuaEntity
+   ---@field target_offset Vector|nil @Only used if `target` is a LuaEntity.
+   ---@field color Color
+   ---@field scale double|nil
+   ---@field font string|nil @Name of font to use. Defaults to the same font as flying-text.
+   ---@field time_to_live uint|nil @In ticks. Defaults to living forever.
+   ---@field forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
+   ---@field players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
+   ---@field visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
+   ---@field draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
+   ---@field orientation RealOrientation|nil @The orientation of the text. Default is 0.
+   ---@field alignment string|nil @Defaults to "left". Other options are "right" and "center".
+   ---@field vertical_alignment string|nil @Defaults to "top". Other options are "middle", "baseline" and "bottom".
+   ---@field scale_with_zoom boolean|nil @Defaults to false. If true, the text scales with player zoom, resulting in it always being the same size on screen, and the size compared to the game world changes.
+   ---@field only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+
 --- Create a text.
----@param p {text: LocalisedString, surface: SurfaceIdentification, target: MapPosition | LuaEntity, target_offset: Vector|nil, color: Color, scale: double|nil, font: string|nil, time_to_live: uint|nil, forces: ForceIdentification[]|nil, players: PlayerIdentification[]|nil, visible: boolean|nil, draw_on_ground: boolean|nil, orientation: RealOrientation|nil, alignment: string|nil, vertical_alignment: string|nil, scale_with_zoom: boolean|nil, only_in_alt_mode: boolean|nil}
----@param text LocalisedString @The text to display.
----@param surface SurfaceIdentification
----@param target MapPosition | LuaEntity
----@param target_offset Vector|nil @Only used if `target` is a LuaEntity.
----@param color Color
----@param scale double|nil
----@param font string|nil @Name of font to use. Defaults to the same font as flying-text.
----@param time_to_live uint|nil @In ticks. Defaults to living forever.
----@param forces ForceIdentification[]|nil @The forces that this object is rendered to. Passing `nil` or an empty table will render it to all forces.
----@param players PlayerIdentification[]|nil @The players that this object is rendered to. Passing `nil` or an empty table will render it to all players.
----@param visible boolean|nil @If this is rendered to anyone at all. Defaults to true.
----@param draw_on_ground boolean|nil @If this should be drawn below sprites and entities.
----@param orientation RealOrientation|nil @The orientation of the text. Default is 0.
----@param alignment string|nil @Defaults to "left". Other options are "right" and "center".
----@param vertical_alignment string|nil @Defaults to "top". Other options are "middle", "baseline" and "bottom".
----@param scale_with_zoom boolean|nil @Defaults to false. If true, the text scales with player zoom, resulting in it always being the same size on screen, and the size compared to the game world changes.
----@param only_in_alt_mode boolean|nil @If this should only be rendered in alt mode. Defaults to false.
+---@param p LuaRendering_draw_text_params
 ---@return uint64 @Id of the render object
 function LuaRendering.draw_text(p) end
 
@@ -6350,43 +6471,51 @@ function LuaSurface.build_enemy_base(position, unit_count, force) end
 ---@return table<string, double[]> @Table of property value lists, keyed by property name
 function LuaSurface.calculate_tile_properties(property_names, positions) end
 
+---@shape LuaSurface_can_fast_replace_params
+   ---@field name string @Name of the entity to check
+   ---@field position MapPosition @Where the entity would be placed
+   ---@field direction defines__direction|nil @Direction the entity would be placed
+   ---@field force ForceIdentification|nil @The force that would place the entity. If not specified, the enemy force is assumed.
+
 --- If there exists an entity at the given location that can be fast-replaced with the given entity parameters.
----@param p {name: string, position: MapPosition, direction: defines__direction|nil, force: ForceIdentification|nil}
----@param name string @Name of the entity to check
----@param position MapPosition @Where the entity would be placed
----@param direction defines__direction|nil @Direction the entity would be placed
----@param force ForceIdentification|nil @The force that would place the entity. If not specified, the enemy force is assumed.
+---@param p LuaSurface_can_fast_replace_params
 ---@return boolean
 function LuaSurface.can_fast_replace(p) end
 
+---@shape LuaSurface_can_place_entity_params
+   ---@field name string @Name of the entity prototype to check.
+   ---@field position MapPosition @Where the entity would be placed.
+   ---@field direction defines__direction|nil @Direction of the placed entity.
+   ---@field force ForceIdentification|nil @The force that would place the entity. If not specified, the enemy force is assumed.
+   ---@field build_check_type defines__build_check_type|nil @Which type of check should be carried out.
+   ---@field forced boolean|nil @If `true`, entities that can be marked for deconstruction are ignored. Only used if `build_check_type` is either `manual_ghost`, `script_ghost` or `blueprint_ghost`.
+   ---@field inner_name string|nil @The prototype name of the entity contained in the ghost. Only used if `name` is `entity-ghost`.
+
 --- Check for collisions with terrain or other entities.
----@param p {name: string, position: MapPosition, direction: defines__direction|nil, force: ForceIdentification|nil, build_check_type: defines__build_check_type|nil, forced: boolean|nil, inner_name: string|nil}
----@param name string @Name of the entity prototype to check.
----@param position MapPosition @Where the entity would be placed.
----@param direction defines__direction|nil @Direction of the placed entity.
----@param force ForceIdentification|nil @The force that would place the entity. If not specified, the enemy force is assumed.
----@param build_check_type defines__build_check_type|nil @Which type of check should be carried out.
----@param forced boolean|nil @If `true`, entities that can be marked for deconstruction are ignored. Only used if `build_check_type` is either `manual_ghost`, `script_ghost` or `blueprint_ghost`.
----@param inner_name string|nil @The prototype name of the entity contained in the ghost. Only used if `name` is `entity-ghost`.
+---@param p LuaSurface_can_place_entity_params
 ---@return boolean
 function LuaSurface.can_place_entity(p) end
 
+---@shape LuaSurface_cancel_deconstruct_area_params
+   ---@field area BoundingBox @The area to cancel deconstruction orders in.
+   ---@field force ForceIdentification @The force whose deconstruction orders to cancel.
+   ---@field player PlayerIdentification|nil @The player to set the last_user to if any.
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+   ---@field item LuaItemStack|nil @The deconstruction item to use if any.
+
 --- Cancel a deconstruction order.
----@param p {area: BoundingBox, force: ForceIdentification, player: PlayerIdentification|nil, skip_fog_of_war: boolean|nil, item: LuaItemStack|nil}
----@param area BoundingBox @The area to cancel deconstruction orders in.
----@param force ForceIdentification @The force whose deconstruction orders to cancel.
----@param player PlayerIdentification|nil @The player to set the last_user to if any.
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@param item LuaItemStack|nil @The deconstruction item to use if any.
+---@param p LuaSurface_cancel_deconstruct_area_params
 function LuaSurface.cancel_deconstruct_area(p) end
 
+---@shape LuaSurface_cancel_upgrade_area_params
+   ---@field area BoundingBox @The area to cancel upgrade orders in.
+   ---@field force ForceIdentification @The force whose upgrade orders to cancel.
+   ---@field player PlayerIdentification|nil @The player to set the last_user to if any.
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+   ---@field item LuaItemStack|nil @The upgrade item to use if any.
+
 --- Cancel a upgrade order.
----@param p {area: BoundingBox, force: ForceIdentification, player: PlayerIdentification|nil, skip_fog_of_war: boolean|nil, item: LuaItemStack|nil}
----@param area BoundingBox @The area to cancel upgrade orders in.
----@param force ForceIdentification @The force whose upgrade orders to cancel.
----@param player PlayerIdentification|nil @The player to set the last_user to if any.
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@param item LuaItemStack|nil @The upgrade item to use if any.
+---@param p LuaSurface_cancel_upgrade_area_params
 function LuaSurface.cancel_upgrade_area(p) end
 
 --- Clears this surface deleting all entities and chunks on it.
@@ -6397,140 +6526,162 @@ function LuaSurface.clear(ignore_characters) end
 --- Clears all pollution on this surface.
 function LuaSurface.clear_pollution() end
 
+---@shape LuaSurface_clone_area_params
+   ---@field source_area BoundingBox
+   ---@field destination_area BoundingBox
+   ---@field destination_surface SurfaceIdentification|nil
+   ---@field destination_force (LuaForce | string)|nil
+   ---@field clone_tiles boolean|nil @If tiles should be cloned
+   ---@field clone_entities boolean|nil @If entities should be cloned
+   ---@field clone_decoratives boolean|nil @If decoratives should be cloned
+   ---@field clear_destination_entities boolean|nil @If the destination entities should be cleared
+   ---@field clear_destination_decoratives boolean|nil @If the destination decoratives should be cleared
+   ---@field expand_map boolean|nil @If the destination surface should be expanded when destination_area is outside current bounds. Default false.
+   ---@field create_build_effect_smoke boolean|nil @If true, the building effect smoke will be shown around the new entities.
+
 --- Clones the given area.
----@param p {source_area: BoundingBox, destination_area: BoundingBox, destination_surface: SurfaceIdentification|nil, destination_force: (LuaForce | string)|nil, clone_tiles: boolean|nil, clone_entities: boolean|nil, clone_decoratives: boolean|nil, clear_destination_entities: boolean|nil, clear_destination_decoratives: boolean|nil, expand_map: boolean|nil, create_build_effect_smoke: boolean|nil}
----@param source_area BoundingBox
----@param destination_area BoundingBox
----@param destination_surface SurfaceIdentification|nil
----@param destination_force (LuaForce | string)|nil
----@param clone_tiles boolean|nil @If tiles should be cloned
----@param clone_entities boolean|nil @If entities should be cloned
----@param clone_decoratives boolean|nil @If decoratives should be cloned
----@param clear_destination_entities boolean|nil @If the destination entities should be cleared
----@param clear_destination_decoratives boolean|nil @If the destination decoratives should be cleared
----@param expand_map boolean|nil @If the destination surface should be expanded when destination_area is outside current bounds. Default false.
----@param create_build_effect_smoke boolean|nil @If true, the building effect smoke will be shown around the new entities.
+---@param p LuaSurface_clone_area_params
 function LuaSurface.clone_area(p) end
 
+---@shape LuaSurface_clone_brush_params
+   ---@field source_offset TilePosition
+   ---@field destination_offset TilePosition
+   ---@field source_positions TilePosition[]
+   ---@field destination_surface SurfaceIdentification|nil
+   ---@field destination_force (LuaForce | string)|nil
+   ---@field clone_tiles boolean|nil @If tiles should be cloned
+   ---@field clone_entities boolean|nil @If entities should be cloned
+   ---@field clone_decoratives boolean|nil @If decoratives should be cloned
+   ---@field clear_destination_entities boolean|nil @If the destination entities should be cleared
+   ---@field clear_destination_decoratives boolean|nil @If the destination decoratives should be cleared
+   ---@field expand_map boolean|nil @If the destination surface should be expanded when destination_area is outside current bounds. Default false.
+   ---@field manual_collision_mode boolean|nil @If manual-style collision checks should be done.
+   ---@field create_build_effect_smoke boolean|nil @If true, the building effect smoke will be shown around the new entities.
+
 --- Clones the given area.
----@param p {source_offset: TilePosition, destination_offset: TilePosition, source_positions: TilePosition[], destination_surface: SurfaceIdentification|nil, destination_force: (LuaForce | string)|nil, clone_tiles: boolean|nil, clone_entities: boolean|nil, clone_decoratives: boolean|nil, clear_destination_entities: boolean|nil, clear_destination_decoratives: boolean|nil, expand_map: boolean|nil, manual_collision_mode: boolean|nil, create_build_effect_smoke: boolean|nil}
----@param source_offset TilePosition
----@param destination_offset TilePosition
----@param source_positions TilePosition[]
----@param destination_surface SurfaceIdentification|nil
----@param destination_force (LuaForce | string)|nil
----@param clone_tiles boolean|nil @If tiles should be cloned
----@param clone_entities boolean|nil @If entities should be cloned
----@param clone_decoratives boolean|nil @If decoratives should be cloned
----@param clear_destination_entities boolean|nil @If the destination entities should be cleared
----@param clear_destination_decoratives boolean|nil @If the destination decoratives should be cleared
----@param expand_map boolean|nil @If the destination surface should be expanded when destination_area is outside current bounds. Default false.
----@param manual_collision_mode boolean|nil @If manual-style collision checks should be done.
----@param create_build_effect_smoke boolean|nil @If true, the building effect smoke will be shown around the new entities.
+---@param p LuaSurface_clone_brush_params
 function LuaSurface.clone_brush(p) end
 
+---@shape LuaSurface_clone_entities_params
+   ---@field entities LuaEntity[]
+   ---@field destination_offset Vector
+   ---@field destination_surface SurfaceIdentification|nil
+   ---@field destination_force ForceIdentification|nil
+   ---@field snap_to_grid boolean|nil
+   ---@field create_build_effect_smoke boolean|nil @If true, the building effect smoke will be shown around the new entities.
+
 --- Clones the given entities.
----@param p {entities: LuaEntity[], destination_offset: Vector, destination_surface: SurfaceIdentification|nil, destination_force: ForceIdentification|nil, snap_to_grid: boolean|nil, create_build_effect_smoke: boolean|nil}
----@param entities LuaEntity[]
----@param destination_offset Vector
----@param destination_surface SurfaceIdentification|nil
----@param destination_force ForceIdentification|nil
----@param snap_to_grid boolean|nil
----@param create_build_effect_smoke boolean|nil @If true, the building effect smoke will be shown around the new entities.
+---@param p LuaSurface_clone_entities_params
 function LuaSurface.clone_entities(p) end
+
+---@shape LuaSurface_count_entities_filtered_params
+   ---@field area BoundingBox|nil
+   ---@field position MapPosition|nil
+   ---@field radius double|nil @If given with position, will count all entities within the radius of the position.
+   ---@field name (string | string[])|nil
+   ---@field type (string | string[])|nil
+   ---@field ghost_name (string | string[])|nil
+   ---@field ghost_type (string | string[])|nil
+   ---@field direction (defines__direction | defines__direction[])|nil
+   ---@field collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
+   ---@field force (ForceIdentification | ForceIdentification[])|nil
+   ---@field to_be_deconstructed boolean|nil
+   ---@field to_be_upgraded boolean|nil
+   ---@field limit uint|nil
+   ---@field is_military_target boolean|nil
+   ---@field invert boolean|nil @Whether the filters should be inverted.
 
 --- Count entities of given type or name in a given area. Works just like [LuaSurface::find_entities_filtered](LuaSurface::find_entities_filtered), except this only returns the count. As it doesn't construct all the wrapper objects, this is more efficient if one is only interested in the number of entities.
 --- If no `area` or `position` are given, the entire surface is searched. If `position` is given, this returns the entities colliding with that position (i.e the given position is within the entity's collision box). If `position` and `radius` are given, this returns entities in the radius of the position. If `area` is specified, this returns entities colliding with that area.
----@param p {area: BoundingBox|nil, position: MapPosition|nil, radius: double|nil, name: (string | string[])|nil, type: (string | string[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, direction: (defines__direction | defines__direction[])|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil, limit: uint|nil, is_military_target: boolean|nil, invert: boolean|nil}
----@param area BoundingBox|nil
----@param position MapPosition|nil
----@param radius double|nil @If given with position, will count all entities within the radius of the position.
----@param name (string | string[])|nil
----@param type (string | string[])|nil
----@param ghost_name (string | string[])|nil
----@param ghost_type (string | string[])|nil
----@param direction (defines__direction | defines__direction[])|nil
----@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
----@param force (ForceIdentification | ForceIdentification[])|nil
----@param to_be_deconstructed boolean|nil
----@param to_be_upgraded boolean|nil
----@param limit uint|nil
----@param is_military_target boolean|nil
----@param invert boolean|nil @Whether the filters should be inverted.
+---@param p LuaSurface_count_entities_filtered_params
 ---@return uint
 function LuaSurface.count_entities_filtered(p) end
 
+---@shape LuaSurface_count_tiles_filtered_params
+   ---@field area BoundingBox|nil
+   ---@field position MapPosition|nil @Ignored if not given with radius.
+   ---@field radius double|nil @If given with position, will return all entities within the radius of the position.
+   ---@field name (string | string[])|nil
+   ---@field force (ForceIdentification | ForceIdentification[])|nil
+   ---@field limit uint|nil
+   ---@field has_hidden_tile boolean|nil
+   ---@field has_tile_ghost boolean|nil @Can be further filtered by supplying a `force` filter.
+   ---@field to_be_deconstructed boolean|nil @Can be further filtered by supplying a `force` filter.
+   ---@field collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
+   ---@field invert boolean|nil @If the filters should be inverted.
+
 --- Count tiles of a given name in a given area. Works just like [LuaSurface::find_tiles_filtered](LuaSurface::find_tiles_filtered), except this only returns the count. As it doesn't construct all the wrapper objects, this is more efficient if one is only interested in the number of tiles.
 --- If no `area` or `position` and `radius` is given, the entire surface is searched. If `position` and `radius` are given, only tiles within the radius of the position are included.
----@param p {area: BoundingBox|nil, position: MapPosition|nil, radius: double|nil, name: (string | string[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, limit: uint|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, to_be_deconstructed: boolean|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, invert: boolean|nil}
----@param area BoundingBox|nil
----@param position MapPosition|nil @Ignored if not given with radius.
----@param radius double|nil @If given with position, will return all entities within the radius of the position.
----@param name (string | string[])|nil
----@param force (ForceIdentification | ForceIdentification[])|nil
----@param limit uint|nil
----@param has_hidden_tile boolean|nil
----@param has_tile_ghost boolean|nil @Can be further filtered by supplying a `force` filter.
----@param to_be_deconstructed boolean|nil @Can be further filtered by supplying a `force` filter.
----@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
----@param invert boolean|nil @If the filters should be inverted.
+---@param p LuaSurface_count_tiles_filtered_params
 ---@return uint
 function LuaSurface.count_tiles_filtered(p) end
 
+---@shape LuaSurface_create_decoratives_params
+   ---@field check_collision boolean|nil @If collision should be checked against entities/tiles.
+   ---@field decoratives Decorative[]
+
 --- Adds the given decoratives to the surface.
----@param p {check_collision: boolean|nil, decoratives: Decorative[]}
----@param check_collision boolean|nil @If collision should be checked against entities/tiles.
----@param decoratives Decorative[]
+---@param p LuaSurface_create_decoratives_params
 function LuaSurface.create_decoratives(p) end
 
+---@shape LuaSurface_create_entity_params
+   ---@field name string @The entity prototype name to create.
+   ---@field position MapPosition @Where to create the entity.
+   ---@field direction defines__direction|nil @Desired orientation of the entity after creation.
+   ---@field force ForceIdentification|nil @Force of the entity, default is enemy.
+   ---@field target (LuaEntity | MapPosition)|nil @Entity with health for the new entity to target.
+   ---@field source (LuaEntity | MapPosition)|nil @Source entity. Used for beams and highlight-boxes.
+   ---@field fast_replace boolean|nil @If true, building will attempt to simulate fast-replace building.
+   ---@field player PlayerIdentification|nil @If given set the last_user to this player. If fast_replace is true simulate fast replace using this player.
+   ---@field spill boolean|nil @If false while fast_replace is true and player is nil any items from fast-replacing will be deleted instead of dropped on the ground.
+   ---@field raise_built boolean|nil @If true; [defines.events.script_raised_built](defines.events.script_raised_built) will be fired on successful entity creation.
+   ---@field create_build_effect_smoke boolean|nil @If false, the building effect smoke will not be shown around the new entity.
+   ---@field spawn_decorations boolean|nil @If true, entity types that have spawn_decorations property will apply triggers defined in the property.
+   ---@field move_stuck_players boolean|nil @If true, any characters that are in the way of the entity are teleported out of the way.
+   ---@field item LuaItemStack|nil @If provided, the entity will attempt to pull stored values from this item (for example; creating a spidertron from a previously named and mined spidertron)
+
 --- Create an entity on this surface.
----@param p {name: string, position: MapPosition, direction: defines__direction|nil, force: ForceIdentification|nil, target: (LuaEntity | MapPosition)|nil, source: (LuaEntity | MapPosition)|nil, fast_replace: boolean|nil, player: PlayerIdentification|nil, spill: boolean|nil, raise_built: boolean|nil, create_build_effect_smoke: boolean|nil, spawn_decorations: boolean|nil, move_stuck_players: boolean|nil, item: LuaItemStack|nil}
----@param name string @The entity prototype name to create.
----@param position MapPosition @Where to create the entity.
----@param direction defines__direction|nil @Desired orientation of the entity after creation.
----@param force ForceIdentification|nil @Force of the entity, default is enemy.
----@param target (LuaEntity | MapPosition)|nil @Entity with health for the new entity to target.
----@param source (LuaEntity | MapPosition)|nil @Source entity. Used for beams and highlight-boxes.
----@param fast_replace boolean|nil @If true, building will attempt to simulate fast-replace building.
----@param player PlayerIdentification|nil @If given set the last_user to this player. If fast_replace is true simulate fast replace using this player.
----@param spill boolean|nil @If false while fast_replace is true and player is nil any items from fast-replacing will be deleted instead of dropped on the ground.
----@param raise_built boolean|nil @If true; [defines.events.script_raised_built](defines.events.script_raised_built) will be fired on successful entity creation.
----@param create_build_effect_smoke boolean|nil @If false, the building effect smoke will not be shown around the new entity.
----@param spawn_decorations boolean|nil @If true, entity types that have spawn_decorations property will apply triggers defined in the property.
----@param move_stuck_players boolean|nil @If true, any characters that are in the way of the entity are teleported out of the way.
----@param item LuaItemStack|nil @If provided, the entity will attempt to pull stored values from this item (for example; creating a spidertron from a previously named and mined spidertron)
+---@param p LuaSurface_create_entity_params
 ---@return LuaEntity @The created entity or `nil` if the creation failed.
 function LuaSurface.create_entity(p) end
 
+---@shape LuaSurface_create_particle_params
+   ---@field name string @The particle name.
+   ---@field position MapPosition @Where to create the particle.
+   ---@field movement Vector
+   ---@field height float
+   ---@field vertical_speed float
+   ---@field frame_speed float
+
 --- Creates a particle at the given location
----@param p {name: string, position: MapPosition, movement: Vector, height: float, vertical_speed: float, frame_speed: float}
----@param name string @The particle name.
----@param position MapPosition @Where to create the particle.
----@param movement Vector
----@param height float
----@param vertical_speed float
----@param frame_speed float
+---@param p LuaSurface_create_particle_params
 function LuaSurface.create_particle(p) end
 
----@param p {name: string, position: MapPosition}
----@param name string @The smoke prototype name to create.
----@param position MapPosition @Where to create the smoke.
+---@shape LuaSurface_create_trivial_smoke_params
+   ---@field name string @The smoke prototype name to create.
+   ---@field position MapPosition @Where to create the smoke.
+
+---@param p LuaSurface_create_trivial_smoke_params
 function LuaSurface.create_trivial_smoke(p) end
 
+---@shape LuaSurface_create_unit_group_params
+   ---@field position MapPosition @Initial position of the new unit group.
+   ---@field force ForceIdentification|nil @Force of the new unit group. Defaults to `"enemy"`.
+
 --- Create a new unit group at a given position.
----@param p {position: MapPosition, force: ForceIdentification|nil}
----@param position MapPosition @Initial position of the new unit group.
----@param force ForceIdentification|nil @Force of the new unit group. Defaults to `"enemy"`.
+---@param p LuaSurface_create_unit_group_params
 ---@return LuaUnitGroup
 function LuaSurface.create_unit_group(p) end
 
+---@shape LuaSurface_deconstruct_area_params
+   ---@field area BoundingBox @The area to mark for deconstruction.
+   ---@field force ForceIdentification @The force whose bots should perform the deconstruction.
+   ---@field player PlayerIdentification|nil @The player to set the last_user to if any.
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+   ---@field item LuaItemStack|nil @The deconstruction item to use if any.
+
 --- Place a deconstruction request.
----@param p {area: BoundingBox, force: ForceIdentification, player: PlayerIdentification|nil, skip_fog_of_war: boolean|nil, item: LuaItemStack|nil}
----@param area BoundingBox @The area to mark for deconstruction.
----@param force ForceIdentification @The force whose bots should perform the deconstruction.
----@param player PlayerIdentification|nil @The player to set the last_user to if any.
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@param item LuaItemStack|nil @The deconstruction item to use if any.
+---@param p LuaSurface_deconstruct_area_params
 function LuaSurface.deconstruct_area(p) end
 
 ---@param prototype string @The decorative prototype to check
@@ -6540,17 +6691,19 @@ function LuaSurface.decorative_prototype_collides(prototype, position) end
 ---@param position ChunkPosition @The chunk position to delete
 function LuaSurface.delete_chunk(position) end
 
+---@shape LuaSurface_destroy_decoratives_params
+   ---@field area BoundingBox|nil
+   ---@field position TilePosition|nil
+   ---@field name (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil
+   ---@field collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
+   ---@field from_layer string|nil
+   ---@field to_layer string|nil
+   ---@field exclude_soft boolean|nil @Soft decoratives can be drawn over rails.
+   ---@field limit uint|nil
+   ---@field invert boolean|nil @If the filters should be inverted.
+
 --- Removes all decoratives from the given area. If no area and no position are given, then the entire surface is searched.
----@param p {area: BoundingBox|nil, position: TilePosition|nil, name: (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, from_layer: string|nil, to_layer: string|nil, exclude_soft: boolean|nil, limit: uint|nil, invert: boolean|nil}
----@param area BoundingBox|nil
----@param position TilePosition|nil
----@param name (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil
----@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
----@param from_layer string|nil
----@param to_layer string|nil
----@param exclude_soft boolean|nil @Soft decoratives can be drawn over rails.
----@param limit uint|nil
----@param invert boolean|nil @If the filters should be inverted.
+---@param p LuaSurface_destroy_decoratives_params
 function LuaSurface.destroy_decoratives(p) end
 
 --- Sets the given script area to the new values.
@@ -6570,18 +6723,20 @@ function LuaSurface.edit_script_position(id, area) end
 ---@overload fun(prototype: EntityPrototypeIdentification, position: MapPosition, use_map_generation_bounding_box: boolean)
 function LuaSurface.entity_prototype_collides(prototype, position, use_map_generation_bounding_box, direction) end
 
+---@shape LuaSurface_find_decoratives_filtered_params
+   ---@field area BoundingBox|nil
+   ---@field position TilePosition|nil
+   ---@field name (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil
+   ---@field collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
+   ---@field from_layer string|nil
+   ---@field to_layer string|nil
+   ---@field exclude_soft boolean|nil @Soft decoratives can be drawn over rails.
+   ---@field limit uint|nil
+   ---@field invert boolean|nil @If the filters should be inverted.
+
 --- Find decoratives of a given name in a given area.
 --- If no filters are given, returns all decoratives in the search area. If multiple filters are specified, returns only decoratives matching every given filter. If no area and no position are given, the entire surface is searched.
----@param p {area: BoundingBox|nil, position: TilePosition|nil, name: (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, from_layer: string|nil, to_layer: string|nil, exclude_soft: boolean|nil, limit: uint|nil, invert: boolean|nil}
----@param area BoundingBox|nil
----@param position TilePosition|nil
----@param name (string | string[] | LuaDecorativePrototype | LuaDecorativePrototype[])|nil
----@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
----@param from_layer string|nil
----@param to_layer string|nil
----@param exclude_soft boolean|nil @Soft decoratives can be drawn over rails.
----@param limit uint|nil
----@param invert boolean|nil @If the filters should be inverted.
+---@param p LuaSurface_find_decoratives_filtered_params
 ---@return DecorativeResult[]
 function LuaSurface.find_decoratives_filtered(p) end
 
@@ -6600,28 +6755,30 @@ function LuaSurface.find_enemy_units(center, radius, force) end
 ---@return LuaEntity[]
 function LuaSurface.find_entities(area) end
 
+---@shape LuaSurface_find_entities_filtered_params
+   ---@field area BoundingBox|nil
+   ---@field position MapPosition|nil @Has precedence over area field.
+   ---@field radius double|nil
+   ---@field name (string | string[])|nil
+   ---@field type (string | string[])|nil
+   ---@field ghost_name (string | string[])|nil
+   ---@field ghost_type (string | string[])|nil
+   ---@field direction (defines__direction | defines__direction[])|nil
+   ---@field collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
+   ---@field force (ForceIdentification | ForceIdentification[])|nil
+   ---@field to_be_deconstructed boolean|nil
+   ---@field to_be_upgraded boolean|nil
+   ---@field limit uint|nil
+   ---@field is_military_target boolean|nil
+   ---@field invert boolean|nil @Whether the filters should be inverted.
+
 --- Find all entities of the given type or name in the given area.
 --- If no filters (`name`, `type`, `force`, etc.) are given, this returns all entities in the search area. If multiple filters are specified, only entities matching all given filters are returned.
 --- - If no `area` or `position` are given, the entire surface is searched.
 --- - If `position` is given, this returns the entities colliding with that position (i.e the given position is within the entity's collision box).
 --- - If `position` and `radius` are given, this returns the entities within the radius of the position. Looks for the center of entities.
 --- - If `area` is specified, this returns the entities colliding with that area.
----@param p {area: BoundingBox|nil, position: MapPosition|nil, radius: double|nil, name: (string | string[])|nil, type: (string | string[])|nil, ghost_name: (string | string[])|nil, ghost_type: (string | string[])|nil, direction: (defines__direction | defines__direction[])|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, to_be_deconstructed: boolean|nil, to_be_upgraded: boolean|nil, limit: uint|nil, is_military_target: boolean|nil, invert: boolean|nil}
----@param area BoundingBox|nil
----@param position MapPosition|nil @Has precedence over area field.
----@param radius double|nil
----@param name (string | string[])|nil
----@param type (string | string[])|nil
----@param ghost_name (string | string[])|nil
----@param ghost_type (string | string[])|nil
----@param direction (defines__direction | defines__direction[])|nil
----@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
----@param force (ForceIdentification | ForceIdentification[])|nil
----@param to_be_deconstructed boolean|nil
----@param to_be_upgraded boolean|nil
----@param limit uint|nil
----@param is_military_target boolean|nil
----@param invert boolean|nil @Whether the filters should be inverted.
+---@param p LuaSurface_find_entities_filtered_params
 ---@return LuaEntity[]
 function LuaSurface.find_entities_filtered(p) end
 
@@ -6643,19 +6800,23 @@ function LuaSurface.find_logistic_network_by_position(position, force) end
 ---@return LuaLogisticNetwork[]
 function LuaSurface.find_logistic_networks_by_construction_area(position, force) end
 
+---@shape LuaSurface_find_nearest_enemy_params
+   ---@field position MapPosition @Center of the search area.
+   ---@field max_distance double @Radius of the circular search area.
+   ---@field force ForceIdentification|nil @The force the result will be an enemy of. Uses the player force if not specified.
+
 --- Find the enemy military target ([military entity](https://wiki.factorio.com/Military_units_and_structures)) closest to the given position.
----@param p {position: MapPosition, max_distance: double, force: ForceIdentification|nil}
----@param position MapPosition @Center of the search area.
----@param max_distance double @Radius of the circular search area.
----@param force ForceIdentification|nil @The force the result will be an enemy of. Uses the player force if not specified.
+---@param p LuaSurface_find_nearest_enemy_params
 ---@return LuaEntity @The nearest enemy military target or `nil` if no enemy could be found within the given area.
 function LuaSurface.find_nearest_enemy(p) end
 
+---@shape LuaSurface_find_nearest_enemy_entity_with_owner_params
+   ---@field position MapPosition @Center of the search area.
+   ---@field max_distance double @Radius of the circular search area.
+   ---@field force ForceIdentification|nil @The force the result will be an enemy of. Uses the player force if not specified.
+
 --- Find the enemy entity-with-owner closest to the given position.
----@param p {position: MapPosition, max_distance: double, force: ForceIdentification|nil}
----@param position MapPosition @Center of the search area.
----@param max_distance double @Radius of the circular search area.
----@param force ForceIdentification|nil @The force the result will be an enemy of. Uses the player force if not specified.
+---@param p LuaSurface_find_nearest_enemy_entity_with_owner_params
 ---@return LuaEntity @The nearest enemy entity-with-owner or `nil` if no enemy could be found within the given area.
 function LuaSurface.find_nearest_enemy_entity_with_owner(p) end
 
@@ -6678,29 +6839,33 @@ function LuaSurface.find_non_colliding_position(name, center, radius, precision,
 ---@return MapPosition @The non-colliding position. May be `nil` if no suitable position was found.
 function LuaSurface.find_non_colliding_position_in_box(name, search_space, precision, force_to_tile_center) end
 
+---@shape LuaSurface_find_tiles_filtered_params
+   ---@field area BoundingBox|nil
+   ---@field position MapPosition|nil @Ignored if not given with radius.
+   ---@field radius double|nil @If given with position, will return all entities within the radius of the position.
+   ---@field name (string | string[])|nil
+   ---@field force (ForceIdentification | ForceIdentification[])|nil
+   ---@field limit uint|nil
+   ---@field has_hidden_tile boolean|nil
+   ---@field has_tile_ghost boolean|nil @Can be further filtered by supplying a `force` filter.
+   ---@field to_be_deconstructed boolean|nil @Can be further filtered by supplying a `force` filter.
+   ---@field collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
+   ---@field invert boolean|nil @Whether the filters should be inverted.
+
 --- Find all tiles of the given name in the given area.
 --- If no filters are given, this returns all tiles in the search area.
 --- If no `area` or `position` and `radius` is given, the entire surface is searched. If `position` and `radius` are given, only tiles within the radius of the position are included.
----@param p {area: BoundingBox|nil, position: MapPosition|nil, radius: double|nil, name: (string | string[])|nil, force: (ForceIdentification | ForceIdentification[])|nil, limit: uint|nil, has_hidden_tile: boolean|nil, has_tile_ghost: boolean|nil, to_be_deconstructed: boolean|nil, collision_mask: (CollisionMaskLayer | CollisionMaskLayer[])|nil, invert: boolean|nil}
----@param area BoundingBox|nil
----@param position MapPosition|nil @Ignored if not given with radius.
----@param radius double|nil @If given with position, will return all entities within the radius of the position.
----@param name (string | string[])|nil
----@param force (ForceIdentification | ForceIdentification[])|nil
----@param limit uint|nil
----@param has_hidden_tile boolean|nil
----@param has_tile_ghost boolean|nil @Can be further filtered by supplying a `force` filter.
----@param to_be_deconstructed boolean|nil @Can be further filtered by supplying a `force` filter.
----@param collision_mask (CollisionMaskLayer | CollisionMaskLayer[])|nil
----@param invert boolean|nil @Whether the filters should be inverted.
+---@param p LuaSurface_find_tiles_filtered_params
 ---@return LuaTile[]
 function LuaSurface.find_tiles_filtered(p) end
 
+---@shape LuaSurface_find_units_params
+   ---@field area BoundingBox @Box to find units within.
+   ---@field force LuaForce | string @Force performing the search.
+   ---@field condition ForceCondition @Only forces which meet the condition will be included in the search.
+
 --- Find units (entities with type "unit") of a given force and force condition within a given area.
----@param p {area: BoundingBox, force: LuaForce | string, condition: ForceCondition}
----@param area BoundingBox @Box to find units within.
----@param force LuaForce | string @Force performing the search.
----@param condition ForceCondition @Only forces which meet the condition will be included in the search.
+---@param p LuaSurface_find_units_params
 ---@return LuaEntity[]
 function LuaSurface.find_units(p) end
 
@@ -6789,10 +6954,12 @@ function LuaSurface.get_tile(x, y) end
 ---@return double
 function LuaSurface.get_total_pollution() end
 
+---@shape LuaSurface_get_train_stops_params
+   ---@field name (string | string[])|nil
+   ---@field force ForceIdentification|nil
+
 --- Gets train stops matching the given filters.
----@param p {name: (string | string[])|nil, force: ForceIdentification|nil}
----@param name (string | string[])|nil
----@param force ForceIdentification|nil
+---@param p LuaSurface_get_train_stops_params
 ---@return LuaEntity[]
 ---@overload fun(): LuaEntity[]
 function LuaSurface.get_train_stops(p) end
@@ -6811,12 +6978,14 @@ function LuaSurface.help() end
 ---@return boolean
 function LuaSurface.is_chunk_generated(position) end
 
+---@shape LuaSurface_play_sound_params
+   ---@field path SoundPath @The sound to play.
+   ---@field position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
+   ---@field volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
+   ---@field override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
+
 --- Play a sound for every player on this surface.
----@param p {path: SoundPath, position: MapPosition|nil, volume_modifier: double|nil, override_sound_type: SoundType|nil}
----@param path SoundPath @The sound to play.
----@param position MapPosition|nil @Where the sound should be played. If not given, it's played at the current position of each player.
----@param volume_modifier double|nil @The volume of the sound to play. Must be between 0 and 1 inclusive.
----@param override_sound_type SoundType|nil @The volume mixer to play the sound through. Defaults to the default mixer for the given sound type.
+---@param p LuaSurface_play_sound_params
 function LuaSurface.play_sound(p) end
 
 --- Spawn pollution at the given position.
@@ -6854,19 +7023,21 @@ function LuaSurface.remove_script_area(id) end
 ---@return boolean @If the position was actually removed. False when it didn't exist.
 function LuaSurface.remove_script_position(id) end
 
+---@shape LuaSurface_request_path_params
+   ---@field bounding_box BoundingBox @The dimensions of the object that's supposed to travel the path.
+   ---@field collision_mask CollisionMaskWithFlags | string[] @The list of masks the `bounding_box` collides with.
+   ---@field start MapPosition @The position from which to start pathfinding.
+   ---@field goal MapPosition @The position to find a path to.
+   ---@field force ForceIdentification @The force for which to generate the path, determining which gates can be opened for example.
+   ---@field radius double|nil @How close the pathfinder needs to get to its `goal` (in tiles). Defaults to `1`.
+   ---@field pathfind_flags PathfinderFlags|nil @Flags that affect pathfinder behavior.
+   ---@field can_open_gates boolean|nil @Whether the path request can open gates. Defaults to `false`.
+   ---@field path_resolution_modifier int|nil @Defines how coarse the pathfinder's grid is. Smaller values mean a coarser grid (negative numbers allowed). Allowed values are from -8 to 8. Defaults to `0`.
+   ---@field entity_to_ignore LuaEntity|nil @Makes the pathfinder ignore collisions with this entity if it is given.
+
 --- Generates a path with the specified constraints (as an array of [PathfinderWaypoints](PathfinderWaypoint)) using the unit pathfinding algorithm. This path can be used to emulate pathing behavior by script for non-unit entities, such as vehicles. If you want to command actual units (such as biters or spitters) to move, use [LuaEntity::set_command](LuaEntity::set_command) instead.
 --- The resulting path is ultimately returned asynchronously via [on_script_path_request_finished](on_script_path_request_finished).
----@param p {bounding_box: BoundingBox, collision_mask: CollisionMaskWithFlags | string[], start: MapPosition, goal: MapPosition, force: ForceIdentification, radius: double|nil, pathfind_flags: PathfinderFlags|nil, can_open_gates: boolean|nil, path_resolution_modifier: int|nil, entity_to_ignore: LuaEntity|nil}
----@param bounding_box BoundingBox @The dimensions of the object that's supposed to travel the path.
----@param collision_mask CollisionMaskWithFlags | string[] @The list of masks the `bounding_box` collides with.
----@param start MapPosition @The position from which to start pathfinding.
----@param goal MapPosition @The position to find a path to.
----@param force ForceIdentification @The force for which to generate the path, determining which gates can be opened for example.
----@param radius double|nil @How close the pathfinder needs to get to its `goal` (in tiles). Defaults to `1`.
----@param pathfind_flags PathfinderFlags|nil @Flags that affect pathfinder behavior.
----@param can_open_gates boolean|nil @Whether the path request can open gates. Defaults to `false`.
----@param path_resolution_modifier int|nil @Defines how coarse the pathfinder's grid is. Smaller values mean a coarser grid (negative numbers allowed). Allowed values are from -8 to 8. Defaults to `0`.
----@param entity_to_ignore LuaEntity|nil @Makes the pathfinder ignore collisions with this entity if it is given.
+---@param p LuaSurface_request_path_params
 ---@return uint @A unique handle to identify this call when [on_script_path_request_finished](on_script_path_request_finished) fires.
 function LuaSurface.request_path(p) end
 
@@ -6885,12 +7056,14 @@ function LuaSurface.set_chunk_generated_status(position, status) end
 ---@param tile string | LuaTilePrototype @The new hidden tile or `nil` to clear the hidden tile.
 function LuaSurface.set_hidden_tile(position, tile) end
 
+---@shape LuaSurface_set_multi_command_params
+   ---@field command Command
+   ---@field unit_count uint @Number of units to give the command to.
+   ---@field force ForceIdentification|nil @Force of the units this command is to be given to. If not specified, uses the enemy force.
+   ---@field unit_search_distance uint|nil @Radius to search for units. The search area is centered on the destination of the command.
+
 --- Give a command to multiple units. This will automatically select suitable units for the task.
----@param p {command: Command, unit_count: uint, force: ForceIdentification|nil, unit_search_distance: uint|nil}
----@param command Command
----@param unit_count uint @Number of units to give the command to.
----@param force ForceIdentification|nil @Force of the units this command is to be given to. If not specified, uses the enemy force.
----@param unit_search_distance uint|nil @Radius to search for units. The search area is centered on the destination of the command.
+---@param p LuaSurface_set_multi_command_params
 ---@return uint @Number of units actually sent. May be less than `count` if not enough units were available.
 function LuaSurface.set_multi_command(p) end
 
@@ -6919,13 +7092,15 @@ function LuaSurface.set_tiles(tiles, correct_tiles, remove_colliding_entities, r
 ---@return LuaEntity[] @The created item-on-ground entities.
 function LuaSurface.spill_item_stack(position, items, enable_looted, force, allow_belts) end
 
+---@shape LuaSurface_upgrade_area_params
+   ---@field area BoundingBox @The area to mark for upgrade.
+   ---@field force ForceIdentification @The force whose bots should perform the upgrade.
+   ---@field player PlayerIdentification|nil @The player to set the last_user to if any.
+   ---@field skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
+   ---@field item LuaItemStack @The upgrade item to use.
+
 --- Place an upgrade request.
----@param p {area: BoundingBox, force: ForceIdentification, player: PlayerIdentification|nil, skip_fog_of_war: boolean|nil, item: LuaItemStack}
----@param area BoundingBox @The area to mark for upgrade.
----@param force ForceIdentification @The force whose bots should perform the upgrade.
----@param player PlayerIdentification|nil @The player to set the last_user to if any.
----@param skip_fog_of_war boolean|nil @If chunks covered by fog-of-war are skipped.
----@param item LuaItemStack @The upgrade item to use.
+---@param p LuaSurface_upgrade_area_params
 function LuaSurface.upgrade_area(p) end
 
 ---@class LuaTechnology: any @One research item.

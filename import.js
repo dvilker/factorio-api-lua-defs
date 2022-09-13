@@ -430,21 +430,17 @@ function luaLiteral(v) {
 
 
 function addLuaMethod(m, className) {
-    if (m.description) {
-        out.pushLine(`--- ${m.description.replace(/[\r\n]+/g, "\n--- ")}`)
-    }
     m.parameters.sort((a, b) => a.order - b.order)
     if (m.takes_table) {
-        out.push(`---@param p {`)
-        let second = 0
+        out.pushLine(`---@shape ${className ? className + "_" : ""}${m.name}_params`)
         for (let p of m.parameters) {
-            second++ && out.push(", ")
-            out.push(`${name(p.name)}: ${typeDefEx(p.type, null, p.optional && FORCED_OPTIONAL)}`)
+            out.pushLine(`   ---@field ${name(p.name)} ${typeDefEx(p.type, null, p.optional && FORCED_OPTIONAL)}${desc(p.description)}`)
         }
-        out.pushLine(`}`)
-        for (let p of m.parameters) {
-            out.pushLine(`---@param ${name(p.name)} ${typeDefEx(p.type, null, p.optional && FORCED_OPTIONAL)}${desc(p.description)}`)
+        out.pushLine()
+        if (m.description) {
+            out.pushLine(`--- ${m.description.replace(/[\r\n]+/g, "\n--- ")}`)
         }
+        out.pushLine(`---@param p ${className ? className + "_" : ""}${m.name}_params`)
         if (m.return_values?.length) {
             let desc = m.return_values.map(r => r.description).filter(r => !!r).map(r => r.replace(/\s+/g, ' ')).join("; ")
             desc = desc ? ' @' + desc : '';
@@ -455,6 +451,9 @@ function addLuaMethod(m, className) {
         }
         out.pushLine(`function ${className ? className + "." : ""}${m.name}(p) end`)
     } else {
+        if (m.description) {
+            out.pushLine(`--- ${m.description.replace(/[\r\n]+/g, "\n--- ")}`)
+        }
         for (let p of m.parameters) {
             out.pushLine(`---@param ${name(p.name)} ${typeDefEx(p.type, null, p.optional && FORCED_OPTIONAL)}${desc(p.description)}`)
         }
