@@ -2,7 +2,7 @@ const fs = require("fs")
 
 // Path and options
 const api = JSON.parse(fs.readFileSync("/Applications/factorio.app/Contents/doc-html/runtime-api.json").toString())
-const nilsForOptionalFields = false // if false - remove `|nil` from fields. Luanalysis is not support it properly.
+let nilsForOptionalFields = false // if false - remove `|nil` from fields. Luanalysis is not support it properly.
 
 const out = []
 out.pushLine = function (...items) {
@@ -116,6 +116,8 @@ const exTypes = {}
     out.pushLine()
 }
 
+nilsForOptionalFields = false
+
 {
     out.pushLine("--- classes ")
     for(let cls of api.classes) {
@@ -186,7 +188,7 @@ const exTypes = {}
     out.pushLine()
 }
 
-
+nilsForOptionalFields = true
 {
     out.pushLine()
     out.pushLine("--- ex types")
