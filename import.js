@@ -4,7 +4,10 @@ const fs = require("fs")
 const api = JSON.parse(fs.readFileSync("/Applications/factorio.app/Contents/doc-html/runtime-api.json").toString())
 let nilsForOptionalFields = false // if false - remove `|nil` from fields. Luanalysis is not support it properly.
 
-const out = []
+const out = [
+    '-- Generated lua defines of Factorio api\n',
+    '-- https://github.com/dvilker/factorio-api-lua-defs\n\n',
+]
 out.pushLine = function (...items) {
     this.push(...items, '\n')
 }

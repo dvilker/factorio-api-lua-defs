@@ -1,3 +1,6 @@
+-- Generated lua defines of Factorio api
+-- https://github.com/dvilker/factorio-api-lua-defs
+
 --- builtin_types
 ---@alias LuaObject userdata
 ---@alias double number
